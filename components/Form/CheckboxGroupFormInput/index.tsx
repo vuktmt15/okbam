@@ -1,6 +1,5 @@
 import {CheckboxInputForm} from "@components/Form/CheckboxInputForm";
 import {Checkbox} from "antd";
-import {CheckboxValueType} from "antd/es/checkbox/Group";
 import {t} from "i18next";
 import React, {ReactNode} from "react";
 
@@ -10,6 +9,8 @@ interface Option {
   name: string;
   icon: ReactNode;
 }
+
+type CheckboxValueType = string | number | boolean;
 
 interface MyCheckboxGroupProps {
   options: Option[];

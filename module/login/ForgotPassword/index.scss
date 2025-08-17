@@ -1,0 +1,10 @@
+.container {
+  font-size: $font-size-lg;
+  color: $text-color;
+}
+
+.radio-group {
+  .ant-space {
+    gap: 16px !important;
+  }
+}

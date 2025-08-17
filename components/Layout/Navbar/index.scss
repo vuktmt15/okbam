@@ -1,0 +1,11 @@
+.navbar {
+  box-shadow: 2px 2px 5px 0 #f0f1f2;
+  padding: 30px 20px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  height: $navbar-height;
+  position: sticky;
+  z-index: 999;
+}

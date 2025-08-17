@@ -1,0 +1,23 @@
+.button-container {
+  .button {
+    font-size: 16px;
+    font-weight: 400;
+    color: $white-color;
+    border: none;
+    text-shadow: none;
+    background-color: $blue-color;
+    background-image: unset;
+    border-radius: 8px;
+    height: 50px;
+    width: initial;
+    min-width: 100%;
+  }
+
+  .custom-btn-submit {
+    background: linear-gradient(#003fa4, #002868);
+  }
+
+  .custom-btn-danger {
+    background: linear-gradient(180deg, #e00d25 0%, #950a19 100%);
+  }
+}

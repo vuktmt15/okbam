@@ -1,0 +1,9 @@
+.textarea {
+  .ant-input {
+    border-color: $background-input-color;
+    background: $background-input-color;
+    &:hover {
+      border-color: $border-input-hover-color;
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "common": {
+    "ok": "Ok",
+    "cancel": "Cancel",
+    "save": "Save",
+    "back": "Back",
+    "message_error": "Something is wrong. Please try again",
+    "login_facebook": "Login with Facebook",
+    "login_google": "Login with Google",
+    "login_twitter": "Login with Twitter",
+    "sign-in": "Sign In",
+    "sign-up": "SIGN UP",
+    "no_sign_in": "Please sign in to use this feature",
+    "username_max": "Username must be less than 60 characters",
+    "username_min": "Username must be more than 6 characters",
+    "username_empty": "Username can not be empty",
+    "password_empty": "Password can not be empty",
+    "method_empty": "Please select 1 method!",
+    "password_not_match": "Password not match",
+    "password_min_length": "Password must be at least 8 characters",
+    "password_max_length": "Password must be less than 36 characters",
+    "password_invalid": "Password must contain at least 1 uppercase, 1 lowercase and 1 special character"
+  },
+  "fetcher": {
+    "brower_errors": "Browser error. Clear your browser cookies and try again.",
+    "some_thing_wrong": "Something is wrong",
+    "some_thing_wrong_pls": "Something went wrong. Please try again.",
+    "login_expired": "Login session expired",
+    "retry_login": "Please log in again!",
+    "not_login": "You are not logged in",
+    "retry_login_pls": "Please log in to use this feature!",
+    "internet_errors": "Unable to connect to the server. Please check...",
+    "data_empty": "Data is empty"
+  }
+}

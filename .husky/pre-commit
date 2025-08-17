@@ -1,0 +1,31 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Prevent run when merge code
+git rev-parse -q --verify MERGE_HEAD && exit 0
+
+echo '👷 Styling, testing your project before committing'
+
+# Check Prettier standards
+yarn prettier ||
+(
+    echo '🤡 Run yarn prettier:fix to format your code then add changes and try commit again.';
+    false;
+)
+
+# Check ESLint Standards
+yarn lint ||
+(
+    echo '🤡 ESLint Check Failed. Make the changes required above.'
+    false;
+)
+
+# Check tsconfig standards
+yarn check-types ||
+(
+    echo '🤡 Failed Type check. Make the changes required above.'
+    false;
+)
+
+# If everything passes... Now we can commit
+echo '✅ Code looking good... I am committing this now.'

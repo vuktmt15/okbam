@@ -1,0 +1,33 @@
+$size-radio: 24px;
+
+.ant-radio-wrapper .ant-radio-checked .ant-radio-inner {
+  background: white;
+  background: linear-gradient(white, white) padding-box,
+    linear-gradient(180deg, #e00d25 0%, #950a19 100%);
+  border-radius: 50em;
+  border: 1.5px solid transparent;
+
+  &::after {
+    border-radius: inherit;
+    background: linear-gradient(180deg, #e00d25 0%, #950a19 100%);
+    transform: scale(0.7);
+  }
+  width: $size-radio;
+  height: $size-radio;
+}
+
+.ant-radio-wrapper .ant-radio-inner {
+  width: $size-radio;
+  height: $size-radio;
+}
+
+.ant-radio-wrapper {
+  & > span {
+    align-self: flex-start !important;
+  }
+}
+
+.ant-space-item {
+  display: flex;
+  align-items: flex-start;
+}

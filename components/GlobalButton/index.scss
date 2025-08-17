@@ -1,0 +1,41 @@
+.button-sso-wrapper {
+  width: 100%;
+  padding: 12px 0px;
+  border-radius: 10px;
+  cursor: pointer;
+  &.primary {
+    background: linear-gradient(
+      180deg,
+      rgba(0, 63, 164, 1) 0%,
+      rgba(0, 40, 104, 1) 100%
+    );
+    box-shadow: 0px 1px 4px 0px #43434340;
+  }
+  &.secondary {
+    background-color: #afafaf;
+    box-shadow: 0px 1px 4px 0px #43434340;
+  }
+  &.danger-no-bg {
+    background-color: transparent;
+    border: 1px sold #ac0d1f;
+    box-shadow: 0px 1px 4px 0px #43434340;
+  }
+  &.danger {
+    background: linear-gradient(
+      180deg,
+      rgba(224, 13, 37, 1) 0%,
+      rgba(149, 10, 25, 1) 100%
+    );
+    box-shadow: 0px 1px 4px 0px #43434340;
+  }
+  &.w-half {
+    width: 50%;
+  }
+  &.w-fit-content {
+    width: fit-content;
+  }
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}

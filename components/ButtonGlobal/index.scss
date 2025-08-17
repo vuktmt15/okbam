@@ -1,0 +1,12 @@
+.button-global {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $border-color-button;
+  border-radius: 8px;
+  &:hover {
+    color: $orange-color !important;
+    background-color: $border-color-button;
+    border-color: $border-color-button !important;
+  }
+}

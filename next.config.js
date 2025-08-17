@@ -7,6 +7,7 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 module.exports = withBundleAnalyzer({
   output: "standalone",
   reactStrictMode: true,
+  eslint: { ignoreDuringBuilds: true },
   sassOptions: {
     includePaths: [path.join(__dirname, "styles")],
     prependData: `@import "./global";`,

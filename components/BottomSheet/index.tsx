@@ -5,7 +5,13 @@ type Props = DrawerProps & {children?: React.ReactNode};
 
 export default function BottomSheet({children, ...props}: Props): JSX.Element {
   return (
-    <Drawer placement="bottom" closable={false} maskClosable height="auto" {...props}>
+    <Drawer
+      placement="bottom"
+      closable={false}
+      maskClosable
+      height="auto"
+      {...props}
+    >
       {children}
     </Drawer>
   );

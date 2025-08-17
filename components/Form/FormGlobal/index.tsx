@@ -13,7 +13,7 @@ interface IValueForm {
 }
 
 export interface IRenderForm extends UseFormReturn<IValueForm, any, undefined> {
-  handleSubmitForm: () => void;
+  handleSubmitForm: (e?: React.BaseSyntheticEvent) => Promise<void>;
 }
 
 interface IFormProps<T> {
@@ -29,7 +29,7 @@ function FormGlobalInner<T extends IValueForm>(
 ) {
   const {defaultValues, render, onSubmit, resolver} = props;
 
-  const methods = useForm<IValueForm>({
+  const methods = useForm<IValueForm, any, undefined>({
     defaultValues: defaultValues,
     resolver: resolver ? yupResolver(resolver) : undefined,
   });

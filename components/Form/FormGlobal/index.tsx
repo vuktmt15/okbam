@@ -25,7 +25,7 @@ interface IFormProps<T> {
 
 function FormGlobalInner<T extends IValueForm>(
   props: IFormProps<T>,
-  ref: React.ForwardedRef<UseFormReturn<IValueForm>>,
+  ref: React.ForwardedRef<UseFormReturn<IValueForm, any, undefined>>,
 ) {
   const {defaultValues, render, onSubmit, resolver} = props;
 
@@ -48,7 +48,9 @@ function FormGlobalInner<T extends IValueForm>(
 
 const FormGlobal = forwardRef(FormGlobalInner) as <T extends IValueForm>(
   // eslint-disable-next-line no-use-before-define
-  props: IFormProps<T> & {ref?: React.ForwardedRef<UseFormReturn<IValueForm>>},
+  props: IFormProps<T> & {
+    ref?: React.ForwardedRef<UseFormReturn<IValueForm, any, undefined>>;
+  },
 ) => ReturnType<typeof FormGlobalInner>;
 
 export default FormGlobal;

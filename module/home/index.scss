@@ -10,10 +10,12 @@
 .okbam-content {
   flex: 1 1 auto;
   background: #fff;
+  /* chừa chỗ cho tabbar cố định dưới */
+  padding-bottom: calc(68px + env(safe-area-inset-bottom));
 }
 
 .okbam-tabbar {
-  position: sticky;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -23,6 +25,8 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   padding-bottom: env(safe-area-inset-bottom);
+  z-index: 999;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.06);
 }
 
 .okbam-tabbar .tab-item {
@@ -50,6 +54,12 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #fff;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 .okbam-header .actions {
   display: flex;

@@ -5,9 +5,9 @@ import BAMBuySheet from "./BAMBuySheet";
 
 export default function BAMTab(): JSX.Element {
   const tiers = [
-    {name: "BAM1", daily: "2.4 USDT", buy: "50USDT", total: "864 USDT"},
-    {name: "BAM2", daily: "6 USDT", buy: "89USDT", total: "2160 USDT"},
-    {name: "BAM3", daily: "20 USDT", buy: "228USDT", total: "7200 USDT"},
+    {name: "BAM1", daily: "2.4 USDT", buy: "50USDT", total: "864 USDT", img: "/img/mascot/dragon1.jpg"},
+    {name: "BAM2", daily: "6 USDT", buy: "89USDT", total: "2160 USDT", img: "/img/mascot/dragon2.jpg"},
+    {name: "BAM3", daily: "20 USDT", buy: "228USDT", total: "7200 USDT", img: "/img/mascot/dragon3.jpg"},
   ];
   const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string}>(null);
 
@@ -39,7 +39,9 @@ export default function BAMTab(): JSX.Element {
                 </div>
               </div>
               <div className="vip-right">
-                <div className="bear">🤖</div>
+                <div className="bear">
+                  <img src={t.img} alt={t.name} onError={(e) => { (e.target as HTMLImageElement).src = "/img/avatar/avatar.jpg"; }} />
+                </div>
                 <button className="buy" onClick={() => setOpenBuy({plan: t.name, price: t.buy})}><ShoppingOutlined /> Mua</button>
               </div>
             </div>

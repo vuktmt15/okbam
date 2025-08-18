@@ -88,19 +88,40 @@
   color: #8c8c8c;
 }
 .okbam-banner {
-  background: linear-gradient(135deg, #2a2016 0%, #14110c 60%);
+  background: radial-gradient(120% 80% at 20% 20%, #4a2f1c 0%, #2b1d12 45%, #1a1410 100%);
   color: #fff;
-  border-radius: 14px;
-  padding: 18px 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  border-radius: 18px;
+  padding: 20px 150px 24px 20px; /* chừa chỗ cho bear ở bên phải */
+  min-height: 160px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+  position: relative;
+  overflow: hidden;
 }
 .okbam-banner .title {
-  font-weight: 600;
-  font-size: 16px;
+  font-weight: 800;
+  font-size: 22px;
+  line-height: 1.28;
+  letter-spacing: 0.3px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.45);
 }
 .okbam-banner .sub {
-  opacity: 0.82;
-  font-size: 12px;
+  opacity: 0.9;
+  font-size: 14px;
+  margin-top: 6px;
+}
+.okbam-banner .banner-bear { position: absolute; right: -8px; bottom: -18px; width: 180px; height: 180px; }
+.okbam-banner .banner-bear img { width: 100%; height: 100%; object-fit: cover; object-position: 65% 60%; filter: drop-shadow(0 8px 14px rgba(0,0,0,0.5)); }
+.okbam-banner::after {
+  content: "";
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  opacity: 0.7;
+  border-radius: 50%;
 }
 .okbam-actions {
   display: grid;
@@ -189,7 +210,7 @@
 .okbam-ticker .ticker-inner {
   display: inline-block;
   white-space: nowrap;
-  animation: tickerMove 10s linear infinite;
+  animation: tickerMove 20s linear infinite;
   padding-left: 100%;
 }
 .okbam-ticker .emoji {
@@ -206,15 +227,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(90deg, #ededed 0%, #f3f0ff 100%);
   padding: 16px;
   border-radius: 16px;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
 }
-.vip-list { display: grid; gap: 12px; }
+.vip-card.vip-1 { background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%); }
+.vip-card.vip-2 { background: linear-gradient(90deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%); }
+.vip-card.vip-3 { background: linear-gradient(90deg, #fce4ec 0%, #f8bbd9 50%, #f48fb1 100%); }
+.vip-card .notch { position: absolute; top: 0; right: 110px; width: 26%; height: 44px; background: rgba(255,255,255,0.55); border-bottom-left-radius: 20px; }
+.vip-list { display: grid; gap: 30px; }
 
 .available-balance {
   margin-top: 8px;
+  margin-bottom: 15px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -245,6 +270,8 @@
 .vip-left .vip-meta {
   font-size: 12px;
   color: #666;
+  margin-bottom: 2px;
+  white-space: nowrap;
 }
 .vip-right .buy {
   background: #000;
@@ -252,6 +279,70 @@
   border-radius: 12px;
   padding: 10px 18px;
 }
+/* Home VIP cards reuse BAM styles */
+.okbam-home .vip-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 20px;
+  padding: 0px 16px;
+  border-radius: 16px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+}
+.okbam-home .vip-card .vip-notch {
+  position: absolute;
+  top: 0;
+  right: 110px;
+  width: 26%;
+  height: 44px;
+  background: rgba(255,255,255,0.55);
+  border-bottom-left-radius: 20px;
+}
+.okbam-home .vip-card .vip-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  width: 100%;
+}
+.okbam-home .vip-card .bear-img { width: 180px; height: 180px; border-radius: 12px; overflow: hidden; object-fit: cover; display: block; position: relative; top: -30px; right: -5px; }
+.okbam-home .vip-card .price { color: #ff4d4f; font-weight: 700; font-size: 14px; }
+.okbam-home .vip-card .vip-name { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; color: #1a1a1a; text-shadow: none; }
+.okbam-home .vip-card .price-line { 
+  margin-top: 8px; 
+  display: flex; 
+  gap: 8px; 
+  align-items: baseline; 
+  position: relative;
+}
+.okbam-home .vip-card .price-line::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 0;
+  right: 50%;
+  height: 1px;
+  background: #ddd;
+}
+.okbam-home .vip-card .buy {
+  margin-top: 0;
+  background: #111;
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  min-width: 80px;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: center;
+  margin-left: 0;
+  position: relative;
+  top: -25px;
+}
+.okbam-home .vip-card .bear img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.okbam-home .vip-card .price { color: #ff4d4f; font-weight: 700; }
 
 /* BAM */
 .okbam-bam {
@@ -294,7 +385,8 @@
 }
 .okbam-bam .hero-title { font-weight: 800; font-size: 20px; }
 .okbam-bam .hero-sub { font-size: 12px; opacity: 0.9; }
-.okbam-bam .hero-bear { position: absolute; right: 10px; bottom: 4px; font-size: 36px; }
+.okbam-bam .hero-bear { position: absolute; right: 10px; bottom: 4px; width: 72px; height: 72px; }
+.okbam-bam .hero-bear img { width: 100%; height: 100%; object-fit: contain; }
 .okbam-bam .vip-dark {
   margin-top: 0;
   background: #141414;
@@ -311,7 +403,7 @@
 }
 .okbam-bam .vip-list {
   display: grid;
-  gap: 12px;
+  gap: 30px;
   max-width: 100%;
   width: calc(100vw - 32px);
   margin: 0 auto;
@@ -322,40 +414,72 @@
   display: grid;
   grid-template-columns: 1fr auto;
   align-items: center;
-  gap: 12px;
-  padding: 16px;
+  gap: 20px;
+  padding: 0px 16px;
   border-radius: 16px;
   box-shadow: 0 10px 22px rgba(0,0,0,0.35);
-  background: linear-gradient(90deg, #e9e9ef 0%, #d3d5e2 100%);
   width: 100%;
   margin-left: 0;
   margin-right: 0;
 }
-.okbam-bam .vip-card.vip-2 { background: linear-gradient(90deg, #ffdfb5 0%, #ffd090 100%); }
-.okbam-bam .vip-card.vip-3 { background: linear-gradient(90deg, #ffb8c1 0%, #ff9eab 100%); }
+.okbam-bam .vip-card.vip-1 { background: linear-gradient(90deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%); }
+.okbam-bam .vip-card.vip-2 { background: linear-gradient(90deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%); }
+.okbam-bam .vip-card.vip-3 { background: linear-gradient(90deg, #fce4ec 0%, #f8bbd9 50%, #f48fb1 100%); }
+.okbam-bam .vip-card .notch {
+  position: absolute;
+  top: 0;
+  right: 110px;
+  width: 26%;
+  height: 44px;
+  background: rgba(255,255,255,0.55);
+  border-bottom-left-radius: 20px;
+}
+
 .okbam-bam .vip-card .vip-name { color: #1a1a1a; text-shadow: none; }
-.okbam-bam .vip-card .vip-name { font-weight: 800; font-size: 22px; }
-.okbam-bam .vip-card .price-line { margin-top: 10px; display: flex; gap: 8px; align-items: baseline; }
-.okbam-bam .vip-card .price { color: #ff4d4f; }
-.okbam-bam .vip-card .bear { width: 72px; height: 72px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.okbam-bam .vip-card .vip-name { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
+.okbam-bam .vip-card .price-line { 
+  margin-top: 8px; 
+  display: flex; 
+  gap: 8px; 
+  align-items: baseline; 
+  position: relative;
+}
+.okbam-bam .vip-card .price-line::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 0;
+  right: 50%;
+  height: 1px;
+  background: #ddd;
+}
+.okbam-bam .vip-card .price { color: #ff4d4f; font-weight: 700; font-size: 14px; }
+.okbam-bam .vip-card .vip-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  width: 100%;
+}
+.okbam-bam .vip-card .bear { width: 180px; height: 180px; border-radius: 12px; overflow: hidden; position: relative; top: -30px; right: -5px; }
 .okbam-bam .vip-card .bear img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .okbam-bam .vip-card .buy {
-  margin-top: 8px;
+  margin-top: 0;
   background: #111;
   color: #fff;
-  border-radius: 10px;
-  padding: 8px 16px;
+  border-radius: 8px;
+  padding: 6px 12px;
+  min-width: 80px;
+  font-weight: 600;
+  font-size: 12px;
+  text-align: center;
+  margin-left: 0;
+  position: relative;
+  top: -25px;
 }
-/* BAM list gradient theo thứ tự giống ảnh */
-.okbam-bam .vip-list .vip-card:nth-of-type(1) {
-  background: linear-gradient(90deg, #ececec 0%, #edf0ff 100%);
-}
-.okbam-bam .vip-list .vip-card:nth-of-type(2) {
-  background: linear-gradient(90deg, #ffe9c7 0%, #ffe1b3 100%);
-}
-.okbam-bam .vip-list .vip-card:nth-of-type(3) {
-  background: linear-gradient(90deg, #ffd6db 0%, #ffc2cc 100%);
-}
+
 
 /* Buy sheet styles */
 .bambuy-sheet { padding: 10px 12px 16px; }
@@ -431,14 +555,16 @@
 .okbam-invite .invite-hero .reward-badge .amount { font-weight: 700; }
 .okbam-invite .invite-hero .title-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  margin-bottom: 8px;
 }
 .okbam-invite .invite-hero .btn-claim {
   background: #a56a46;
   color: #fff;
   border-radius: 10px;
   padding: 6px 10px;
+  margin-top: 2px;
 }
 .okbam-invite .invite-hero .reward { font-weight: 800; font-size: 20px; margin: 6px 0; }
 .okbam-invite .invite-hero .rows .row {

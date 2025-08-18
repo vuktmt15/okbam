@@ -9,15 +9,17 @@ export default function InviteTab(): JSX.Element {
       <div className="invite-hero">
         <div className="title-row">
           <div className="title">Nhóm của tôi</div>
-          <button className="btn-claim">nhận được</button>
         </div>
         <div className="subtitle">
           <span className="group-icon">👥</span>
           Phần thưởng hoa hồng cho nhóm
         </div>
-        <div className="reward-badge">
-          <span className="coin">T</span>
-          <span className="amount">0 USDT</span>
+        <div className="reward-row">
+          <div className="reward-badge">
+            <span className="coin">T</span>
+            <span className="amount">0 USDT</span>
+          </div>
+          <button className="btn-claim">nhận được</button>
         </div>
         <div className="rows">
           <div className="row">

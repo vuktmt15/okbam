@@ -5,8 +5,12 @@ import {
   PlusOutlined,
   RightOutlined,
   SmileOutlined,
-  ThunderboltOutlined,
   UserOutlined,
+  WalletOutlined,
+  CalendarOutlined,
+  GiftOutlined,
+  TeamOutlined,
+  ShoppingOutlined,
 } from "@ant-design/icons";
 import {Avatar} from "antd";
 import {ModalCustom} from "@components/ModalCustom";
@@ -18,9 +22,9 @@ type Props = {
 
 export default function HomeTab({onGoToBam}: Props): JSX.Element {
   const tiers = [
-    {name: "BAM1", daily: "2.4 USDT", buy: "50USDT", total: "864 USDT"},
-    {name: "BAM2", daily: "6 USDT", buy: "89USDT", total: "2160 USDT"},
-    {name: "BAM3", daily: "20 USDT", buy: "228USDT", total: "7200 USDT"},
+    {name: "BAM1", daily: "2.4 USDT", buy: "50USDT", total: "864 USDT", img: "/img/pet1.png"},
+    {name: "BAM2", daily: "6 USDT", buy: "89USDT", total: "2160 USDT", img: "/img/pet1.png"},
+    {name: "BAM3", daily: "20 USDT", buy: "228USDT", total: "7200 USDT", img: "/img/pet1.png"},
   ];
   const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string}>(null);
   return (
@@ -47,8 +51,15 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
       </div>
 
       <div className="okbam-banner">
-        <div className="title">BAM–Mời bạn bè BAM3</div>
+        <div className="title">
+          BAM–Mời bạn bè
+          <br />
+          BAM3
+        </div>
         <div className="sub">Nhận 300USDT từ thu nhập hàng tháng của bạn bè (50%)</div>
+        <div className="banner-bear">
+          <img src="/img/pet1.png" alt="bear" />
+        </div>
       </div>
 
       <div className="okbam-ticker">
@@ -62,26 +73,25 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
 
       <div className="okbam-actions">
         <button className="action">
-          <ThunderboltOutlined />
+          <WalletOutlined />
           <span>nạp tiền</span>
         </button>
         <button className="action">
-          <ThunderboltOutlined />
-          <span>Đăng nhập</span>
-        </button>
-        <button className="action">
-          <ThunderboltOutlined />
+          <GiftOutlined />
           <span>xổ số</span>
         </button>
+        <button className="action">
+          <CalendarOutlined />
+          <span>Đăng nhập</span>
+        </button>
         <button className="action" onClick={onGoToBam}>
-          <ThunderboltOutlined />
+          <TeamOutlined />
           <span>Lời mời</span>
         </button>
       </div>
 
       <div className="okbam-cta">
         <div className="left">
-          <div className="plane">✈️</div>
           <div className="text">
             Hoàn tất bài đăng, tham gia nhóm cộng đồng và bạn có thể nhận được
             1USDT
@@ -110,17 +120,23 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
           </span>
         </div>
         <div className="vip-list">
-          {tiers.map((t) => (
-            <div key={t.name} className="vip-card">
+          {tiers.map((t, idx) => (
+            <div key={t.name} className={`vip-card vip-${idx + 1}`}>
               <div className="vip-left">
                 <div className="vip-name">{t.name}</div>
-                <div className="vip-meta">thu nhập hàng ngày {t.daily}</div>
-                <div className="vip-meta">Thời gian cam kết 360 bầu trời</div>
-                <div className="vip-meta">tổng doanh thu {t.total}</div>
-                <div className="vip-meta">số tiền mua {t.buy}</div>
+                <div className="vip-meta">thu nhập hàng ngày: {t.daily}</div>
+                <div className="vip-meta">Thời gian cam kết: 360 bầu trời</div>
+                <div className="vip-meta">tổng doanh thu: {t.total}</div>
+                <div className="price-line">
+                  <span>số tiền mua</span>
+                  <b className="price">{t.buy}</b>
+                </div>
               </div>
               <div className="vip-right">
-                <button className="buy" onClick={() => setOpenBuy({plan: t.name, price: t.buy})}>Mua</button>
+                <img src="/img/pet1.png" alt="bear" className="bear-img" />
+                <button className="buy" onClick={() => setOpenBuy({plan: t.name, price: t.buy})}>
+                  Mua
+                </button>
               </div>
             </div>
           ))}

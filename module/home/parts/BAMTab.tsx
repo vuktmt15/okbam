@@ -5,9 +5,9 @@ import BAMBuySheet from "./BAMBuySheet";
 
 export default function BAMTab(): JSX.Element {
   const tiers = [
-    {name: "BAM1", daily: "2.4 USDT", buy: "50USDT", total: "864 USDT", img: "/img/mascot/dragon1.jpg"},
-    {name: "BAM2", daily: "6 USDT", buy: "89USDT", total: "2160 USDT", img: "/img/mascot/dragon2.jpg"},
-    {name: "BAM3", daily: "20 USDT", buy: "228USDT", total: "7200 USDT", img: "/img/mascot/dragon3.jpg"},
+    {name: "BAM1", daily: "2.4 USDT", buy: "50USDT", total: "864 USDT", img: "/img/pet1.png"},
+    {name: "BAM2", daily: "6 USDT", buy: "89USDT", total: "2160 USDT", img: "/img/pet1.png"},
+    {name: "BAM3", daily: "20 USDT", buy: "228USDT", total: "7200 USDT", img: "/img/pet1.png"},
   ];
   const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string}>(null);
 
@@ -19,7 +19,9 @@ export default function BAMTab(): JSX.Element {
           <div className="hero-title">Chưa kích hoạt</div>
           <div className="hero-sub">Nâng cấp BAM1 để mở khóa lợi ích của nhóm</div>
           <div className="hero-sub">Nâng cấp lên VIP và nhận 50% thu nhập đội nhóm</div>
-          <div className="hero-bear">🐻</div>
+          <div className="hero-bear">
+            <img src="/img/pet1.png" alt="bear" />
+          </div>
         </div>
       </div>
 
@@ -30,9 +32,9 @@ export default function BAMTab(): JSX.Element {
             <div key={t.name} className={`vip-card vip-${idx + 1}`}>
               <div className="vip-left">
                 <div className="vip-name">{t.name}</div>
-                <div className="vip-meta">thu nhập hàng ngày {t.daily}</div>
-                <div className="vip-meta">Thời gian cam kết 360 bầu trời</div>
-                <div className="vip-meta">tổng doanh thu {t.total}</div>
+                <div className="vip-meta">thu nhập hàng ngày: {t.daily}</div>
+                <div className="vip-meta">Thời gian cam kết: 360 bầu trời</div>
+                <div className="vip-meta">tổng doanh thu: {t.total}</div>
                 <div className="price-line">
                   <span>số tiền mua</span>
                   <b className="price">{t.buy}</b>
@@ -42,7 +44,7 @@ export default function BAMTab(): JSX.Element {
                 <div className="bear">
                   <img src={t.img} alt={t.name} onError={(e) => { (e.target as HTMLImageElement).src = "/img/avatar/avatar.jpg"; }} />
                 </div>
-                <button className="buy" onClick={() => setOpenBuy({plan: t.name, price: t.buy})}><ShoppingOutlined /> Mua</button>
+                <button className="buy" onClick={() => setOpenBuy({plan: t.name, price: t.buy})}>Mua</button>
               </div>
             </div>
           ))}

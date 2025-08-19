@@ -1,7 +1,3 @@
-import CnFlag from "public/icon/CN_Flag.svg";
-import EnFlag from "public/icon/EN_Flag.svg";
-import LoFlag from "public/icon/LO_Flag.svg";
-import ViFlag from "public/icon/VN_Flag.svg";
 
 export const languageList = {
   Afrikaans: "af",
@@ -133,17 +129,25 @@ export const languageList = {
 
 export const contentLanguageOptions = [
   {label: "English", value: "en"},
-  {label: "Việt Nam", value: "vi"},
+  {label: "Vietnamese", value: "vi"},
   {label: "Thai", value: "th"},
 ];
 
 export const uiLanguageOptions = [
-  {value: "en", label: "English", flag: EnFlag},
-  {value: "vi", label: "Tiếng Việt", flag: ViFlag},
-  {value: "lo", label: "ພາສາລາວ", flag: LoFlag},
-  {value: "cn", label: "中国话", flag: CnFlag},
+  {value: "en", label: "English", flag: "🇺🇸"},
+  {value: "vi", label: "Vietnamese", flag: "🇻🇳"},
+  {value: "cn", label: "中文", flag: "🇨🇳"},
+  {value: "ja", label: "日本語", flag: "🇯🇵"},
+  {value: "ko", label: "한국어", flag: "🇰🇷"},
+  {value: "th", label: "ไทย", flag: "🇹🇭"},
+  {value: "id", label: "Bahasa Indonesia", flag: "🇮🇩"},
+  {value: "ms", label: "Bahasa Melayu", flag: "🇲🇾"},
+  {value: "fr", label: "Français", flag: "🇫🇷"},
+  {value: "de", label: "Deutsch", flag: "🇩🇪"},
+  {value: "es", label: "Español", flag: "🇪🇸"},
+  {value: "ru", label: "Русский", flag: "🇷🇺"},
 ];
 
-export const uiLocationOptions = [{label: "Việt Nam", value: "vi"}];
+export const uiLocationOptions = [{label: "Vietnamese", value: "vi"}];
 
 export const uiLocationOptionsEn = [{label: "Vietnamese", value: "vi"}];

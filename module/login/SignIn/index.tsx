@@ -37,15 +37,15 @@ export function SignIn({changeTab}: ISignInProps) {
 
         return (
           <div className="container-sign-in">
-            <h1>Login form</h1>
+            <h1>Login Form</h1>
             <TextInputForm
               className="mb-2"
-              placeholder="Nhappppppp"
+              placeholder="Enter username"
               name="username"
               onPressEnter={handleSubmitForm}
             />
             <TextInputForm
-              placeholder="Nhappppppp"
+              placeholder="Enter username"
               name="username"
               onPressEnter={handleSubmitForm}
             />

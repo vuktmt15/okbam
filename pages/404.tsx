@@ -10,7 +10,7 @@ export default function Custom404(): JSX.Element {
     <Result
       status="404"
       title="404"
-      subTitle="Xin lỗi, trang này không tồn tại"
+      subTitle="Sorry, this page does not exist"
       extra={
         <Button
           type="default"
@@ -18,7 +18,7 @@ export default function Custom404(): JSX.Element {
             router.push(Config.PATHNAME.HOME);
           }}
         >
-          Quay về trang chủ
+          Back to Home
         </Button>
       }
     />

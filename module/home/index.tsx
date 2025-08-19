@@ -13,6 +13,7 @@ import MyTab from "./parts/MyTab";
 import WithdrawScreen from "./parts/WithdrawScreen";
 import {MyTabContext} from "./parts/context";
 
+
 type TabKey = "home" | "bam" | "invite" | "my" | "withdraw";
 
 export function Home(): JSX.Element {

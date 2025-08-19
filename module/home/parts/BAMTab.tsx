@@ -16,9 +16,9 @@ export default function BAMTab(): JSX.Element {
       <div className="vip-hero-wrap">
         <div className="vip-hero">
           <div className="vipwin-label">VIP WIN</div>
-          <div className="hero-title">Chưa kích hoạt</div>
-          <div className="hero-sub">Nâng cấp BAM1 để mở khóa lợi ích của nhóm</div>
-          <div className="hero-sub">Nâng cấp lên VIP và nhận 50% thu nhập đội nhóm</div>
+          <div className="hero-title">Not Activated</div>
+          <div className="hero-sub">Upgrade to BAM1 to unlock group benefits</div>
+          <div className="hero-sub">Upgrade to VIP and receive 50% team income</div>
           <div className="hero-bear">
             <img src="/img/pet1.png" alt="bear" />
           </div>
@@ -26,17 +26,17 @@ export default function BAMTab(): JSX.Element {
       </div>
 
       <div className="vip-dark">
-        <div className="vip-strip">tất cả VIP</div>
+        <div className="vip-strip">All VIP</div>
         <div className="vip-list">
           {tiers.map((t, idx) => (
             <div key={t.name} className={`vip-card vip-${idx + 1}`}>
               <div className="vip-left">
                 <div className="vip-name">{t.name}</div>
-                <div className="vip-meta">thu nhập hàng ngày: {t.daily}</div>
-                <div className="vip-meta">Thời gian cam kết: 360 bầu trời</div>
-                <div className="vip-meta">tổng doanh thu: {t.total}</div>
+                <div className="vip-meta">Daily Income: {t.daily}</div>
+                <div className="vip-meta">Commitment Period: 360 days</div>
+                <div className="vip-meta">Total Revenue: {t.total}</div>
                 <div className="price-line">
-                  <span>số tiền mua</span>
+                  <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
                   <b className="price">{t.buy}</b>
                 </div>
               </div>
@@ -44,7 +44,7 @@ export default function BAMTab(): JSX.Element {
                 <div className="bear">
                   <img src={t.img} alt={t.name} onError={(e) => { (e.target as HTMLImageElement).src = "/img/avatar/avatar.jpg"; }} />
                 </div>
-                <button className="buy" onClick={() => setOpenBuy({plan: t.name, price: t.buy})}>Mua</button>
+                <button className="buy" onClick={() => setOpenBuy({plan: t.name, price: t.buy})}>Buy</button>
               </div>
             </div>
           ))}

@@ -36,7 +36,7 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
           <Avatar size={36} icon={<UserOutlined />} />
           <div className="info">
             <div className="name">BAM</div>
-            <div className="sub">Quản lý tài sản Bear</div>
+            <div className="sub">Bear Asset Management</div>
           </div>
         </div>
         <div className="actions">
@@ -54,11 +54,11 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
 
       <div className="okbam-banner">
         <div className="title">
-          BAM–Mời bạn bè
+          BAM–Invite Friends
           <br />
           BAM3
         </div>
-        <div className="sub">Nhận 300USDT từ thu nhập hàng tháng của bạn bè (50%)</div>
+        <div className="sub">Earn 300USDT from your friends' monthly income (50%)</div>
         <div className="banner-bear">
           <img src="/img/pet1.png" alt="bear" />
         </div>
@@ -67,46 +67,46 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
       <div className="okbam-ticker">
         <div className="ticker-inner">
           <span className="emoji">🔔</span>
-          tháng 7 năm 2025, mang đến cho bạn nhiều lợi ích và cơ hội!
+          July 2025 brings you many benefits and opportunities!
           <span className="spacer"> · </span>
-          tháng 7 năm 2025, mang đến cho bạn nhiều lợi ích và cơ hội!
+          July 2025 brings you many benefits and opportunities!
         </div>
       </div>
 
       <div className="okbam-actions">
         <button className="action">
           <WalletOutlined />
-          <span>nạp tiền</span>
+          <span>Deposit</span>
         </button>
         <button className="action" onClick={goWithdraw}>
           <DollarCircleOutlined />
-          <span>rút tiền</span>
+          <span>Withdraw</span>
         </button>
         <button className="action">
           <CalendarOutlined />
-          <span>Đăng nhập</span>
+          <span>Login</span>
         </button>
         <button className="action" onClick={onGoToBam}>
           <TeamOutlined />
-          <span>Lời mời</span>
+          <span>Invite</span>
         </button>
       </div>
 
       <div className="okbam-cta">
-        <div className="left">
-          <div className="text">
-            <div className="headline">
-              Chương trình đặc biệt dành cho
-              <br className="br-md" />
-              tài khoản và thành viên mới.
-            </div>
-            <div className="row"><span className="label">Sản phẩm hàng đầu:</span> <b>Dragon</b></div>
-            <div className="row"><span className="label">Min:</span> 35$ <span>·</span> <span className="label">3.25$/ngày</span></div>
-            <div className="row"><span className="label">Chu kỳ:</span> 20 ngày</div>
+        <div className="cta-title">Special program for<br />new accounts and members</div>
+        <div className="cta-content">
+          <div className="cta-row">
+            <span className="cta-label">Premium Product:</span>
+            <span className="cta-value">Dragon</span>
           </div>
-        </div>
-        <div className="right">
-          <img src="/img/pet1.png" alt="bear" />
+          <div className="cta-row">
+            <span className="cta-label">Cycle: 20 days</span>
+            <span className="cta-value">3.25$/day</span>
+          </div>
+          <div className="cta-row">
+            <span className="cta-label">Min: 35$</span>
+            <button className="cta-button">Join Now</button>
+          </div>
         </div>
       </div>
 
@@ -117,35 +117,27 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
             <span>BAM VIP</span>
           </div>
           <button className="see-all" onClick={onGoToBam}>
-            tất cả <RightOutlined />
+            View All <RightOutlined />
           </button>
         </div>
-        <div className="available-balance">
-          <span className="label">số dư khả dụng</span>
-          <span className="value">
-            <b>31.6USDT</b>
-            <span className="plus-circle">
-              <PlusOutlined />
-            </span>
-          </span>
-        </div>
+        {/** removed available balance block per request */}
         <div className="vip-list">
           {tiers.map((t, idx) => (
             <div key={t.name} className={`vip-card vip-${idx + 1}`}>
               <div className="vip-left">
                 <div className="vip-name">{t.name}</div>
-                <div className="vip-meta">thu nhập hàng ngày: {t.daily}</div>
-                <div className="vip-meta">Thời gian cam kết: 360 bầu trời</div>
-                <div className="vip-meta">tổng doanh thu: {t.total}</div>
+                <div className="vip-meta">Daily Income: {t.daily}</div>
+                <div className="vip-meta">Commitment Period: 360 days</div>
+                <div className="vip-meta">Total Revenue: {t.total}</div>
                 <div className="price-line">
-                  <span>số tiền mua</span>
+                  <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
                   <b className="price">{t.buy}</b>
                 </div>
               </div>
               <div className="vip-right">
                 <img src="/img/pet1.png" alt="bear" className="bear-img" />
                 <button className="buy" onClick={() => setOpenBuy({plan: t.name, price: t.buy})}>
-                  Mua
+                  Buy
                 </button>
               </div>
             </div>

@@ -34,7 +34,7 @@ export default function Navbar(): JSX.Element {
       <div className="flex items-center">
         <Input
           size="large"
-          placeholder="Tìm kiếm"
+          placeholder="Search"
           prefix={<SearchOutlined />}
         />
       </div>

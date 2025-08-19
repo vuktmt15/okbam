@@ -1,7 +1,7 @@
 const ListErrorMessage = [
   {
     error_code: "unique.ValidatorInvalid",
-    description: "Lỗi validate",
+    description: "Validation Error",
   },
 ];
 

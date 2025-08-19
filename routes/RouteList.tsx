@@ -27,18 +27,18 @@ const routes: IRoute[] = [
   },
   {
     path: "/study-page",
-    name: "Bài học",
+    name: "Lessons",
     icon: <IconBook />,
     isSidebar: true,
     children: [
       {
         path: "/study",
-        name: "Quản lý bài học",
+        name: "Manage Lessons",
         isSidebar: true,
       },
       {
         path: "/study-add",
-        name: "Thêm bài học",
+        name: "Add Lesson",
         isSidebar: true,
       },
     ],

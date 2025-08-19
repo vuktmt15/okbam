@@ -27,22 +27,29 @@ export function SwitchLanguage() {
   };
 
   const RenderButtonLang = useCallback(
-    () => (
-      <ButtonGlobal onClick={handleOpenModal} className="px-[11px] h-[30px]">
-        <div className="flex gap-[5px] justify-center">
-          <Image
-            src={languageSelect(language)?.flag}
-            alt="flag"
-            width={20}
-            height={20}
-          />
-          <span className="font-semibold text-[12px]">
-            {languageSelect(language)?.label}
-          </span>
-          <Image src={Arrow} alt="arrow" width={8} height={6} />
-        </div>
-      </ButtonGlobal>
-    ),
+    () => {
+      const selectedLanguage = languageSelect(language);
+      const defaultLanguage = uiLanguageOptions[0]; // Fallback to first language
+      const flagSrc = selectedLanguage?.flag || defaultLanguage?.flag || '';
+      const label = selectedLanguage?.label || defaultLanguage?.label || 'EN';
+      
+      return (
+        <ButtonGlobal onClick={handleOpenModal} className="px-[11px] h-[30px]">
+          <div className="flex gap-[5px] justify-center">
+            <Image
+              src={flagSrc}
+              alt="flag"
+              width={20}
+              height={20}
+            />
+            <span className="font-semibold text-[12px]">
+              {label}
+            </span>
+            <Image src={Arrow} alt="arrow" width={8} height={6} />
+          </div>
+        </ButtonGlobal>
+      );
+    },
     [language],
   );
 

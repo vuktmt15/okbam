@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {
   AuditOutlined,
   BellOutlined,
@@ -8,19 +8,21 @@ import {
   UserOutlined,
   WalletOutlined,
   CalendarOutlined,
-  GiftOutlined,
+  DollarCircleOutlined,
   TeamOutlined,
   ShoppingOutlined,
 } from "@ant-design/icons";
 import {Avatar} from "antd";
 import {ModalCustom} from "@components/ModalCustom";
 import BAMBuySheet from "./BAMBuySheet";
+import {MyTabContext} from "./context";
 
 type Props = {
   onGoToBam: () => void;
 };
 
 export default function HomeTab({onGoToBam}: Props): JSX.Element {
+  const {goWithdraw} = useContext(MyTabContext);
   const tiers = [
     {name: "BAM1", daily: "2.4 USDT", buy: "50USDT", total: "864 USDT", img: "/img/pet1.png"},
     {name: "BAM2", daily: "6 USDT", buy: "89USDT", total: "2160 USDT", img: "/img/pet1.png"},
@@ -76,9 +78,9 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
           <WalletOutlined />
           <span>nạp tiền</span>
         </button>
-        <button className="action">
-          <GiftOutlined />
-          <span>xổ số</span>
+        <button className="action" onClick={goWithdraw}>
+          <DollarCircleOutlined />
+          <span>rút tiền</span>
         </button>
         <button className="action">
           <CalendarOutlined />
@@ -93,11 +95,19 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
       <div className="okbam-cta">
         <div className="left">
           <div className="text">
-            Hoàn tất bài đăng, tham gia nhóm cộng đồng và bạn có thể nhận được
-            1USDT
+            <div className="headline">
+              Chương trình đặc biệt dành cho
+              <br className="br-md" />
+              tài khoản và thành viên mới.
+            </div>
+            <div className="row"><span className="label">Sản phẩm hàng đầu:</span> <b>Dragon</b></div>
+            <div className="row"><span className="label">Min:</span> 35$ <span>·</span> <span className="label">3.25$/ngày</span></div>
+            <div className="row"><span className="label">Chu kỳ:</span> 20 ngày</div>
           </div>
         </div>
-        <button className="cta-btn">Tham gia</button>
+        <div className="right">
+          <img src="/img/pet1.png" alt="bear" />
+        </div>
       </div>
 
       <div className="okbam-section">

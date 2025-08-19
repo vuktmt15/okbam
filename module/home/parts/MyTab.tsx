@@ -29,14 +29,13 @@ export default function MyTab(): JSX.Element {
         <div className="quick">
           <button>nạp tiền</button>
           <button onClick={goWithdraw}>Rút tiền mặt</button>
-          <button>Hồ sơ tài sản</button>
-          <button>Hỗ trợ</button>
+          <button>SWAP</button>
+          <button>Lịch sử</button>
         </div>
       </div>
       <div className="list">
-        <button className="item">Học viện tăng trưởng</button>
-        <button className="item">Thông báo tin nhắn</button>
-        <button className="item">Trung tâm dịch vụ khách hàng</button>
+        <button className="item">Support trực tuyến</button>
+        <button className="item">Cộng đồng DRAGON</button>
       </div>
       <div className="cta">
         <button className="primary">Chuyển đổi/tạo tài khoản mới</button>

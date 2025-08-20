@@ -105,38 +105,38 @@ export default function InviteTab(): JSX.Element {
         ) : (
           <div className="stats">
             <div className="stat-section">
-              <div className="section-title">Team Size</div>
+              <div className="section-title">Number Of Registrations</div>
               <div className="stat-row">
                 <span>Total registrations</span>
                 <b>0</b>
               </div>
               <div className="stat-row">
-                <span>Lv1 registrations</span>
+                <span>F1</span>
                 <b>0</b>
               </div>
             </div>
             
             <div className="stat-section">
-              <div className="section-title">Number of HR Teams</div>
+              <div className="section-title">Team Size</div>
               <div className="stat-row">
-                <span>Total quantity</span>
+                <span>Total system</span>
                 <b>0</b>
               </div>
               <div className="stat-row">
-                <span>Lv1 quantity</span>
+                <span>F1 quantity</span>
                 <b>0</b>
               </div>
             </div>
             
             <div className="stat-section">
-              <div className="section-title">HR Group Commission</div>
+              <div className="section-title">Total Commission</div>
               <div className="stat-row">
-                <span>Total commission</span>
-                <b>$0.00</b>
+                <span>Total commission system</span>
+                <b>0 Dragon</b>
               </div>
               <div className="stat-row">
-                <span>Lv1 commission</span>
-                <b>$0.00</b>
+                <span>F1 commission</span>
+                <b>0 Dragon</b>
               </div>
             </div>
           </div>

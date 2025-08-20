@@ -53,7 +53,7 @@ export default function MyTab(): JSX.Element {
       </div>
       <div className="cta">
         <button className="primary">Switch/Create New Account</button>
-        <button className="ghost">Safe Exit</button>
+                    <button className="ghost">Logout</button>
       </div>
       {/* <BottomSheet open={openLang} onClose={() => setOpenLang(false)}>
         <LanguageSelector onClose={() => setOpenLang(false)} />

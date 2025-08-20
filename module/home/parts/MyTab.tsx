@@ -17,7 +17,7 @@ export default function MyTab(): JSX.Element {
             <div className="avatar">🧸</div>
             <div className="info">
               <div className="email">Hoa****@gmail.com</div>
-              <div className="id">ID: 8621559</div>
+              <div className="id">ID: 123456</div>
             </div>
           </div>
           <div className="icons">
@@ -30,7 +30,10 @@ export default function MyTab(): JSX.Element {
         <div className="wallet">
           <div className="wallet-title">
             <span className="wallet-label">Wallet Balance:</span>
-            <span className="wallet-amount"><b>6</b>USDT</span>
+            <span className="wallet-amounts">
+              <span className="wallet-coin"><b>6</b> USDT</span>
+              <span className="wallet-coin"><b>0</b> Dragon</span>
+            </span>
           </div>
         </div>
         <div className="quick">

@@ -1,9 +1,19 @@
 import React, {useState} from "react";
 import {CopyOutlined, LinkOutlined, SearchOutlined} from "@ant-design/icons";
-import InviteTree from "./InviteTree";
+// import InviteTree from "./InviteTree";
+import {ModalCustom} from "@components/ModalCustom";
 
 export default function InviteTab(): JSX.Element {
-  const [active, setActive] = useState<1 | 2 | 3>(1);
+  const [active, setActive] = useState<1 | 2 | 3 | 4 | 5>(1);
+  const [memberTab, setMemberTab] = useState<"members" | "stats">("members");
+  const [openAgency, setOpenAgency] = useState(false);
+  const commission = [
+    {level: "F1", rate: "25%"},
+    {level: "F2", rate: "5%"},
+    {level: "F3", rate: "5%"},
+    {level: "F4", rate: "5%"},
+    {level: "F5", rate: "5%"},
+  ];
   return (
     <div className="okbam-invite">
       <div className="invite-hero">
@@ -24,7 +34,7 @@ export default function InviteTab(): JSX.Element {
         <div className="rows">
           <div className="row">
             <span className="label">Referral Code</span>
-            <span className="value">8621559</span>
+            <span className="value">123456</span>
             <button className="icon"><CopyOutlined /></button>
           </div>
           <div className="row">
@@ -35,27 +45,101 @@ export default function InviteTab(): JSX.Element {
         </div>
       </div>
 
-      <InviteTree />
+      {/* <InviteTree /> */}
+
+      <div className="commission-card">
+        <div className="commission-title-row">
+          <div className="commission-title">Agency Commission</div>
+          <button className="commission-detail" onClick={() => setOpenAgency(true)}>Detail &gt;</button>
+        </div>
+        <div className="commission-grid header">
+          <div>Level</div>
+          <div>Commission</div>
+        </div>
+        {commission.map((row) => (
+          <div key={row.level} className="commission-grid">
+            <div>{row.level}</div>
+            <div>{row.rate}</div>
+          </div>
+        ))}
+      </div>
 
       <div className="member-box">
-        <div className="member-header">
-          <div className="title">Team Members</div>
-          <button className="subtab">Team Statistics</button>
+        <div className="member-switch">
+          <button
+            className={`switch ${memberTab === "members" ? "active" : ""}`}
+            onClick={() => setMemberTab("members")}
+          >
+            Team Members
+          </button>
+          <button
+            className={`switch ${memberTab === "stats" ? "active" : ""}`}
+            onClick={() => setMemberTab("stats")}
+          >
+            Team Statistics
+          </button>
         </div>
-        <div className="tabs">
-          <button className={`tab ${active === 1 ? "active" : ""}`} onClick={() => setActive(1)}>Level 1 Downline</button>
-          <button className={`tab ${active === 2 ? "active" : ""}`} onClick={() => setActive(2)}>Level 2 Downline</button>
-          <button className={`tab ${active === 3 ? "active" : ""}`} onClick={() => setActive(3)}>Level 3 Downline</button>
-        </div>
-        <div className="filters">
-          <div className="total">Total people: 0</div>
-          <div className="search">
-            <input placeholder="Enter ID" />
-            <button><SearchOutlined /></button>
+
+        {memberTab === "members" ? (
+          <>
+            <div className="filters">
+              <div className="level-select">
+                <select
+                  value={active}
+                  onChange={(e) => setActive(Number(e.target.value) as 1 | 2 | 3 | 4 | 5)}
+                >
+                  <option value={1}>Lv1</option>
+                  <option value={2}>Lv2</option>
+                  <option value={3}>Lv3</option>
+                  <option value={4}>Lv4</option>
+                  <option value={5}>Lv5</option>
+                </select>
+              </div>
+              <div className="search">
+                <input placeholder="Search member ID" />
+                <button><SearchOutlined /></button>
+              </div>
+            </div>
+            <div className="empty">No team members yet</div>
+          </>
+        ) : (
+          <div className="stats">
+            <div className="stat-row"><span>Team Members</span><b>0</b></div>
+            <div className="stat-row"><span>Level 1 Downline</span><b>0</b></div>
+            <div className="stat-row"><span>Level 2 Downline</span><b>0</b></div>
+            <div className="stat-row"><span>Level 3 Downline</span><b>0</b></div>
           </div>
-        </div>
-        <div className="empty">No data available</div>
+        )}
       </div>
+
+      <ModalCustom open={openAgency} onCancel={() => setOpenAgency(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0}}>
+        <div className="agency-modal">
+          <div className="agency-title">Agency Rules</div>
+          <div className="agency-list">
+            <div className="rule-row">
+              <div className="rule-text">Invite 10 direct F1 with $10 investment: reward $10 + $10</div>
+              <div className="rule-badge">0/10</div>
+            </div>
+            <div className="rule-row">
+              <div className="rule-text">Invite 10 direct F1 with $45 investment: reward $25 + $25</div>
+              <div className="rule-badge">0/10</div>
+            </div>
+            <div className="rule-row">
+              <div className="rule-text">Invite 10 direct F1 with $105 investment: reward $40 + $40</div>
+              <div className="rule-badge">0/10</div>
+            </div>
+            <div className="rule-row">
+              <div className="rule-text">Invite 8 direct F1 with $500 investment: reward $99 + $99</div>
+              <div className="rule-badge">0/10</div>
+            </div>
+            <div className="rule-row">
+              <div className="rule-text">Invite 7 direct F1 with $1350 investment: reward $199</div>
+              <div className="rule-badge">0/10</div>
+            </div>
+          </div>
+          <button className="agency-close" onClick={() => setOpenAgency(false)}>Close</button>
+        </div>
+      </ModalCustom>
     </div>
   );
 }

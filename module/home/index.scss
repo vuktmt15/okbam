@@ -741,8 +741,69 @@
 .okbam-invite .member-box .search button { background: transparent; border: none; color: #fff; width: 40px; height: 100%; display: flex; align-items: center; justify-content: center; }
 .okbam-invite .member-box .search button svg { width: 16px; height: 16px; }
 .okbam-invite .member-box .empty { opacity: 0.6; text-align: center; padding: 16px 0; }
-.okbam-invite .member-box .stats { display: grid; gap: 8px; }
-.okbam-invite .member-box .stat-row { display: flex; align-items: center; justify-content: space-between; background: #2a2a2a; border-radius: 10px; padding: 10px 12px; }
+.okbam-invite .member-box .level-select { position: relative; }
+.okbam-invite .member-box .level-select select { 
+  width: 100%; 
+  background: #2a2a2a; 
+  color: #fff; 
+  border: none; 
+  border-radius: 10px; 
+  padding: 8px 32px 8px 10px; 
+  height: 40px; 
+  outline: none; 
+  -webkit-appearance: none; 
+  -moz-appearance: none;
+  appearance: none; 
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='14' height='14' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat; 
+  background-position: right 10px center; 
+  background-size: 14px 14px;
+}
+.okbam-invite .member-box .level-select select::-ms-expand { display: none; }
+.okbam-invite .member-box .search { display: grid; grid-template-columns: 1fr 40px; background: #2a2a2a; border-radius: 10px; height: 40px; overflow: hidden; }
+.okbam-invite .member-box .search input { background: transparent; border: none; color: #fff; padding: 8px 10px; outline: none; height: 100%; }
+.okbam-invite .member-box .search button { background: transparent; border: none; color: #fff; width: 40px; height: 100%; display: flex; align-items: center; justify-content: center; }
+.okbam-invite .member-box .stats {
+  padding: 20px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  margin-top: 20px;
+  
+  .stat-section {
+    margin-bottom: 24px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #333;
+    }
+    
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      
+      span {
+        color: #ccc;
+        font-size: 14px;
+      }
+      
+      b {
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+      }
+    }
+  }
+}
 
 /* My */
 .okbam-my {

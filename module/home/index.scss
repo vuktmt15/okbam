@@ -381,10 +381,61 @@
 
 /* BAM */
 .okbam-bam {
-  padding: 0 16px 16px;
+  padding: 16px;
   background: #111111;
   min-height: calc(100vh - 60px);
   padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 768px) {
+  .okbam-bam {
+    padding: 16px;
+  }
+  
+  .okbam-bam .vip-card {
+    padding: 0px 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .okbam-bam .vip-card .bear {
+    width: 140px;
+    height: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .okbam-bam {
+    padding: 16px;
+  }
+  
+  .okbam-bam .vip-card {
+    padding: 0px 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .okbam-bam .vip-card .bear {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+@media (max-width: 375px) {
+  .okbam-bam {
+    padding: 16px;
+  }
+  
+  .okbam-bam .vip-card {
+    padding: 0px 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .okbam-bam .vip-card .bear {
+    width: 100px;
+    height: 100px;
+  }
 }
 .okbam-bam .vip-hero-wrap {
   background: linear-gradient(180deg, #8b98ad 0%, #6f7fa0 100%);
@@ -433,15 +484,15 @@
   color: #fff;
   padding: 6px 0 14px;
   font-weight: 700;
-  width: calc(100vw - 32px);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
 }
 .okbam-bam .vip-list {
   display: grid;
   gap: 30px;
   max-width: 100%;
-  width: calc(100vw - 32px);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
 }
 /* Card kiểu ảnh: notch bên trái trên */
 .okbam-bam .vip-card {
@@ -470,8 +521,7 @@
   border-bottom-left-radius: 20px;
 }
 
-.okbam-bam .vip-card .vip-name { color: #1a1a1a; text-shadow: none; }
-.okbam-bam .vip-card .vip-name { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
+.okbam-bam .vip-card .vip-name { color: #1a1a1a; text-shadow: none; font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
 .okbam-bam .vip-card .price-line { 
   margin-top: 8px; 
   display: flex; 
@@ -498,7 +548,7 @@
   position: relative;
   width: 100%;
 }
-.okbam-bam .vip-card .bear { width: 180px; height: 180px; border-radius: 12px; overflow: hidden; position: relative; top: -30px; right: -5px; }
+.okbam-bam .vip-card .bear { width: 180px; height: 180px; border-radius: 12px; overflow: hidden; position: relative; top: -15px; right: -5px; }
 .okbam-bam .vip-card .bear img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .okbam-bam .vip-card .buy {
   margin-top: 0;
@@ -676,8 +726,24 @@
 .okbam-my .profile .icons { display: flex; gap: 10px; color: #8c8c8c; }
 .okbam-my .profile .notice { background: #f5f5f5; border-radius: 8px; padding: 8px 10px; margin: 10px 0; color: #555; }
 .okbam-my .profile .wallet { background: #fff; border-radius: 10px; border: 1px solid #eee; padding: 10px 12px; }
-.okbam-my .profile .wallet-title { font-weight: 700; color: #555; margin-bottom: 6px; }
-.okbam-my .profile .assets { display: grid; grid-template-columns: 1fr 1fr; align-items: center; }
+.okbam-my .profile .wallet-title { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  color: #555; 
+  margin-bottom: 6px; 
+}
+
+.okbam-my .profile .wallet-label { 
+  font-weight: 500; 
+  color: #666; 
+}
+
+.okbam-my .profile .wallet-amount { 
+  font-weight: 700; 
+  color: #333; 
+}
+.okbam-my .profile .assets { display: flex; align-items: center; gap: 12px; }
 .okbam-my .profile .wallet .asset { display: flex; align-items: center; gap: 4px; }
 .okbam-my .profile .wallet .asset b { font-size: 20px; }
 .okbam-my .profile .quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 12px; }

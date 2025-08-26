@@ -1,7 +1,12 @@
-import {Login} from "@module/login";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
-const isServer = () => typeof window === `undefined`;
+export default function LegacyLoginRedirect() {
+  const router = useRouter();
+  useEffect(() => {
+    // Redirect ngay sang trang đăng nhập mới
+    router.replace("/signin");
+  }, [router]);
 
-export default function LoginComponent(): JSX.Element {
-  return <div className="w-full">{!isServer() && <Login />}</div>;
+  return null;
 }

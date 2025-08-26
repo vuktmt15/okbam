@@ -2,11 +2,13 @@ import React, {useContext, useState} from "react";
 import BottomSheet from "@components/BottomSheet";
 import {BellOutlined, GlobalOutlined, SettingOutlined} from "@ant-design/icons";
 import {MyTabContext} from "./context";
+import {useAuth} from "../../../contexts/AuthContext";
 // import {useLanguage} from "@hooks/useLanguage";
 // import LanguageSelector from "@components/LanguageSelector";
 
 export default function MyTab(): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
+  const {logout} = useAuth();
   // const [openLang, setOpenLang] = useState(false);
   // const {currentLanguage, changeLanguage, getCurrentLanguageInfo, languageOptions} = useLanguage();
   return (
@@ -53,7 +55,7 @@ export default function MyTab(): JSX.Element {
       </div>
       <div className="cta">
         <button className="primary">Switch/Create New Account</button>
-                    <button className="ghost">Logout</button>
+                    <button className="ghost" onClick={logout}>Logout</button>
       </div>
       {/* <BottomSheet open={openLang} onClose={() => setOpenLang(false)}>
         <LanguageSelector onClose={() => setOpenLang(false)} />

@@ -122,26 +122,96 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
         </div>
         {/** removed available balance block per request */}
         <div className="vip-list">
-          {tiers.map((t, idx) => (
-            <div key={t.name} className={`vip-card vip-${idx + 1}`}>
-              <div className="vip-left">
-                <div className="vip-name">{t.name}</div>
-                <div className="vip-meta">Daily Income: {t.daily}</div>
-                <div className="vip-meta">Commitment Period: 360 days</div>
-                <div className="vip-meta">Total Revenue: {t.total}</div>
-                <div className="price-line">
-                  <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
-                  <b className="price">{t.buy}</b>
-                </div>
-              </div>
-              <div className="vip-right">
-                <img src="/img/pet1.png" alt="bear" className="bear-img" />
-                <button className="buy" onClick={() => setOpenBuy({plan: t.name, price: t.buy})}>
-                  Buy
-                </button>
+          <div className="vip-card vip-1">
+            <div className="vip-left">
+              <div className="vip-name">BAM Basic</div>
+              <div className="vip-meta">Daily Income: $0.5</div>
+              <div className="vip-meta">Commitment Period: 360 days</div>
+              <div className="vip-meta">Total Revenue: $180</div>
+              <div className="price-line">
+                <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
+                <b className="price">$10</b>
               </div>
             </div>
-          ))}
+            <div className="vip-right">
+              <img src="/img/pet1.png" alt="bear" className="bear-img" />
+              <button className="buy">Buy</button>
+            </div>
+          </div>
+
+          <div className="vip-card vip-2">
+            <div className="vip-left">
+              <div className="vip-name">BAM Premium</div>
+              <div className="vip-meta">Daily Income: $2.25</div>
+              <div className="vip-meta">Commitment Period: 360 days</div>
+              <div className="vip-meta">Total Revenue: $810</div>
+              <div className="price-line">
+                <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
+                <b className="price">$45</b>
+              </div>
+            </div>
+            <div className="vip-right">
+              <img src="/img/pet1.png" alt="bear" className="bear-img" />
+              <button className="buy">Buy</button>
+            </div>
+          </div>
+
+          <div className="vip-card vip-3">
+            <div className="vip-left">
+              <div className="vip-name">BAM Pro</div>
+              <div className="vip-meta">Daily Income: $5.25</div>
+              <div className="vip-meta">Commitment Period: 360 days</div>
+              <div className="vip-meta">Total Revenue: $1890</div>
+              <div className="price-line">
+                <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
+                <b className="price">$105</b>
+              </div>
+            </div>
+            <div className="vip-right">
+              <img src="/img/pet1.png" alt="bear" className="bear-img" />
+              <div className="locked">
+                <span>🔒</span>
+                <span>Locked</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="vip-card vip-4">
+            <div className="vip-left">
+              <div className="vip-name">BAM VIP</div>
+              <div className="vip-meta">Daily Income: $25</div>
+              <div className="vip-meta">Commitment Period: 360 days</div>
+              <div className="vip-meta">Total Revenue: $9000</div>
+              <div className="price-line">
+                <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
+                <b className="price">$500</b>
+              </div>
+            </div>
+            <div className="vip-right">
+              <img src="/img/pet1.png" alt="bear" className="bear-img" />
+              <button className="buy">Buy</button>
+            </div>
+          </div>
+
+          <div className="vip-card vip-5">
+            <div className="vip-left">
+              <div className="vip-name">BAM Elite</div>
+              <div className="vip-meta">Daily Income: $67.5</div>
+              <div className="vip-meta">Commitment Period: 360 days</div>
+              <div className="vip-meta">Total Revenue: $24300</div>
+              <div className="price-line">
+                <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
+                <b className="price">$1350</b>
+              </div>
+            </div>
+            <div className="vip-right">
+              <img src="/img/pet1.png" alt="bear" className="bear-img" />
+              <div className="locked">
+                <span>🔒</span>
+                <span>Locked</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

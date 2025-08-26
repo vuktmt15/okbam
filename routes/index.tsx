@@ -5,7 +5,8 @@ import ApiUser from "@app/api/ApiUser";
 import LoginComponent from "@app/pages/login";
 import {AppProps} from "next/app";
 import {useRouter} from "next/router";
-import React from "react";
+import React, { useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Routes({
   Component,
@@ -13,92 +14,99 @@ export default function Routes({
   router,
 }: AppProps): JSX.Element | null {
   const routerNext = useRouter();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
-  const login = routerNext.pathname === Config.PATHNAME.LOGIN;
+  const currentPath = routerNext.pathname;
 
-  const isRoute = (key: keyof IRoute): boolean => {
-    for (const route of RouteList) {
-      if (router.pathname === route.path) {
-        return !!route[key];
-      }
-    }
-    return false;
-  };
-
-  const isRouteRequireRole = (): boolean => {
-    for (const route of RouteList) {
-      if (router.pathname === route.path) {
-        return !!route.role;
-      }
-    }
-    return false;
-  };
-
-  const isUserRoleAuthorized = (): boolean => {
-    const userRole = ApiUser.getUserRole();
-    if (userRole) {
-      for (const route of RouteList) {
-        if (router.pathname === route.path) {
-          return !!route.role?.includes(userRole);
-        }
-      }
-    }
-    return false;
-  };
-
-  const isPrivateRoute = (): boolean | undefined => {
-    for (const route of RouteList) {
-      if (router.pathname === route.path) {
-        if (route.isPrivate === undefined) {
-          if (ApiUser.isLogin()) {
-            return route.isPrivate;
-          }
-          return true;
-        }
-        return route.isPrivate;
-      }
-    }
-    return false;
-  };
-
-  const goToLogin = (): null => {
-    router.push(Config.PATHNAME.LOGIN);
-    return null;
-  };
-
-  if (typeof window === "undefined") {
-    return null;
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: '#0f0f0f',
+        color: '#fff'
+      }}>
+        Loading...
+      </div>
+    );
   }
 
-  if (login) {
-    return <LoginComponent />;
-  }
+  // Handle root path redirect
+  useEffect(() => {
+    if (!isLoading && currentPath === '/') {
+      if (!isAuthenticated) {
+        router.push('/signin');
+      } else if (user?.role.name === 'ADMIN') {
+        router.push('/admin');
+      } else {
+        router.push('/home');
+      }
+    }
+  }, [isLoading, isAuthenticated, user, currentPath, router]);
 
-  if (isRoute("isPublic")) {
+  // Public pages (signin, signup)
+  if (currentPath === '/signin' || currentPath === '/signup') {
     return <Component {...pageProps} />;
   }
 
-  if (isRoute("isAuth")) {
-    return goToLogin();
+  // Admin page - only for admin users
+  if (currentPath === '/admin') {
+    if (!isAuthenticated) {
+      router.push('/signin');
+      return null;
+    }
+    if (user?.role.name !== 'ADMIN') {
+      router.push('/home');
+      return null;
+    }
+    return <Component {...pageProps} />;
   }
 
-  if (isPrivateRoute()) {
-    if (!ApiUser.isLogin()) {
-      if (isRouteRequireRole()) {
-        if (!isUserRoleAuthorized()) {
-          router.push(Config.PATHNAME.HOME);
-          return null;
-        }
-      }
+  // Login page (legacy)
+  if (currentPath === Config.PATHNAME.LOGIN) {
+    return <LoginComponent />;
+  }
+
+  // Root path - show loading while redirecting
+  if (currentPath === '/') {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        background: '#0f0f0f',
+        color: '#fff'
+      }}>
+        Redirecting...
+      </div>
+    );
+  }
+
+  // Protected pages - require authentication
+  if (!isAuthenticated) {
+    router.push('/signin');
+    return null;
+  }
+
+  // User pages - only for regular users
+  if (['/home', '/bam', '/invite', '/my'].includes(currentPath)) {
+    if (user?.role.name === 'USER') {
       return (
         <DashboardLayout>
           <Component {...pageProps} />
         </DashboardLayout>
       );
+    } else if (user?.role.name === 'ADMIN') {
+      router.push('/admin');
+      return null;
     }
-    return goToLogin();
   }
 
+  // Fallback - show component with layout
   return (
     <DashboardLayout>
       <Component {...pageProps} />

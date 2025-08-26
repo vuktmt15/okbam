@@ -11,6 +11,7 @@ import {QueryClient, QueryClientProvider} from "react-query";
 import {Provider} from "react-redux";
 import {PersistGate} from "redux-persist/integration/react";
 import "tailwindcss/tailwind.css";
+import { AuthProvider } from "../contexts/AuthContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,11 +40,13 @@ export default function MyApp({
                 },
               }}
             >
-              <Routes
-                Component={Component}
-                pageProps={pageProps}
-                router={router}
-              />
+              <AuthProvider>
+                {router.pathname === '/' ? (
+                  <Component {...pageProps} />
+                ) : (
+                  <Routes Component={Component} pageProps={pageProps} router={router} />
+                )}
+              </AuthProvider>
             </ConfigProvider>
           </QueryClientProvider>
         </PersistGate>
@@ -54,8 +57,17 @@ export default function MyApp({
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <HeaderMeta title="Grab Study" description="Grab Study" />
-        <Routes Component={Component} pageProps={pageProps} router={router} />
+        <ConfigProvider
+          theme={{
+            token: {
+              fontFamily: "inherit",
+            },
+          }}
+        >
+          <AuthProvider>
+            <Component {...pageProps} />
+          </AuthProvider>
+        </ConfigProvider>
       </QueryClientProvider>
     </Provider>
   );

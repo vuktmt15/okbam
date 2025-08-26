@@ -13,9 +13,9 @@ type Props = {
   onBack: () => void;
 };
 
-const NETWORKS: Record<NetworkKey, {label: string; min: number; fee: number}> = {
-  BEP20: {label: "BNB Smart Chain (BEP20)", min: 2, fee: 1},
-  TRC20: {label: "Tron (TRC20)", min: 6, fee: 1.6},
+const NETWORKS: Record<NetworkKey, {label: string; min: number; networkFee: number; processingFeePercent: number}> = {
+  BEP20: {label: "BNB Smart Chain (BEP20)", min: 2, networkFee: 1, processingFeePercent: 5},
+  TRC20: {label: "Tron (TRC20)", min: 6, networkFee: 1.6, processingFeePercent: 5},
 };
 
 export default function WithdrawScreen({
@@ -27,10 +27,24 @@ export default function WithdrawScreen({
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState<string>("");
 
-  const {min, fee} = NETWORKS[network];
+  const {min, networkFee, processingFeePercent} = NETWORKS[network];
   const amountNum = Number(amount) || 0;
   const eligible = amountNum >= min && amountNum <= balanceUsdt && !!address;
-  const receive = useMemo(() => (amountNum > fee ? amountNum - fee : 0), [amountNum, fee]);
+  
+  // Tính toán phí theo logic mới:
+  // 1. Trừ phí mạng (network fee)
+  // 2. Trừ 5% phí xử lý trên số tiền còn lại
+  const afterNetworkFee = amountNum - networkFee;
+  const processingFee = afterNetworkFee > 0 ? (afterNetworkFee * processingFeePercent / 100) : 0;
+  const platformFee = 1; // Platform Operation Fee cố định 1 USDT
+  const receive = useMemo(() => {
+    if (amountNum <= 0) return 0;
+    const afterNetwork = amountNum - networkFee;
+    if (afterNetwork <= 0) return 0;
+    const afterProcessing = afterNetwork - (afterNetwork * processingFeePercent / 100);
+    const final = afterProcessing - platformFee;
+    return Math.max(0, final);
+  }, [amountNum, networkFee, processingFeePercent, platformFee]);
 
   return (
     <div className="okbam-withdraw">
@@ -76,9 +90,16 @@ export default function WithdrawScreen({
           <div className="input-with-max">
             <input
               type="number"
+              min="0"
+              step="0.01"
               placeholder={`Minimum withdrawal amount is ${min} USDT`}
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value);
+                if (value >= 0 || e.target.value === '') {
+                  setAmount(e.target.value);
+                }
+              }}
             />
             <button className="max" onClick={() => setAmount(String(balanceUsdt))}>
               MAX
@@ -92,17 +113,19 @@ export default function WithdrawScreen({
         <div className="fees">
           <div className="row">
             <span>Processing Fee</span>
-            <span>{fee} USDT</span>
+            <span>{processingFeePercent}%</span>
           </div>
           <div className="row">
             <span>Platform Operation Fee</span>
-            <span>0 USDT</span>
+            <span>{platformFee} USDT</span>
           </div>
           <div className="row total">
             <span>Actual Amount</span>
-            <span>{eligible ? receive.toFixed(2) : 0} USDT</span>
+            <span>{amountNum > 0 ? receive.toFixed(2) : 0} USDT</span>
           </div>
         </div>
+
+
 
         <button className="submit" disabled={!eligible}>
           Withdraw
@@ -127,7 +150,7 @@ export default function WithdrawScreen({
               }}
             >
               <div className="name">BNB Smart Chain (BEP20)</div>
-              <div className="desc">Minimum withdrawal 2.00 USDT • Network fee 1.00USDT</div>
+              <div className="desc">Minimum withdrawal 2.00 USDT • Network fee 1.00 USDT</div>
             </button>
             <button
               className={`option ${network === "TRC20" ? "active" : ""}`}

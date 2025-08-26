@@ -148,23 +148,27 @@ export default function InviteTab(): JSX.Element {
           <div className="agency-title">Agency Rules</div>
           <div className="agency-list">
             <div className="rule-row">
-              <div className="rule-text">Invite 10 direct F1 with $10 investment: reward $10 + $10</div>
+              <div className="rule-text">Invite 10 direct F1 with $8 investment: reward $5</div>
               <div className="rule-badge">0/10</div>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 10 direct F1 with $45 investment: reward $25 + $25</div>
+              <div className="rule-text">Invite 10 direct F1 with $18 investment: reward $13</div>
               <div className="rule-badge">0/10</div>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 10 direct F1 with $105 investment: reward $40 + $40</div>
+              <div className="rule-text">Invite 10 direct F1 with $42 investment: reward $25</div>
               <div className="rule-badge">0/10</div>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 8 direct F1 with $500 investment: reward $99 + $99</div>
+              <div className="rule-text">Invite 7 direct F1 with $355 investment: reward $88</div>
               <div className="rule-badge">0/10</div>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 7 direct F1 with $1350 investment: reward $199</div>
+              <div className="rule-text">Invite 4 direct F1 with $3000 investment: reward $299</div>
+              <div className="rule-badge">0/10</div>
+            </div>
+            <div className="rule-row">
+              <div className="rule-text">Invite 1 direct F1 with $12,000 investment: reward $499</div>
               <div className="rule-badge">0/10</div>
             </div>
           </div>

@@ -22,7 +22,7 @@ export function Home(): JSX.Element {
   const renderContent = (): JSX.Element => {
     switch (activeTab) {
       case "home":
-        return <HomeTab onGoToBam={() => setActiveTab("bam")} />;
+        return <HomeTab onGoToBam={() => setActiveTab("bam")} onGoToInvite={() => setActiveTab("invite")} />;
       case "bam":
         return <BAMTab />;
       case "invite":

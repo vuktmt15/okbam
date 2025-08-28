@@ -20,9 +20,10 @@ import DepositScreen from "./DepositScreen";
 
 type Props = {
   onGoToBam: () => void;
+  onGoToInvite: () => void;
 };
 
-export default function HomeTab({onGoToBam}: Props): JSX.Element {
+export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
   const [showDeposit, setShowDeposit] = useState(false);
   const tiers = [
@@ -41,7 +42,7 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
             <div className="sub">Bear Asset Management</div>
           </div>
         </div>
-        <div className="actions">
+        {/* <div className="actions">
           <button className="icon-btn" aria-label="bill">
             <AuditOutlined />
           </button>
@@ -51,7 +52,7 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
           <button className="icon-btn" aria-label="emoji">
             <SmileOutlined />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <div className="okbam-banner">
@@ -88,7 +89,7 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
           <CalendarOutlined />
           <span>Login</span>
         </button>
-        <button className="action" onClick={onGoToBam}>
+        <button className="action" onClick={onGoToInvite}>
           <TeamOutlined />
           <span>Invite</span>
         </button>
@@ -137,7 +138,7 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
             </div>
             <div className="vip-right">
               <img src="/img/pet1.png" alt="bear" className="bear-img" />
-              <button className="buy">Buy</button>
+              <button className="buy" onClick={() => setOpenBuy({plan: "BAM Basic", price: "$10"})}>Buy</button>
             </div>
           </div>
 
@@ -154,7 +155,7 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
             </div>
             <div className="vip-right">
               <img src="/img/pet1.png" alt="bear" className="bear-img" />
-              <button className="buy">Buy</button>
+              <button className="buy" onClick={() => setOpenBuy({plan: "BAM Premium", price: "$45"})}>Buy</button>
             </div>
           </div>
 
@@ -191,7 +192,7 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
             </div>
             <div className="vip-right">
               <img src="/img/pet1.png" alt="bear" className="bear-img" />
-              <button className="buy">Buy</button>
+              <button className="buy" onClick={() => setOpenBuy({plan: "BAM VIP", price: "$500"})}>Buy</button>
             </div>
           </div>
 

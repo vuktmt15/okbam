@@ -7,6 +7,16 @@ export default function InviteTab(): JSX.Element {
   const [active, setActive] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [memberTab, setMemberTab] = useState<"members" | "stats">("members");
   const [openAgency, setOpenAgency] = useState(false);
+  
+  const handleCopyReferralCode = () => {
+    navigator.clipboard.writeText("123456");
+    // Optional: add toast notification
+  };
+  
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText("https://bam-play.com?pcode=***");
+    // Optional: add toast notification
+  };
   const commission = [
     {level: "F1", rate: "25%"},
     {level: "F2", rate: "5%"},
@@ -35,12 +45,12 @@ export default function InviteTab(): JSX.Element {
           <div className="row">
             <span className="label">Referral Code</span>
             <span className="value">123456</span>
-            <button className="icon"><CopyOutlined /></button>
+            <button className="icon" onClick={handleCopyReferralCode}><CopyOutlined /></button>
           </div>
           <div className="row">
             <span className="label"><LinkOutlined /> Suggested URL</span>
             <span className="value url">https://bam-play.com?pcode=***</span>
-            <button className="icon"><CopyOutlined /></button>
+            <button className="icon" onClick={handleCopyUrl}><CopyOutlined /></button>
           </div>
         </div>
       </div>

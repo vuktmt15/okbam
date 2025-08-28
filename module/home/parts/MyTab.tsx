@@ -25,11 +25,11 @@ export default function MyTab(): JSX.Element {
               <div className="id">ID: 123456</div>
             </div>
           </div>
-          <div className="icons">
+          {/* <div className="icons">
             <GlobalOutlined />
             <BellOutlined />
             <SettingOutlined />
-          </div>
+          </div> */}
         </div>
         <div className="notice">User*** successfully recharged 830USDT</div>
         <div className="wallet">
@@ -57,7 +57,10 @@ export default function MyTab(): JSX.Element {
         </button> */}
       </div>
       <div className="cta">
-        <button className="primary">Switch/Create New Account</button>
+        <button className="primary" onClick={() => {
+          logout();
+          window.location.href = '/signup';
+        }}>Switch/Create New Account</button>
                     <button className="ghost" onClick={logout}>Logout</button>
       </div>
       <ModalCustom open={showDeposit} onCancel={() => setShowDeposit(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 export default function SignIn() {
+  // Tránh SSR để không bị nhân đôi do hydration mismatch
+  if (typeof window === 'undefined') return null;
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -119,25 +122,7 @@ export default function SignIn() {
             >
               {isSubmitting ? 'Signing In...' : 'Sign In'}
             </button>
-            
-            <button 
-              type="button" 
-              style={{
-                marginTop: '10px',
-                padding: '8px 16px',
-                background: '#ff4444',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-              onClick={() => {
-                alert('Test button works!');
-                console.log('Test button clicked!');
-              }}
-            >
-              Test Button
-            </button>
+          
           </div>
           
           <div className="auth-footer">

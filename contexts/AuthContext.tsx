@@ -151,6 +151,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     setToken(null);
     setUser(null);
+    
+    // Redirect to login page after logout
+    window.location.href = '/signin';
   };
 
   // Check token expiration

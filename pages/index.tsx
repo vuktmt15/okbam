@@ -3,11 +3,23 @@ import { useRouter } from 'next/router';
 import DashboardLayout from "../components/Layout/DashboardLayout";
 import { Home } from "@app/module/home";
 
+// Define user type
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: {
+    id: number;
+    name: string;
+  };
+  [key: string]: any;
+}
+
 export default function Index() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const checkAuth = () => {
@@ -18,12 +30,12 @@ export default function Index() {
           
           if (token && userStr) {
             try {
-              const userData = JSON.parse(userStr);
+              const userData: User = JSON.parse(userStr);
               setUser(userData);
               setIsAuthenticated(true);
               
               // Nếu là admin thì redirect sang trang admin
-              if (userData.role.name === 'ADMIN') {
+              if (userData.role?.name === 'ADMIN') {
                 window.location.href = '/admin';
                 return;
               }
@@ -55,7 +67,7 @@ export default function Index() {
   }
 
   // Nếu đã đăng nhập và là user thường thì hiển thị trang home
-  if (isAuthenticated && user?.role.name === 'USER') {
+  if (isAuthenticated && user?.role?.name === 'USER') {
     return (
       <DashboardLayout>
         <Home />

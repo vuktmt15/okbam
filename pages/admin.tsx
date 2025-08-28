@@ -18,6 +18,9 @@ interface BAMPackage {
 }
 
 export default function Admin() {
+  // Tránh SSR để không bị nhân đôi do hydration mismatch
+  if (typeof window === 'undefined') return null;
+
   const { user, logout } = useAuth();
   const [users] = useState<User[]>([
     { id: 1, username: 'john_doe', email: 'john@example.com', status: 'active', joinDate: '2024-01-15' },

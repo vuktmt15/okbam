@@ -16,6 +16,7 @@ import {Avatar} from "antd";
 import {ModalCustom} from "@components/ModalCustom";
 import BAMBuySheet from "./BAMBuySheet";
 import {MyTabContext} from "./context";
+import DepositScreen from "./DepositScreen";
 
 type Props = {
   onGoToBam: () => void;
@@ -23,6 +24,7 @@ type Props = {
 
 export default function HomeTab({onGoToBam}: Props): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
+  const [showDeposit, setShowDeposit] = useState(false);
   const tiers = [
     {name: "BAM1", daily: "2.4 USDT", buy: "50USDT", total: "864 USDT", img: "/img/pet1.png"},
     {name: "BAM2", daily: "6 USDT", buy: "89USDT", total: "2160 USDT", img: "/img/pet1.png"},
@@ -74,7 +76,7 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
       </div>
 
       <div className="okbam-actions">
-        <button className="action">
+        <button className="action" onClick={() => setShowDeposit(true)}>
           <WalletOutlined />
           <span>Deposit</span>
         </button>
@@ -214,6 +216,12 @@ export default function HomeTab({onGoToBam}: Props): JSX.Element {
           </div>
         </div>
       </div>
+
+      <ModalCustom open={showDeposit} onCancel={() => setShowDeposit(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
+        {showDeposit && (
+          <DepositScreen onBack={() => setShowDeposit(false)} />
+        )}
+      </ModalCustom>
 
       <ModalCustom open={!!openBuy} onCancel={() => setOpenBuy(null)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#141414"}}>
         {openBuy && (

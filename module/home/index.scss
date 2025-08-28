@@ -1002,3 +1002,163 @@
   color: #d48806;
   font-size: 12px;
 }
+
+/* Deposit Screen */
+.okbam-deposit {
+  padding: 16px;
+  background: #111;
+  width: 100%;
+  min-height: 500px;
+}
+
+.okbam-deposit .topbar {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  margin-bottom: 20px;
+}
+
+.okbam-deposit .topbar .back {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  padding: 8px;
+  margin-right: 12px;
+}
+
+.okbam-deposit .topbar .title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.okbam-deposit .topbar .token-icon {
+  background: #1890ff;
+  color: #fff;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.okbam-deposit .topbar .spacer {
+  flex: 1;
+}
+
+.okbam-deposit .deposit-content {
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.okbam-deposit .qr-section {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.okbam-deposit .qr-code {
+  margin-bottom: 16px;
+}
+
+.okbam-deposit .qr-image {
+  width: 200px;
+  height: 200px;
+  border-radius: 12px;
+  margin: 0 auto;
+  display: block;
+}
+
+.okbam-deposit .refresh-link {
+  color: #ccc;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.okbam-deposit .refresh-text {
+  color: #1890ff;
+  text-decoration: underline;
+}
+
+.okbam-deposit .field {
+  margin-bottom: 16px;
+}
+
+.okbam-deposit .field .label {
+  color: #fff;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.okbam-deposit .field .select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 12px;
+  color: #fff;
+  font-size: 14px;
+}
+
+.okbam-deposit .field .input-with-icon {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.okbam-deposit .field .link-icon {
+  color: #1890ff;
+  font-size: 16px;
+}
+
+.okbam-deposit .field input {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+}
+
+.okbam-deposit .field .copy-btn {
+  background: transparent;
+  border: none;
+  color: #1890ff;
+  font-size: 16px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.okbam-deposit .deposit-info {
+  background: #2a2a2a;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.okbam-deposit .deposit-info .info-text {
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  padding: 0;
+}
+
+.okbam-deposit .deposit-info .info-text:last-child {
+  margin-bottom: 0;
+}

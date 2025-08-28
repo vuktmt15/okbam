@@ -47,7 +47,7 @@ export default function SignUp() {
         refererBy: formData.refererBy || undefined,
       };
 
-      const res = await fetch('http://159.223.91.231:8866/api/auth/register', {
+                        const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

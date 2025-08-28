@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       console.log('Attempting login with:', { email, password });
       
-      const response = await fetch('http://159.223.91.231:8866/api/auth/login', {
+              const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

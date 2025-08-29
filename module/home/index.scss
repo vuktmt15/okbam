@@ -385,29 +385,40 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  color: #888;
-  font-size: 12px;
+  justify-content: center;
+  height: 100%;
   margin-top: 0;
   position: relative;
   top: -25px;
-  
-  span:first-child {
-    font-size: 20px;
-  }
+}
+
+.okbam-home .vip-card .locked .lock-icon {
+  font-size: 28px;
+  color: #000;
+  filter: brightness(0);
+  margin-top: -30px;
+}
+
+.okbam-home .vip-card .vip-right .locked .lock-icon {
+  font-size: 28px;
+  color: #000;
+  filter: brightness(0);
+  margin-top: 0px;
 }
 
 .vip-right .locked {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  color: #888;
-  font-size: 12px;
-  
-  span:first-child {
-    font-size: 20px;
-  }
+  justify-content: center;
+  height: 100%;
+}
+
+.vip-right .locked .lock-icon {
+  font-size: 28px;
+  color: #000;
+  filter: brightness(0);
+  margin-top: -30px;
 }
 .okbam-home .vip-card .bear img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .okbam-home .vip-card .price { color: #ff4d4f; font-weight: 700; }
@@ -1161,4 +1172,34 @@
 
 .okbam-deposit .deposit-info .info-text:last-child {
   margin-bottom: 0;
+}
+
+/* Loading States */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  color: #666;
+  font-size: 16px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin: 20px 0;
+  min-height: 100px;
+}
+
+.loading::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-top: 2px solid #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

@@ -26,12 +26,33 @@ type Props = {
 export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
   const [showDeposit, setShowDeposit] = useState(false);
-  const tiers = [
-    {name: "BAM1", daily: "2.4 USDT", buy: "50USDT", total: "864 USDT", img: "/img/pet1.png"},
-    {name: "BAM2", daily: "6 USDT", buy: "89USDT", total: "2160 USDT", img: "/img/pet1.png"},
-    {name: "BAM3", daily: "20 USDT", buy: "228USDT", total: "7200 USDT", img: "/img/pet1.png"},
-  ];
+  const [bamPackages, setBamPackages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string}>(null);
+
+  // Fetch BAM packages from API
+  React.useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const response = await fetch('/api/product/');
+        const data = await response.json();
+        if (data.statusCode === 'OK' && data.body) {
+          setBamPackages(data.body);
+        }
+      } catch (error) {
+        console.error('Error fetching packages:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPackages();
+
+    // Poll for updates every 5 seconds
+    const interval = setInterval(fetchPackages, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
   return (
     <div className="okbam-home">
       <div className="okbam-header">
@@ -125,96 +146,34 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
         </div>
         {/** removed available balance block per request */}
         <div className="vip-list">
-          <div className="vip-card vip-1">
-            <div className="vip-left">
-              <div className="vip-name">BAM Basic</div>
-              <div className="vip-meta">Daily Income: $0.5</div>
-              <div className="vip-meta">Commitment Period: 360 days</div>
-              <div className="vip-meta">Total Revenue: $180</div>
-              <div className="price-line">
-                <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
-                <b className="price">$10</b>
+          {loading ? (
+            <div className="loading">Đang tải danh sách BAM packages...</div>
+          ) : (
+            bamPackages.map((pkg, index) => (
+              <div key={pkg.id} className={`vip-card vip-${index + 1}`}>
+                <div className="vip-left">
+                  <div className="vip-name">{pkg.title}</div>
+                  <div className="vip-meta">Daily Income: ${pkg.dailyIncome}</div>
+                  <div className="vip-meta">Commitment Period: {pkg.period} days</div>
+                  <div className="vip-meta">Total Revenue: ${pkg.amount}</div>
+                  <div className="price-line">
+                    <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
+                    <b className="price">${pkg.purchaseAmount}</b>
+                  </div>
+                </div>
+                <div className="vip-right">
+                  <img src={pkg.imageUrl} alt="bear" className="bear-img" />
+                  {pkg.status === 1 ? (
+                    <button className="buy" onClick={() => setOpenBuy({plan: pkg.title, price: `$${pkg.purchaseAmount}`})}>Buy</button>
+                  ) : (
+                    <div className="locked">
+                      <span className="lock-icon">🔒</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="vip-right">
-              <img src="/img/pet1.png" alt="bear" className="bear-img" />
-              <button className="buy" onClick={() => setOpenBuy({plan: "BAM Basic", price: "$10"})}>Buy</button>
-            </div>
-          </div>
-
-          <div className="vip-card vip-2">
-            <div className="vip-left">
-              <div className="vip-name">BAM Premium</div>
-              <div className="vip-meta">Daily Income: $2.25</div>
-              <div className="vip-meta">Commitment Period: 360 days</div>
-              <div className="vip-meta">Total Revenue: $810</div>
-              <div className="price-line">
-                <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
-                <b className="price">$45</b>
-              </div>
-            </div>
-            <div className="vip-right">
-              <img src="/img/pet1.png" alt="bear" className="bear-img" />
-              <button className="buy" onClick={() => setOpenBuy({plan: "BAM Premium", price: "$45"})}>Buy</button>
-            </div>
-          </div>
-
-          <div className="vip-card vip-3">
-            <div className="vip-left">
-              <div className="vip-name">BAM Pro</div>
-              <div className="vip-meta">Daily Income: $5.25</div>
-              <div className="vip-meta">Commitment Period: 360 days</div>
-              <div className="vip-meta">Total Revenue: $1890</div>
-              <div className="price-line">
-                <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
-                <b className="price">$105</b>
-              </div>
-            </div>
-            <div className="vip-right">
-              <img src="/img/pet1.png" alt="bear" className="bear-img" />
-              <div className="locked">
-                <span>🔒</span>
-                <span>Locked</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="vip-card vip-4">
-            <div className="vip-left">
-              <div className="vip-name">BAM VIP</div>
-              <div className="vip-meta">Daily Income: $25</div>
-              <div className="vip-meta">Commitment Period: 360 days</div>
-              <div className="vip-meta">Total Revenue: $9000</div>
-              <div className="price-line">
-                <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
-                <b className="price">$500</b>
-              </div>
-            </div>
-            <div className="vip-right">
-              <img src="/img/pet1.png" alt="bear" className="bear-img" />
-              <button className="buy" onClick={() => setOpenBuy({plan: "BAM VIP", price: "$500"})}>Buy</button>
-            </div>
-          </div>
-
-          <div className="vip-card vip-5">
-            <div className="vip-left">
-              <div className="vip-name">BAM Elite</div>
-              <div className="vip-meta">Daily Income: $67.5</div>
-              <div className="vip-meta">Commitment Period: 360 days</div>
-              <div className="vip-meta">Total Revenue: $24300</div>
-              <div className="price-line">
-                <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
-                <b className="price">$1350</b>
-              </div>
-            </div>
-            <div className="vip-right">
-              <img src="/img/pet1.png" alt="bear" className="bear-img" />
-              <div className="locked">
-                <span>🔒</span>
-                <span>Locked</span>
-              </div>
-            </div>
-          </div>
+            ))
+          )}
         </div>
       </div>
 

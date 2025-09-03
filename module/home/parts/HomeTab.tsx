@@ -1,4 +1,4 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useState, useEffect} from "react";
 import {
   AuditOutlined,
   BellOutlined,
@@ -17,6 +17,7 @@ import {ModalCustom} from "@components/ModalCustom";
 import BAMBuySheet from "./BAMBuySheet";
 import {MyTabContext} from "./context";
 import DepositScreen from "./DepositScreen";
+import {useAuth} from "../../../contexts/AuthContext";
 
 type Props = {
   onGoToBam: () => void;
@@ -25,42 +26,49 @@ type Props = {
 
 export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
+  const {user, userDetails, fetchUserDetails} = useAuth();
   const [showDeposit, setShowDeposit] = useState(false);
   const [bamPackages, setBamPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string}>(null);
 
-  // Fetch BAM packages from API
-  React.useEffect(() => {
-    const fetchPackages = async () => {
+  // Fetch user details and BAM packages from API
+  useEffect(() => {
+    const fetchData = async () => {
       try {
-        const response = await fetch('/api/product/');
-        const data = await response.json();
-        if (data.statusCode === 'OK' && data.body) {
-          setBamPackages(data.body);
+        // Fetch user details if not already loaded
+        if (user && !userDetails) {
+          await fetchUserDetails(user.id);
+        }
+
+        // Fetch BAM packages
+        const packagesResponse = await fetch('/api/product/');
+        const packagesData = await packagesResponse.json();
+        if (packagesData.statusCode === 'OK' && packagesData.body) {
+          setBamPackages(packagesData.body);
         }
       } catch (error) {
-        console.error('Error fetching packages:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPackages();
+    fetchData();
 
     // Poll for updates every 5 seconds
-    const interval = setInterval(fetchPackages, 5000);
+    const interval = setInterval(fetchData, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [user, userDetails, fetchUserDetails]);
   return (
     <div className="okbam-home">
       <div className="okbam-header">
         <div className="left">
           <Avatar size={36} icon={<UserOutlined />} />
           <div className="info">
-            <div className="name">BAM</div>
-            <div className="sub">Bear Asset Management</div>
+            <div className="name">{userDetails?.name || 'BAM'}</div>
+            <div className="sub">{userDetails?.email || 'Bear Asset Management'}</div>
           </div>
         </div>
         {/* <div className="actions">

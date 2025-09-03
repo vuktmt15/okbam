@@ -1,4 +1,4 @@
-import React, {useContext, useState} from "react";
+import React, {useContext, useState, useEffect} from "react";
 import BottomSheet from "@components/BottomSheet";
 import {BellOutlined, GlobalOutlined, SettingOutlined} from "@ant-design/icons";
 import {MyTabContext} from "./context";
@@ -10,8 +10,15 @@ import {ModalCustom} from "@components/ModalCustom";
 
 export default function MyTab(): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
-  const {logout} = useAuth();
+  const {logout, user, userDetails, fetchUserDetails} = useAuth();
   const [showDeposit, setShowDeposit] = useState(false);
+
+  // Fetch user details if not already loaded
+  useEffect(() => {
+    if (user && !userDetails) {
+      fetchUserDetails(user.id);
+    }
+  }, [user, userDetails, fetchUserDetails]);
   // const [openLang, setOpenLang] = useState(false);
   // const {currentLanguage, changeLanguage, getCurrentLanguageInfo, languageOptions} = useLanguage();
   return (
@@ -21,8 +28,8 @@ export default function MyTab(): JSX.Element {
           <div className="left">
             <div className="avatar">🧸</div>
             <div className="info">
-              <div className="email">Hoa****@gmail.com</div>
-              <div className="id">ID: 123456</div>
+              <div className="email">{userDetails?.email || 'Hoa****@gmail.com'}</div>
+              <div className="id">ID: {userDetails?.id || '123456'}</div>
             </div>
           </div>
           {/* <div className="icons">

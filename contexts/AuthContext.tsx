@@ -21,6 +21,8 @@ interface AuthContextType {
   logout: () => void;
   isLoading: boolean;
   isAuthenticated: boolean;
+  fetchUserDetails: (userId: number) => Promise<void>;
+  userDetails: any | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,6 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [userDetails, setUserDetails] = useState<any | null>(null);
 
   // Load auth data from localStorage on mount
   useEffect(() => {
@@ -151,9 +154,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     setToken(null);
     setUser(null);
+    setUserDetails(null);
     
     // Redirect to login page after logout
     window.location.href = '/signin';
+  };
+
+  const fetchUserDetails = async (userId: number) => {
+    try {
+      const response = await fetch(`/api/auth/detail-user?id=${userId}`);
+      const data = await response.json();
+      if (data.statusCode === 'OK' && data.body) {
+        setUserDetails(data.body);
+        // Cache in localStorage for faster access
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user_details', JSON.stringify(data.body));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+    }
   };
 
   // Check token expiration
@@ -178,6 +198,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     isLoading,
     isAuthenticated: !!token && !!user,
+    fetchUserDetails,
+    userDetails,
   };
 
   return (

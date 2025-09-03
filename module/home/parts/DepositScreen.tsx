@@ -6,6 +6,7 @@ import {
   DownOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
+import { useAuth } from "../../../contexts/AuthContext";
 
 type NetworkKey = "BEP20" | "TRC20";
 
@@ -21,12 +22,25 @@ const NETWORKS: Record<NetworkKey, { label: string; minAmount: string }> = {
 export default function DepositScreen({ onBack }: Props): JSX.Element {
   const [showNetworks, setShowNetworks] = useState(false);
   const [network, setNetwork] = useState<NetworkKey>("BEP20");
+  const { userDetails } = useAuth();
 
-  const depositAddress = "0xddbed71fc5e194081ec1914fad8971b8...";
+  const depositAddress = userDetails?.address || "0xddbed71fc5e194081ec1914fad8971b8...";
 
-  const handleCopyAddress = () => {
-    navigator.clipboard.writeText(depositAddress);
-    // Có thể thêm toast notification ở đây
+  const handleCopyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(depositAddress);
+      // Có thể thêm toast notification ở đây
+      console.log('Địa chỉ đã được copy:', depositAddress);
+    } catch (err) {
+      // Fallback cho các trình duyệt cũ
+      const textArea = document.createElement('textarea');
+      textArea.value = depositAddress;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      console.log('Địa chỉ đã được copy (fallback):', depositAddress);
+    }
   };
 
   const handleRefreshBalance = () => {

@@ -6,7 +6,7 @@ import {
   CheckCircleTwoTone,
 } from "@ant-design/icons";
 
-type NetworkKey = "BEP20" | "TRC20";
+type NetworkKey = "BEP20" | "USDT";
 
 type Props = {
   balanceUsdt?: number;
@@ -15,7 +15,7 @@ type Props = {
 
 const NETWORKS: Record<NetworkKey, {label: string; min: number; networkFee: number; processingFeePercent: number}> = {
   BEP20: {label: "BNB Smart Chain (BEP20)", min: 2, networkFee: 1, processingFeePercent: 5},
-  TRC20: {label: "Tron (TRC20)", min: 6, networkFee: 1.6, processingFeePercent: 5},
+  USDT: {label: "USDT", min: 2, networkFee: 1, processingFeePercent: 5},
 };
 
 export default function WithdrawScreen({
@@ -45,6 +45,35 @@ export default function WithdrawScreen({
     const final = afterProcessing - platformFee;
     return Math.max(0, final);
   }, [amountNum, networkFee, processingFeePercent, platformFee]);
+
+  const handleWithdraw = async () => {
+    try {
+      if (!eligible) return;
+      const params = new URLSearchParams({
+        toAddress: address,
+        amount: String(amountNum),
+      });
+
+      // referrerId lấy từ localStorage user_details.body.refererCode hoặc referrerId? Theo mô tả dùng từ API detail-user
+      try {
+        const details = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+        if (details) {
+          const parsed = JSON.parse(details);
+          if (parsed?.refererCode) params.set('referrerId', parsed.refererCode);
+          else if (parsed?.referrerId) params.set('referrerId', parsed.referrerId);
+        }
+      } catch {}
+
+      const endpoint = network === 'BEP20' ? `/api/withdrawBNB?${params.toString()}` : `/api/usdt?${params.toString()}`;
+      const res = await fetch(endpoint);
+      const text = await res.text();
+
+      alert(text || 'Request sent');
+    } catch (e) {
+      alert('Withdraw failed. Please try again.');
+      console.error(e);
+    }
+  };
 
   return (
     <div className="okbam-withdraw">
@@ -127,7 +156,7 @@ export default function WithdrawScreen({
 
 
 
-        <button className="submit" disabled={!eligible}>
+        <button className="submit" disabled={!eligible} onClick={handleWithdraw}>
           Withdraw
         </button>
 
@@ -153,14 +182,14 @@ export default function WithdrawScreen({
               <div className="desc">Minimum withdrawal 2.00 USDT • Network fee 1.00 USDT</div>
             </button>
             <button
-              className={`option ${network === "TRC20" ? "active" : ""}`}
+              className={`option ${network === "USDT" ? "active" : ""}`}
               onClick={() => {
-                setNetwork("TRC20");
+                setNetwork("USDT");
                 setShowNetworks(false);
               }}
             >
-              <div className="name">Tron (TRC20)</div>
-              <div className="desc">Minimum withdrawal 6.00 USDT • Network fee 1.60USDT</div>
+              <div className="name">USDT</div>
+              <div className="desc">Minimum withdrawal {NETWORKS.USDT.min.toFixed(2)} USDT • Network fee {NETWORKS.USDT.networkFee.toFixed(2)} USDT</div>
             </button>
             <div className="warn">Make sure to select the correct network that matches your receiving address</div>
           </div>

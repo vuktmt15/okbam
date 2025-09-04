@@ -982,6 +982,7 @@
   background: rgba(0,0,0,0.45);
   display: flex;
   align-items: flex-end;
+  z-index: 1000; /* Bảo đảm nằm trên bottom tab */
 }
 .network-overlay .sheet {
   width: 100%;
@@ -989,6 +990,9 @@
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
   padding: 16px;
+  margin-bottom: 72px; /* Tạo khoảng trống so với thanh tab dưới */
+  max-height: 70vh;
+  overflow-y: auto;
 }
 .network-overlay .sheet-title {
   font-weight: 600;

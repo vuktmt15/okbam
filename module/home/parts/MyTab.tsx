@@ -4,6 +4,7 @@ import {BellOutlined, GlobalOutlined, SettingOutlined} from "@ant-design/icons";
 import {MyTabContext} from "./context";
 import {useAuth} from "../../../contexts/AuthContext";
 import DepositScreen from "./DepositScreen";
+import SwapScreen from "./SwapScreen";
 import {ModalCustom} from "@components/ModalCustom";
 // import {useLanguage} from "@hooks/useLanguage";
 // import LanguageSelector from "@components/LanguageSelector";
@@ -12,6 +13,7 @@ export default function MyTab(): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
   const {logout, user, userDetails, fetchUserDetails} = useAuth();
   const [showDeposit, setShowDeposit] = useState(false);
+  const [showSwap, setShowSwap] = useState(false);
 
   // Fetch user details if not already loaded
   useEffect(() => {
@@ -51,7 +53,7 @@ export default function MyTab(): JSX.Element {
         <div className="quick">
           <button onClick={() => setShowDeposit(true)}>Deposit</button>
           <button onClick={goWithdraw}>Withdraw</button>
-          <button>SWAP</button>
+          <button onClick={() => setShowSwap(true)}>SWAP</button>
           <button>History</button>
         </div>
       </div>
@@ -73,6 +75,11 @@ export default function MyTab(): JSX.Element {
       <ModalCustom open={showDeposit} onCancel={() => setShowDeposit(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
         {showDeposit && (
           <DepositScreen onBack={() => setShowDeposit(false)} />
+        )}
+      </ModalCustom>
+      <ModalCustom open={showSwap} onCancel={() => setShowSwap(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
+        {showSwap && (
+          <SwapScreen onBack={() => setShowSwap(false)} />
         )}
       </ModalCustom>
       {/* <BottomSheet open={openLang} onClose={() => setOpenLang(false)}>

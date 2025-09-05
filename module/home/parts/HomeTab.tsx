@@ -41,9 +41,10 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
           await fetchUserDetails(user.id);
         }
 
-        // Fetch BAM packages
-        const packagesResponse = await fetch('/api/product/');
+        // Fetch BAM packages with cache busting
+        const packagesResponse = await fetch(`/api/product/?t=${Date.now()}`);
         const packagesData = await packagesResponse.json();
+        console.log('HomeTab - BAM packages response:', packagesData);
         if (packagesData.statusCode === 'OK' && packagesData.body) {
           setBamPackages(packagesData.body);
         }
@@ -56,8 +57,8 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
 
     fetchData();
 
-    // Poll for updates every 5 seconds
-    const interval = setInterval(fetchData, 5000);
+    // Poll for updates every 2 seconds
+    const interval = setInterval(fetchData, 2000);
 
     return () => clearInterval(interval);
   }, [user, userDetails, fetchUserDetails]);
@@ -171,13 +172,13 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
                 </div>
                 <div className="vip-right">
                   <img src={pkg.imageUrl} alt="bear" className="bear-img" />
-                  {pkg.status === 1 ? (
-                    <button className="buy" onClick={() => setOpenBuy({plan: pkg.title, price: `$${pkg.purchaseAmount}`})}>Buy</button>
-                  ) : (
-                    <div className="locked">
-                      <span className="lock-icon">🔒</span>
-                    </div>
-                  )}
+                  <button 
+                    className="buy" 
+                    onClick={pkg.status === 1 ? () => setOpenBuy({plan: pkg.title, price: `$${pkg.purchaseAmount}`, id: pkg.id}) : undefined}
+                    disabled={pkg.status !== 1}
+                  >
+                    {pkg.status === 1 ? 'Buy' : '🔒'}
+                  </button>
                 </div>
               </div>
             ))
@@ -194,6 +195,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
       <ModalCustom open={!!openBuy} onCancel={() => setOpenBuy(null)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#141414"}}>
         {openBuy && (
           <BAMBuySheet
+            planId={(openBuy as any).id}
             planName={openBuy.plan}
             price={openBuy.price}
             onClose={() => setOpenBuy(null)}

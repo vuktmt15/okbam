@@ -1,35 +1,57 @@
 import React from "react";
 
 type Props = {
+  planId?: number;
   planName: string;
   price: string; // e.g. "50USDT"
   onClose: () => void;
 };
 
-export default function BAMBuySheet({planName, price, onClose}: Props): JSX.Element {
+export default function BAMBuySheet({planId, planName, price, onClose}: Props): JSX.Element {
+  const [detail, setDetail] = React.useState<any | null>(null);
+  const [loading, setLoading] = React.useState<boolean>(true);
+
+  React.useEffect(() => {
+    let active = true;
+    const fetchDetail = async () => {
+      try {
+        if (planId) {
+          const res = await fetch(`/api/product/detail-bam?id=${planId}`);
+          const data = await res.json();
+          if (active && data?.statusCode === 'OK') setDetail(data.body);
+        } else {
+          // fallback: derive from name/price if id not provided
+          setDetail({ title: planName, purchaseAmount: price.replace(/[^0-9.]/g, ''), dailyIncome: '-', period: '360', amount: '-' });
+        }
+      } catch (e) {
+        console.error('Fetch plan detail error', e);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    fetchDetail();
+    return () => { active = false; };
+  }, [planId, planName, price]);
+
   return (
     <div className="bambuy-sheet">
-      <div className="sheet-title">My Income</div>
-      <div className="income-box">
-        <div className="col">
-          <div className="label">Daily Income</div>
-          <div className="value">{planName === "BAM1" ? "2.4USDT" : planName === "BAM2" ? "6USDT" : "20USDT"}</div>
+      <div className="sheet-title">Upgrade Confirmation</div>
+      {loading ? (
+        <div className="loading">Loading...</div>
+      ) : (
+        <div className="detail-list">
+          <div className="row"><span className="label">Level</span><span className="value">{detail?.title || planName}</span></div>
+          <div className="row"><span className="label">Daily Income</span><span className="value">{detail?.dailyIncome} USDT</span></div>
+          <div className="row"><span className="label">Total Profit</span><span className="value">240%</span></div>
+          <div className="row"><span className="label">Total Revenue</span><span className="value">{detail?.amount} USDT</span></div>
+          <div className="row"><span className="label">Period</span><span className="value">{detail?.period} days</span></div>
+          <div className="row"><span className="label">Food Cost</span><span className="value">{Number(detail?.purchaseAmount) * 1.25} USDT</span></div>
+          <div className="row"><span className="label">Purchase Amount</span><span className="value green">{detail?.purchaseAmount} USDT</span></div>
+          <div className="row"><span className="label">Wallet Balance</span><span className="value">0.60 USDT</span></div>
         </div>
-        <div className="col">
-          <div className="label">Purchase Amount</div>
-          <div className="value">{price}</div>
-        </div>
-        <button className="upgrade">
-          Only {price} to upgrade to {planName}
-        </button>
-      </div>
+      )}
 
-      <div className="invite-box">
-        <div className="title">BAM33 Invitation</div>
-        <div className="sub">Monthly Commission <b>(50%)</b> <span className="green">300USDT</span></div>
-        <button className="primary">Invite</button>
-      </div>
-
+      <button className="upgrade" disabled={loading}>Confirm Upgrade</button>
       <button className="close" onClick={onClose}>Close</button>
     </div>
   );

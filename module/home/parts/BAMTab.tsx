@@ -12,8 +12,9 @@ export default function BAMTab(): JSX.Element {
   React.useEffect(() => {
     const fetchPackages = async () => {
       try {
-        const response = await fetch('/api/product/');
+        const response = await fetch(`/api/product/?t=${Date.now()}`);
         const data = await response.json();
+        console.log('BAMTab - BAM packages response:', data);
         if (data.statusCode === 'OK' && data.body) {
           setBamPackages(data.body);
         }
@@ -26,8 +27,8 @@ export default function BAMTab(): JSX.Element {
 
     fetchPackages();
 
-    // Poll for updates every 5 seconds
-    const interval = setInterval(fetchPackages, 5000);
+    // Poll for updates every 2 seconds
+    const interval = setInterval(fetchPackages, 2000);
 
     return () => clearInterval(interval);
   }, []);
@@ -68,13 +69,13 @@ export default function BAMTab(): JSX.Element {
                   <div className="bear">
                     <img src={pkg.imageUrl} alt={pkg.title} onError={(e) => { (e.target as HTMLImageElement).src = "/img/avatar/avatar.jpg"; }} />
                   </div>
-                  {pkg.status === 1 ? (
-                    <button className="buy" onClick={() => setOpenBuy({plan: pkg.title, price: `$${pkg.purchaseAmount}`})}>Buy</button>
-                  ) : (
-                    <div className="locked">
-                      <span className="lock-icon">🔒</span>
-                    </div>
-                  )}
+                  <button 
+                    className="buy" 
+                    onClick={pkg.status === 1 ? () => setOpenBuy({plan: pkg.title, price: `$${pkg.purchaseAmount}`, id: pkg.id}) : undefined}
+                    disabled={pkg.status !== 1}
+                  >
+                    {pkg.status === 1 ? 'Buy' : '🔒'}
+                  </button>
                 </div>
               </div>
             ))
@@ -83,7 +84,7 @@ export default function BAMTab(): JSX.Element {
       </div>
       <ModalCustom open={!!openBuy} onCancel={() => setOpenBuy(null)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#141414"}}>
         {openBuy && (
-          <BAMBuySheet planName={openBuy.plan} price={openBuy.price} onClose={() => setOpenBuy(null)} />
+          <BAMBuySheet planId={(openBuy as any).id} planName={openBuy.plan} price={openBuy.price} onClose={() => setOpenBuy(null)} />
         )}
       </ModalCustom>
     </div>

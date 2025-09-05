@@ -30,7 +30,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const [showDeposit, setShowDeposit] = useState(false);
   const [bamPackages, setBamPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string}>(null);
+  const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string; id: number}>(null);
 
   // Fetch user details and BAM packages from API
   useEffect(() => {
@@ -195,7 +195,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
       <ModalCustom open={!!openBuy} onCancel={() => setOpenBuy(null)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#141414"}}>
         {openBuy && (
           <BAMBuySheet
-            planId={(openBuy as any).id}
+            planId={openBuy.id}
             planName={openBuy.plan}
             price={openBuy.price}
             onClose={() => setOpenBuy(null)}

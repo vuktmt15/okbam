@@ -6,7 +6,7 @@ import BAMBuySheet from "./BAMBuySheet";
 export default function BAMTab(): JSX.Element {
   const [bamPackages, setBamPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string}>(null);
+  const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string; id: number}>(null);
 
   // Fetch BAM packages from API
   React.useEffect(() => {
@@ -84,7 +84,7 @@ export default function BAMTab(): JSX.Element {
       </div>
       <ModalCustom open={!!openBuy} onCancel={() => setOpenBuy(null)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#141414"}}>
         {openBuy && (
-          <BAMBuySheet planId={(openBuy as any).id} planName={openBuy.plan} price={openBuy.price} onClose={() => setOpenBuy(null)} />
+          <BAMBuySheet planId={openBuy.id} planName={openBuy.plan} price={openBuy.price} onClose={() => setOpenBuy(null)} />
         )}
       </ModalCustom>
     </div>

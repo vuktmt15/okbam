@@ -96,6 +96,56 @@
   align-items: center;
   justify-content: center;
 }
+
+/* Check-in Button */
+.okbam-header .checkin-btn { 
+  background: #2ee59d; 
+  border: none; 
+  border-radius: 8px; 
+  color: #0b1d12; 
+  cursor: pointer; 
+  display: flex; 
+  align-items: center; 
+  gap: 6px; 
+  padding: 8px 12px; 
+  font-weight: 600; 
+  font-size: 12px; 
+  transition: all 0.2s ease; 
+  min-width: 100px; 
+  justify-content: center; 
+}
+.okbam-header .checkin-btn:hover:not(:disabled) { 
+  background: #26d484; 
+  transform: translateY(-1px); 
+  box-shadow: 0 4px 12px rgba(46, 229, 157, 0.3); 
+}
+.okbam-header .checkin-btn:disabled { 
+  background: #4a4a4a; 
+  color: #999; 
+  cursor: not-allowed; 
+  transform: none; 
+  box-shadow: none; 
+}
+.okbam-header .checkin-btn.checked { 
+  background: #4a4a4a; 
+  color: #2ee59d; 
+}
+.okbam-header .checkin-btn .checkin-text { 
+  font-size: 11px; 
+  font-weight: 700; 
+}
+.okbam-header .checkin-btn .loading-spinner { 
+  width: 12px; 
+  height: 12px; 
+  border: 2px solid #0b1d12; 
+  border-top: 2px solid transparent; 
+  border-radius: 50%; 
+  animation: spin 1s linear infinite; 
+}
+@keyframes spin { 
+  0% { transform: rotate(0deg); } 
+  100% { transform: rotate(360deg); } 
+}
 .okbam-header .left {
   display: flex;
   align-items: center;

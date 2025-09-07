@@ -12,6 +12,7 @@ import {
   TeamOutlined,
   ShoppingOutlined,
   CloseOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import {Avatar} from "antd";
 import {ModalCustom} from "@components/ModalCustom";
@@ -36,6 +37,8 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const [myInvestments, setMyInvestments] = useState<any[]>([]);
   const [investmentsLoading, setInvestmentsLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isCheckedIn, setIsCheckedIn] = useState(false);
+  const [checkInLoading, setCheckInLoading] = useState(false);
 
   // Fetch user details and BAM packages from API
   useEffect(() => {
@@ -76,6 +79,26 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
     return () => clearInterval(timer);
   }, []);
 
+  // Check daily check-in status
+  useEffect(() => {
+    const checkDailyStatus = () => {
+      const today = new Date().toDateString();
+      const lastCheckIn = localStorage.getItem('lastCheckIn');
+      
+      if (lastCheckIn === today) {
+        setIsCheckedIn(true);
+      } else {
+        setIsCheckedIn(false);
+      }
+    };
+
+    checkDailyStatus();
+    
+    // Check every minute to reset at midnight
+    const interval = setInterval(checkDailyStatus, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   // Fetch my investments
   const fetchMyInvestments = async () => {
     if (!userDetails?.referrerId && !userDetails?.refererCode) {
@@ -104,6 +127,32 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
     fetchMyInvestments();
   };
 
+  // Handle daily check-in
+  const handleCheckIn = async () => {
+    if (!userDetails?.referrerId && !userDetails?.refererCode) {
+      console.error('Referrer ID not found');
+      return;
+    }
+
+    setCheckInLoading(true);
+    try {
+      const referrerId = userDetails?.referrerId || userDetails?.refererCode;
+      const response = await fetch(`/api/investment-history/check-daily-bam?referrerId=${referrerId}`);
+      const data = await response.json();
+      
+      if (data.statusCode === 'OK') {
+        // Mark as checked in for today
+        const today = new Date().toDateString();
+        localStorage.setItem('lastCheckIn', today);
+        setIsCheckedIn(true);
+      }
+    } catch (error) {
+      console.error('Error checking in:', error);
+    } finally {
+      setCheckInLoading(false);
+    }
+  };
+
   // Fetch investments when component mounts to check for active packages
   useEffect(() => {
     if (userDetails?.referrerId || userDetails?.refererCode) {
@@ -120,17 +169,25 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
             <div className="sub">{userDetails?.email || 'Bear Asset Management'}</div>
           </div>
         </div>
-        {/* <div className="actions">
-          <button className="icon-btn" aria-label="bill">
-            <AuditOutlined />
+        <div className="actions">
+          <button 
+            className={`checkin-btn ${isCheckedIn ? 'checked' : ''}`}
+            onClick={handleCheckIn}
+            disabled={isCheckedIn || checkInLoading}
+            aria-label="daily check-in"
+          >
+            {checkInLoading ? (
+              <div className="loading-spinner" />
+            ) : isCheckedIn ? (
+              <CheckCircleOutlined />
+            ) : (
+              <CalendarOutlined />
+            )}
+            <span className="checkin-text">
+              {isCheckedIn ? 'Checked In' : 'Check In'}
+            </span>
           </button>
-          <button className="icon-btn" aria-label="bell">
-            <BellOutlined />
-          </button>
-          <button className="icon-btn" aria-label="emoji">
-            <SmileOutlined />
-          </button>
-        </div> */}
+        </div>
       </div>
 
       <div className="okbam-banner">

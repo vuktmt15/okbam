@@ -375,6 +375,10 @@
   padding: 10px 0;
 }
 .okbam-home .vip-card .bear-img { width: 180px; height: 180px; border-radius: 12px; overflow: hidden; object-fit: cover; display: block; position: relative; top: -15px; right: -5px; }
+.okbam-home .vip-card .countdown-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 180px; width: 180px; position: relative; top: -15px; right: -5px; }
+.okbam-home .vip-card .countdown-title { font-size: 12px; color: #333; margin-bottom: 8px; font-weight: 600; }
+.okbam-home .vip-card .countdown-time { font-size: 18px; font-weight: 700; color: #000; font-family: 'Courier New', monospace; margin-bottom: 4px; text-align: center; line-height: 1.2; width: 100%; display: block; }
+.okbam-home .vip-card .countdown-days { font-size: 11px; color: #333; font-weight: 600; }
 .okbam-home .vip-card .price { color: #ff4d4f; font-weight: 700; font-size: 14px; }
 .okbam-home .vip-card .vip-name { color: #1a1a1a; text-shadow: none; }
 .okbam-home .vip-card .vip-name { font-weight: 800; font-size: 20px; letter-spacing: 0.3px; }
@@ -614,7 +618,77 @@
 .bambuy-sheet .detail-list .value.green { color: #2ee59d; font-weight: 800; }
 
 .bambuy-sheet .upgrade { width: 100%; margin-top: 14px; background: #2ee59d; color: #0b1d12; font-weight: 800; border-radius: 10px; padding: 12px 14px; }
+.bambuy-sheet .upgrade:disabled { background: #2a2a2a; color: #777; }
+.bambuy-sheet .message { margin-top: 10px; padding: 8px 12px; border-radius: 8px; font-size: 13px; text-align: center; }
+.bambuy-sheet .message.success { background: rgba(46, 229, 157, 0.2); color: #2ee59d; border: 1px solid rgba(46, 229, 157, 0.3); }
+.bambuy-sheet .message.error { background: rgba(255, 77, 79, 0.2); color: #ff4d4f; border: 1px solid rgba(255, 77, 79, 0.3); }
 .bambuy-sheet .close { margin-top: 10px; width: 100%; background: rgba(255,255,255,0.08); color: #fff; border-radius: 10px; padding: 10px 12px; }
+
+/* My Investments Page */
+.my-investments-page { background: #111; min-height: 100vh; color: #fff; }
+.my-investments-page .header { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid #333; }
+.my-investments-page .header .back-btn { background: transparent; border: none; color: #fff; font-size: 18px; padding: 8px; margin-right: 12px; }
+.my-investments-page .header h1 { font-size: 18px; font-weight: 700; margin: 0; }
+.my-investments-page .content { padding: 16px; }
+.my-investments-page .loading { text-align: center; padding: 40px; color: #999; }
+.my-investments-page .empty-state { text-align: center; padding: 60px 20px; }
+.my-investments-page .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+.my-investments-page .empty-state h3 { font-size: 20px; margin-bottom: 8px; }
+.my-investments-page .empty-state p { color: #999; margin-bottom: 24px; }
+.my-investments-page .empty-state .invest-btn { background: #2ee59d; color: #0b1d12; font-weight: 700; border-radius: 10px; padding: 12px 24px; border: none; }
+.my-investments-page .investments-list { display: flex; flex-direction: column; gap: 16px; }
+.my-investments-page .investment-card { background: #1a1a1a; border-radius: 12px; padding: 16px; border: 1px solid #333; }
+.my-investments-page .investment-card .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.my-investments-page .investment-card .bam-info h3 { font-size: 16px; font-weight: 700; margin: 0 0 4px 0; }
+.my-investments-page .investment-card .status { background: #2ee59d; color: #0b1d12; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 6px; }
+.my-investments-page .investment-card .amount { font-size: 18px; font-weight: 800; color: #2ee59d; }
+.my-investments-page .investment-card .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.my-investments-page .investment-card .info-item { display: flex; align-items: center; gap: 6px; color: #999; font-size: 13px; }
+.my-investments-page .investment-card .progress-section { margin-bottom: 16px; }
+.my-investments-page .investment-card .progress-label { font-size: 13px; color: #999; margin-bottom: 6px; }
+.my-investments-page .investment-card .progress-bar { background: #333; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 4px; }
+.my-investments-page .investment-card .progress-fill { background: #2ee59d; height: 100%; transition: width 0.3s ease; }
+.my-investments-page .investment-card .progress-text { font-size: 12px; color: #2ee59d; font-weight: 700; }
+.my-investments-page .investment-card .dates { display: flex; flex-direction: column; gap: 4px; }
+.my-investments-page .investment-card .date-item { display: flex; justify-content: space-between; font-size: 12px; }
+.my-investments-page .investment-card .date-item .label { color: #999; }
+.my-investments-page .investment-card .date-item .value { color: #fff; }
+
+/* My Investments Modal */
+.my-investments-modal { background: #111; color: #fff; min-height: 500px; }
+.my-investments-modal .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #333; }
+.my-investments-modal .modal-header h2 { font-size: 20px; font-weight: 700; margin: 0; }
+.my-investments-modal .modal-header .close-btn { background: transparent; border: none; color: #fff; font-size: 18px; padding: 8px; }
+.my-investments-modal .modal-content { padding: 20px; max-height: 70vh; overflow-y: auto; }
+.my-investments-modal .loading { text-align: center; padding: 40px; color: #999; }
+.my-investments-modal .empty-state { text-align: center; padding: 40px 20px; }
+.my-investments-modal .empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; }
+.my-investments-modal .empty-state h3 { font-size: 18px; margin-bottom: 8px; }
+.my-investments-modal .empty-state p { color: #999; margin-bottom: 20px; font-size: 14px; }
+.my-investments-modal .empty-state .invest-btn { background: #2ee59d; color: #0b1d12; font-weight: 700; border-radius: 8px; padding: 10px 20px; border: none; }
+.my-investments-modal .investments-list { display: flex; flex-direction: column; gap: 12px; }
+.my-investments-modal .investment-card { background: #1a1a1a; border-radius: 12px; padding: 16px; border: 1px solid #333; }
+.my-investments-modal .investment-card .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.my-investments-modal .investment-card .bam-info h3 { font-size: 16px; font-weight: 700; margin: 0 0 4px 0; }
+.my-investments-modal .investment-card .status { background: #2ee59d; color: #0b1d12; font-size: 11px; font-weight: 700; padding: 3px 6px; border-radius: 4px; }
+.my-investments-modal .investment-card .amount { font-size: 16px; font-weight: 800; color: #2ee59d; }
+.my-investments-modal .investment-card .info-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.my-investments-modal .investment-card .info-item { display: flex; align-items: center; gap: 4px; color: #999; font-size: 12px; }
+.my-investments-modal .investment-card .progress-section { margin-bottom: 12px; }
+.my-investments-modal .investment-card .progress-label { font-size: 12px; color: #999; margin-bottom: 4px; }
+.my-investments-modal .investment-card .progress-bar { background: #333; height: 4px; border-radius: 2px; overflow: hidden; margin-bottom: 2px; }
+.my-investments-modal .investment-card .progress-fill { background: #2ee59d; height: 100%; transition: width 0.3s ease; }
+.my-investments-modal .investment-card .progress-text { font-size: 11px; color: #2ee59d; font-weight: 700; }
+.my-investments-modal .investment-card .dates { display: flex; flex-direction: column; gap: 2px; }
+.my-investments-modal .investment-card .date-item { display: flex; justify-content: space-between; font-size: 11px; }
+.my-investments-modal .investment-card .date-item .label { color: #999; }
+.my-investments-modal .investment-card .date-item .value { color: #fff; }
+.my-investments-modal .investment-card .remaining-days { margin-bottom: 12px; }
+.my-investments-modal .investment-card .remaining-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.my-investments-modal .investment-card .remaining-label { font-size: 12px; color: #999; }
+.my-investments-modal .investment-card .remaining-value { font-size: 12px; color: #ff6b6b; font-weight: 700; }
+.my-investments-modal .investment-card .remaining-bar { background: #333; height: 4px; border-radius: 2px; overflow: hidden; }
+.my-investments-modal .investment-card .remaining-fill { background: linear-gradient(90deg, #ff6b6b 0%, #ffa500 100%); height: 100%; transition: width 0.3s ease; }
 
 /* Invite */
 .okbam-invite {

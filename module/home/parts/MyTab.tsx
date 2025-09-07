@@ -13,13 +13,36 @@ export default function MyTab(): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
   const {logout, user, userDetails, fetchUserDetails} = useAuth();
   const [showDeposit, setShowDeposit] = useState(false);
+  const [balance, setBalance] = useState({usdt: 0, dragon: 0});
   const [showSwap, setShowSwap] = useState(false);
 
-  // Fetch user details if not already loaded
+  // Fetch user details and balance
   useEffect(() => {
-    if (user && !userDetails) {
-      fetchUserDetails(user.id);
-    }
+    const fetchData = async () => {
+      try {
+        // Fetch user details if not already loaded
+        if (user && !userDetails) {
+          await fetchUserDetails(user.id);
+        }
+
+        // Fetch balance if we have user details
+        if (userDetails?.referrerId) {
+          const balanceResponse = await fetch(`/api/getBalance?referrerId=${userDetails.referrerId}`);
+          const balanceData = await balanceResponse.json();
+          if (balanceData.statusCode === 'OK' && balanceData.body?.balance) {
+            setBalance({
+              usdt: balanceData.body.balance.usdt || 0,
+              dragon: balanceData.body.balance.dragon || 0
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Keep default balance of 0 on error
+      }
+    };
+
+    fetchData();
   }, [user, userDetails, fetchUserDetails]);
   // const [openLang, setOpenLang] = useState(false);
   // const {currentLanguage, changeLanguage, getCurrentLanguageInfo, languageOptions} = useLanguage();
@@ -45,8 +68,8 @@ export default function MyTab(): JSX.Element {
           <div className="wallet-title">
             <span className="wallet-label">Wallet Balance:</span>
             <span className="wallet-amounts">
-              <span className="wallet-coin"><b>6</b> USDT</span>
-              <span className="wallet-coin"><b>0</b> Dragon</span>
+              <span className="wallet-coin"><b>{balance.usdt}</b> USDT</span>
+              <span className="wallet-coin"><b>{balance.dragon}</b> Dragon</span>
             </span>
           </div>
         </div>

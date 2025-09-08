@@ -329,7 +329,6 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
                 <div className="vip-right">
                   {isPackageActive(pkg.id) ? (
                     <div className="countdown-container">
-                      {ensureNextCheckScheduled(pkg.id)}
                       <div className="countdown-title">Daily Countdown</div>
                       {canCheckNow(pkg.id) ? (
                         <button className="buy" onClick={() => handleDailyCheck(pkg.id)}>Check In</button>

@@ -58,6 +58,12 @@ export default function BAMBuySheet({planId, planName, price, onClose}: Props): 
     return () => { active = false; };
   }, [planId, planName, price]);
 
+  // Reset transient UI state when switching plan/modal
+  React.useEffect(() => {
+    setMessage('');
+    setIsSubmitting(false);
+  }, [planId, planName, price]);
+
   const handleConfirmUpgrade = async () => {
     if (!detail || isSubmitting) return;
     
@@ -102,11 +108,26 @@ export default function BAMBuySheet({planId, planName, price, onClose}: Props): 
       
       if (response.ok && data.statusCode === 'CREATED') {
         setMessage('Successfully registered BAM package!');
+        // schedule first daily check in 24h for this bamId
+        try {
+          const key = `bam_next_check_${String(planId)}`;
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(key, String(Date.now() + 24 * 60 * 60 * 1000));
+          }
+        } catch {}
         setTimeout(() => {
           onClose();
         }, 2000);
       } else {
-        setMessage(data.message || 'Registration failed. Please try again.');
+        let errMsg: string = data?.message || '';
+        if (typeof errMsg === 'string') {
+          // Normalize known Vietnamese messages to English
+          const vnAlreadyRegex = /(bam\s*(da|đã)\s*(dc|được)\s*(dang\s*ky|đăng\s*ký))/i;
+          if (vnAlreadyRegex.test(errMsg)) {
+            errMsg = 'You have already registered this BAM package.';
+          }
+        }
+        setMessage(errMsg || 'Registration failed. Please try again.');
       }
     } catch (error) {
       console.error('Registration error:', error);

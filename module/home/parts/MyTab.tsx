@@ -16,6 +16,35 @@ export default function MyTab(): JSX.Element {
   const [balance, setBalance] = useState({usdt: 0, dragon: 0});
   const [showSwap, setShowSwap] = useState(false);
 
+  // Check withdraw configuration before opening withdraw screen
+  const handleWithdrawClick = async () => {
+    try {
+      const response = await fetch('http://159.223.91.231:8866/api/admin-configs');
+      const configs = await response.json();
+      
+      if (Array.isArray(configs) && configs.length > 0) {
+        const withdrawConfig = configs.find((config: any) => config.id === 1);
+        
+        if (withdrawConfig) {
+          const isEnabled = withdrawConfig.status === 1;
+          
+          if (isEnabled) {
+            goWithdraw(); // Open withdraw screen
+          } else {
+            alert("System is overloaded, please try again later!");
+          }
+        } else {
+          alert("System is overloaded, please try again later!");
+        }
+      } else {
+        alert("System is overloaded, please try again later!");
+      }
+    } catch (error) {
+      console.error('Error checking withdraw config:', error);
+      alert("System is overloaded, please try again later!");
+    }
+  };
+
   // Fetch user details and balance
   useEffect(() => {
     const fetchData = async () => {
@@ -75,7 +104,7 @@ export default function MyTab(): JSX.Element {
         </div>
         <div className="quick">
           <button onClick={() => setShowDeposit(true)}>Deposit</button>
-          <button onClick={goWithdraw}>Withdraw</button>
+          <button onClick={handleWithdrawClick}>Withdraw</button>
           <button onClick={() => setShowSwap(true)}>SWAP</button>
           <button>History</button>
         </div>

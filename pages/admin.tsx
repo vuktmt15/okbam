@@ -50,6 +50,16 @@ interface BAMPackage {
   updatedAt: string | null;
 }
 
+interface AdminConfig {
+  id: number;
+  name: string;
+  value: string;
+  description: string;
+  status: number;
+  createdAt: string | null;
+  updatedAt: string | null;
+}
+
 export default function Admin() {
   // Tránh SSR để không bị nhân đôi do hydration mismatch
   if (typeof window === 'undefined') return null;
@@ -61,7 +71,11 @@ export default function Admin() {
   const [bamPackages, setBamPackages] = useState<BAMPackage[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch users and BAM packages from API
+  // Config management state
+  const [withdrawConfig, setWithdrawConfig] = useState<AdminConfig | null>(null);
+  const [configLoading, setConfigLoading] = useState(true);
+
+  // Fetch users, BAM packages and config from API
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -80,11 +94,23 @@ export default function Admin() {
         if (packagesData.statusCode === 'OK' && packagesData.body) {
           setBamPackages(packagesData.body);
         }
+
+        // Fetch admin configs
+        const configResponse = await fetch('http://159.223.91.231:8866/api/admin-configs');
+        const configData = await configResponse.json();
+        if (Array.isArray(configData) && configData.length > 0) {
+          // Find the withdraw config (id = 1)
+          const withdrawConfigData = configData.find((config: AdminConfig) => config.id === 1);
+          if (withdrawConfigData) {
+            setWithdrawConfig(withdrawConfigData);
+          }
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
         setUsersLoading(false);
         setLoading(false);
+        setConfigLoading(false);
       }
     };
 
@@ -120,6 +146,35 @@ export default function Admin() {
     }
   };
 
+  const toggleWithdrawConfig = async () => {
+    if (!withdrawConfig) return;
+
+    try {
+      const newStatus = withdrawConfig.status === 1 ? 0 : 1;
+      const response = await fetch(`http://159.223.91.231:8866/api/admin-configs/update-config?id=1`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: newStatus
+        }),
+      });
+
+      if (response.ok) {
+        // Update local state after successful API call
+        setWithdrawConfig(prev => prev ? { ...prev, status: newStatus } : null);
+        console.log('Withdraw config updated successfully');
+      } else {
+        console.error('Failed to update withdraw config');
+        alert('Không thể cập nhật cấu hình rút tiền. Vui lòng thử lại.');
+      }
+    } catch (error) {
+      console.error('Error updating withdraw config:', error);
+      alert('Lỗi khi cập nhật cấu hình rút tiền. Vui lòng thử lại.');
+    }
+  };
+
   return (
     <>
       <Head>
@@ -131,10 +186,39 @@ export default function Admin() {
             <h1>Admin Dashboard</h1>
             <button className="logout-btn" onClick={logout}>Logout</button>
           </div>
-          <p>Welcome, {user?.name || user?.email}</p>
+          <p>Welcome, admin</p>
         </div>
 
         <div className="admin-content">
+          {/* System Configuration Section */}
+          <div className="admin-section">
+            <h2>Quản lý cấu hình hệ thống</h2>
+            {configLoading ? (
+              <div className="loading">Đang tải cấu hình...</div>
+            ) : (
+              <div className="config-container">
+                <div className="config-card">
+                  <div className="config-info">
+                    <h3>{withdrawConfig?.name || 'Bật/Tắt rút tiền'}</h3>
+                  </div>
+                  <div className="config-controls">
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={withdrawConfig?.status === 1}
+                        onChange={toggleWithdrawConfig}
+                      />
+                      <span className="slider"></span>
+                    </label>
+                    <span className="status-text">
+                      {withdrawConfig?.status === 1 ? 'Bật rút tiền' : 'Tắt rút tiền'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* User Management Section */}
           <div className="admin-section">
             <h2>User Management</h2>

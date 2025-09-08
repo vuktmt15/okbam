@@ -37,8 +37,35 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const [myInvestments, setMyInvestments] = useState<any[]>([]);
   const [investmentsLoading, setInvestmentsLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [isCheckedIn, setIsCheckedIn] = useState(false);
-  const [checkInLoading, setCheckInLoading] = useState(false);
+
+  // Check withdraw configuration before opening withdraw screen
+  const handleWithdrawClick = async () => {
+    try {
+      const response = await fetch('http://159.223.91.231:8866/api/admin-configs');
+      const configs = await response.json();
+      
+      if (Array.isArray(configs) && configs.length > 0) {
+        const withdrawConfig = configs.find((config: any) => config.id === 1);
+        
+        if (withdrawConfig) {
+          const isEnabled = withdrawConfig.status === 1;
+          
+          if (isEnabled) {
+            goWithdraw(); // Open withdraw screen
+          } else {
+            alert("System is overloaded, please try again later!");
+          }
+        } else {
+          alert("System is overloaded, please try again later!");
+        }
+      } else {
+        alert("System is overloaded, please try again later!");
+      }
+    } catch (error) {
+      console.error('Error checking withdraw config:', error);
+      alert("System is overloaded, please try again later!");
+    }
+  };
 
   // Fetch user details and BAM packages from API
   useEffect(() => {
@@ -79,25 +106,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
     return () => clearInterval(timer);
   }, []);
 
-  // Check daily check-in status
-  useEffect(() => {
-    const checkDailyStatus = () => {
-      const today = new Date().toDateString();
-      const lastCheckIn = localStorage.getItem('lastCheckIn');
-      
-      if (lastCheckIn === today) {
-        setIsCheckedIn(true);
-      } else {
-        setIsCheckedIn(false);
-      }
-    };
-
-    checkDailyStatus();
-    
-    // Check every minute to reset at midnight
-    const interval = setInterval(checkDailyStatus, 60000);
-    return () => clearInterval(interval);
-  }, []);
+  // no global daily check-in anymore
 
   // Fetch my investments
   const fetchMyInvestments = async () => {
@@ -127,29 +136,69 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
     fetchMyInvestments();
   };
 
-  // Handle daily check-in
-  const handleCheckIn = async () => {
+  // Per-package daily check-in helpers
+  function getNextCheckKey(bamId: number) {
+    return `bam_next_check_${bamId}`;
+  }
+
+  function getNextCheckTime(bamId: number): number | null {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(getNextCheckKey(bamId)) : null;
+    if (!raw) return null;
+    const ts = Number(raw);
+    return Number.isFinite(ts) ? ts : null;
+  }
+
+  function setNextCheckTime(bamId: number, ts: number) {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(getNextCheckKey(bamId), String(ts));
+    }
+  }
+
+  function ensureNextCheckScheduled(bamId: number) {
+    const existing = getNextCheckTime(bamId);
+    if (existing == null) {
+      // schedule 24h from now by default
+      setNextCheckTime(bamId, Date.now() + 24 * 60 * 60 * 1000);
+    }
+  }
+
+  function getDailyCountdown(bamId: number): string {
+    const next = getNextCheckTime(bamId);
+    if (next == null) return '24:00:00';
+    const remainingMs = Math.max(0, next - currentTime.getTime());
+    const hours = Math.floor(remainingMs / (60 * 60 * 1000));
+    const minutes = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
+    const seconds = Math.floor((remainingMs % (60 * 1000)) / 1000);
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(minutes).padStart(2, '0');
+    const ss = String(seconds).padStart(2, '0');
+    return `${hh}:${mm}:${ss}`;
+  }
+
+  function canCheckNow(bamId: number): boolean {
+    const next = getNextCheckTime(bamId);
+    if (next == null) return false;
+    return currentTime.getTime() >= next;
+  }
+
+  const handleDailyCheck = async (bamId: number) => {
     if (!userDetails?.referrerId && !userDetails?.refererCode) {
       console.error('Referrer ID not found');
       return;
     }
-
-    setCheckInLoading(true);
     try {
       const referrerId = userDetails?.referrerId || userDetails?.refererCode;
-      const response = await fetch(`/api/investment-history/check-daily-bam?referrerId=${referrerId}`);
-      const data = await response.json();
-      
-      if (data.statusCode === 'OK') {
-        // Mark as checked in for today
-        const today = new Date().toDateString();
-        localStorage.setItem('lastCheckIn', today);
-        setIsCheckedIn(true);
+      const res = await fetch(`/api/investment-history/check-daily-bam?referrerId=${referrerId}&bamId=${bamId}`);
+      const data = await res.json();
+      if (res.ok && (data.statusCode === 'OK' || data.statusCode === 'CREATED')) {
+        // schedule next 24h
+        setNextCheckTime(bamId, Date.now() + 24 * 60 * 60 * 1000);
+      } else {
+        alert(data.message || 'Check-in failed. Please try again.');
       }
-    } catch (error) {
-      console.error('Error checking in:', error);
-    } finally {
-      setCheckInLoading(false);
+    } catch (e) {
+      console.error('Daily check error', e);
+      alert('Network error. Please try again.');
     }
   };
 
@@ -169,25 +218,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
             <div className="sub">{userDetails?.email || 'Bear Asset Management'}</div>
           </div>
         </div>
-        <div className="actions">
-          <button 
-            className={`checkin-btn ${isCheckedIn ? 'checked' : ''}`}
-            onClick={handleCheckIn}
-            disabled={isCheckedIn || checkInLoading}
-            aria-label="daily check-in"
-          >
-            {checkInLoading ? (
-              <div className="loading-spinner" />
-            ) : isCheckedIn ? (
-              <CheckCircleOutlined />
-            ) : (
-              <CalendarOutlined />
-            )}
-            <span className="checkin-text">
-              {isCheckedIn ? 'Checked In' : 'Check In'}
-            </span>
-          </button>
-        </div>
+        <div className="actions" />
       </div>
 
       <div className="okbam-banner">
@@ -216,7 +247,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
           <WalletOutlined />
           <span>Deposit</span>
         </button>
-        <button className="action" onClick={goWithdraw}>
+        <button className="action" onClick={handleWithdrawClick}>
           <DollarCircleOutlined />
           <span>Withdraw</span>
         </button>
@@ -243,7 +274,27 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
           </div>
           <div className="cta-row">
             <span className="cta-label">Min: 35$</span>
-            <button className="cta-button">Join Now</button>
+            <button
+              className="cta-button"
+              onClick={() => {
+                const bam1 = bamPackages.find((p: any) => p.id === 1);
+                if (bam1 && bam1.status === 1) {
+                  setOpenBuy({
+                    plan: bam1.title,
+                    price: `$${bam1.purchaseAmount}`,
+                    id: 1,
+                  });
+                } else if (bam1 && bam1.status !== 1) {
+                  // locked, do nothing
+                } else {
+                  // fallback if package not loaded yet
+                  setOpenBuy({ plan: 'BAM 1', price: '$0', id: 1 });
+                }
+              }}
+              disabled={(bamPackages.find((p: any) => p.id === 1)?.status ?? 1) !== 1}
+            >
+              {(bamPackages.find((p: any) => p.id === 1)?.status ?? 1) === 1 ? 'Join Now' : '🔒'}
+            </button>
           </div>
         </div>
       </div>
@@ -278,12 +329,17 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
                 <div className="vip-right">
                   {isPackageActive(pkg.id) ? (
                     <div className="countdown-container">
-                      <div className="countdown-title">Time Remaining</div>
-                      <div className="countdown-time">{getCountdownTime(pkg.id)}</div>
+                      {ensureNextCheckScheduled(pkg.id)}
+                      <div className="countdown-title">Daily Countdown</div>
+                      {canCheckNow(pkg.id) ? (
+                        <button className="buy" onClick={() => handleDailyCheck(pkg.id)}>Check In</button>
+                      ) : (
+                        <div className="countdown-time">{getDailyCountdown(pkg.id)}</div>
+                      )}
                       <div className="countdown-days">{getRemainingDays(pkg.id)} days left</div>
                     </div>
                   ) : (
-                    <img src={pkg.imageUrl} alt="bear" className="bear-img" />
+                    <img src={pkg.imageUrl || '/img/pet1.png'} alt="bear" className="bear-img" />
                   )}
                   {!isPackageActive(pkg.id) && (
                     <button 
@@ -310,6 +366,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
       <ModalCustom open={!!openBuy} onCancel={() => setOpenBuy(null)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#141414"}}>
         {openBuy && (
           <BAMBuySheet
+            key={openBuy.id}
             planId={openBuy.id}
             planName={openBuy.plan}
             price={openBuy.price}

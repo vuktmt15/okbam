@@ -316,6 +316,85 @@
   }
 }
 
+/* Config Management */
+.config-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.config-card {
+  background: #2a2a2a;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #333;
+  transition: border-color 0.2s;
+  
+  &:hover {
+    border-color: #667eea;
+  }
+  
+  .config-info {
+    flex: 1;
+    
+    h3 {
+      color: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .config-description {
+      color: #ccc;
+      font-size: 14px;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    
+    .config-status {
+      color: #ccc;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        
+        &.active {
+          background: #10b981;
+          color: #fff;
+        }
+        
+        &.inactive {
+          background: #ef4444;
+          color: #fff;
+        }
+      }
+    }
+  }
+  
+  .config-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    
+    .status-text {
+      font-size: 12px;
+      color: #ccc;
+      font-weight: 500;
+    }
+  }
+}
+
 /* Switch Toggle */
 .switch {
   position: relative;
@@ -380,5 +459,19 @@
     flex-direction: column;
     gap: 16px;
     text-align: center;
+  }
+  
+  .config-card {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+    
+    .config-info {
+      text-align: center;
+    }
+    
+    .config-controls {
+      align-items: center;
+    }
   }
 }

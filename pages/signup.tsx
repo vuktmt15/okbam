@@ -14,8 +14,7 @@ export default function SignUp() {
     password: '',
     confirmPassword: '',
     phone: '',
-    refererCode: '',
-    refererBy: ''
+    refererCode: ''
   });
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
@@ -44,7 +43,6 @@ export default function SignUp() {
         avatar: 'https://example.com/avatar.jpg',
         gender: 'male',
         refererCode: formData.refererCode || undefined,
-        refererBy: formData.refererBy || undefined,
       };
 
                         const res = await fetch('/api/auth/register', {
@@ -173,17 +171,7 @@ export default function SignUp() {
               />
             </div>
 
-            <div className="form-group">
-              <label>Referred By (optional)</label>
-              <input
-                type="text"
-                name="refererBy"
-                value={formData.refererBy}
-                onChange={handleInputChange}
-                placeholder="Enter referrer code"
-                disabled={isSubmitting}
-              />
-            </div>
+            {/* Removed Referred By field per request */}
             
             <button type="submit" className="auth-button" disabled={isSubmitting}>
               {isSubmitting ? 'Creating...' : 'Create Account'}

@@ -1,20 +1,18 @@
 import React, {useState} from "react";
-import {CopyOutlined, LinkOutlined, SearchOutlined} from "@ant-design/icons";
+import {CopyOutlined, SearchOutlined} from "@ant-design/icons";
 // import InviteTree from "./InviteTree";
 import {ModalCustom} from "@components/ModalCustom";
+import {useAuth} from "../../../contexts/AuthContext";
 
 export default function InviteTab(): JSX.Element {
   const [active, setActive] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [memberTab, setMemberTab] = useState<"members" | "stats">("members");
   const [openAgency, setOpenAgency] = useState(false);
+  const { user, userDetails } = useAuth();
+  const referralCode = userDetails?.refererCode || user?.refererCode || "";
   
   const handleCopyReferralCode = () => {
-    navigator.clipboard.writeText("123456");
-    // Optional: add toast notification
-  };
-  
-  const handleCopyUrl = () => {
-    navigator.clipboard.writeText("https://bam-play.com?pcode=***");
+    if (referralCode) navigator.clipboard.writeText(referralCode);
     // Optional: add toast notification
   };
   const commission = [
@@ -44,13 +42,8 @@ export default function InviteTab(): JSX.Element {
         <div className="rows">
           <div className="row">
             <span className="label">Referral Code</span>
-            <span className="value">123456</span>
+            <span className="value">{referralCode || '—'}</span>
             <button className="icon" onClick={handleCopyReferralCode}><CopyOutlined /></button>
-          </div>
-          <div className="row">
-            <span className="label"><LinkOutlined /> Suggested URL</span>
-            <span className="value url">https://bam-play.com?pcode=***</span>
-            <button className="icon" onClick={handleCopyUrl}><CopyOutlined /></button>
           </div>
         </div>
       </div>

@@ -34,6 +34,10 @@ interface User {
     name: string;
   };
   seedPhrase: string | null;
+  balance?: {
+    usdt: number;
+    dragon: number;
+  }; // Thêm trường số dư
 }
 
 interface BAMPackage {
@@ -75,18 +79,118 @@ export default function Admin() {
   const [withdrawConfig, setWithdrawConfig] = useState<AdminConfig | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
 
-  // Fetch users, BAM packages and config from API
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const usersPerPage = 10;
+
+  // Cache all users to avoid refetching
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [allUsersLoaded, setAllUsersLoaded] = useState(false);
+  
+  // Cache user balances to avoid refetching
+  const [balanceCache, setBalanceCache] = useState<{[key: string]: {usdt: number, dragon: number}}>({});
+  const [pageLoading, setPageLoading] = useState(false);
+
+  // Fetch all users once on component mount
+  React.useEffect(() => {
+    const fetchAllUsers = async () => {
+      if (allUsersLoaded) return;
+      
+      try {
+        setUsersLoading(true);
+        const allUsersResponse = await fetch('/api/auth/list-user');
+        const allUsersData = await allUsersResponse.json();
+        
+        if (allUsersData.statusCode === 'OK' && allUsersData.body) {
+          // Filter out admin users, only show regular users
+          const allRegularUsers = allUsersData.body.filter((user: User) => user.role.name === 'USER');
+          
+          setAllUsers(allRegularUsers);
+          setTotalUsers(allRegularUsers.length);
+          setTotalPages(Math.ceil(allRegularUsers.length / usersPerPage));
+          setAllUsersLoaded(true);
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      } finally {
+        setUsersLoading(false);
+      }
+    };
+
+    fetchAllUsers();
+  }, [allUsersLoaded, usersPerPage]);
+
+  // Fetch balance for current page users
+  React.useEffect(() => {
+    const fetchCurrentPageUsers = async () => {
+      if (!allUsersLoaded || allUsers.length === 0) return;
+
+      try {
+        setPageLoading(true);
+        
+        // Get users for current page
+        const startIndex = (currentPage - 1) * usersPerPage;
+        const endIndex = startIndex + usersPerPage;
+        const currentPageUsers = allUsers.slice(startIndex, endIndex);
+        
+        // Fetch balance for each user on current page (with caching)
+        const usersWithBalance = await Promise.all(
+          currentPageUsers.map(async (user: User) => {
+            try {
+              // Use referrerId if available, otherwise use user id
+              const referrerId = user.referrerId || user.id.toString();
+              
+              // Check if balance is already cached
+              if (balanceCache[referrerId]) {
+                return {
+                  ...user,
+                  balance: balanceCache[referrerId]
+                };
+              }
+              
+              // Fetch balance from API
+              const balanceResponse = await fetch(`/api/getBalance?referrerId=${referrerId}`);
+              const balanceData = await balanceResponse.json();
+              const balance = balanceData.balance || { usdt: 0, dragon: 0 };
+              
+              // Cache the balance
+              setBalanceCache(prev => ({
+                ...prev,
+                [referrerId]: balance
+              }));
+              
+              return {
+                ...user,
+                balance: balance
+              };
+            } catch (error) {
+              console.error(`Error fetching balance for user ${user.id}:`, error);
+              const defaultBalance = { usdt: 0, dragon: 0 };
+              return {
+                ...user,
+                balance: defaultBalance
+              };
+            }
+          })
+        );
+        
+        setUsers(usersWithBalance);
+      } catch (error) {
+        console.error('Error fetching current page users:', error);
+      } finally {
+        setPageLoading(false);
+      }
+    };
+
+    fetchCurrentPageUsers();
+  }, [currentPage, allUsers, allUsersLoaded, usersPerPage]);
+
+  // Fetch BAM packages and config from API
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch users
-        const usersResponse = await fetch('/api/auth/list-user');
-        const usersData = await usersResponse.json();
-        if (usersData.statusCode === 'OK' && usersData.body) {
-          // Filter out admin users, only show regular users
-          const regularUsers = usersData.body.filter((user: User) => user.role.name === 'USER');
-          setUsers(regularUsers);
-        }
 
         // Fetch BAM packages
         const packagesResponse = await fetch('/api/product/');
@@ -108,7 +212,6 @@ export default function Admin() {
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
-        setUsersLoading(false);
         setLoading(false);
         setConfigLoading(false);
       }
@@ -175,6 +278,54 @@ export default function Admin() {
     }
   };
 
+  // Pagination functions
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const renderPagination = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          className={`pagination-btn ${i === currentPage ? 'active' : ''}`}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    return (
+      <div className="pagination">
+        <button
+          className="pagination-btn"
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        {pages}
+        <button
+          className="pagination-btn"
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
+      </div>
+    );
+  };
+
   return (
     <>
       <Head>
@@ -222,44 +373,68 @@ export default function Admin() {
           {/* User Management Section */}
           <div className="admin-section">
             <h2>User Management</h2>
+            <div className="user-stats">
+              <p>Total Users: {totalUsers} | Page {currentPage} of {totalPages}</p>
+            </div>
             {usersLoading ? (
               <div className="loading">Loading users...</div>
             ) : (
-              <div className="table-container">
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Name</th>
-                      <th>Email</th>
-                      <th>Phone</th>
-                      <th>Status</th>
-                      <th>Join Date</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map(user => (
-                      <tr key={user.id}>
-                        <td>{user.id}</td>
-                        <td>{user.name || 'N/A'}</td>
-                        <td>{user.email}</td>
-                        <td>{user.phone || 'N/A'}</td>
-                        <td>
-                          <span className={`status-badge ${user.status === 1 ? 'active' : 'inactive'}`}>
-                            {user.status === 1 ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        <td>{new Date(user.createdAt).toLocaleDateString()}</td>
-                        <td>
-                          <button className="action-btn edit">Edit</button>
-                          <button className="action-btn delete">Delete</button>
-                        </td>
+              <>
+                <div className="table-container">
+                  {pageLoading && (
+                    <div className="page-loading">
+                      <div className="loading-spinner"></div>
+                      <span>Loading page...</span>
+                    </div>
+                  )}
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>USDT Balance</th>
+                        <th>Dragon Balance</th>
+                        <th>Status</th>
+                        <th>Join Date</th>
+                        <th>Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {users.map(user => (
+                        <tr key={user.id}>
+                          <td>{user.id}</td>
+                          <td>{user.name || 'N/A'}</td>
+                          <td>{user.email}</td>
+                          <td>{user.phone || 'N/A'}</td>
+                          <td>
+                            <span className="balance-amount usdt">
+                              ${user.balance?.usdt?.toFixed(2) || '0.00'}
+                            </span>
+                          </td>
+                          <td>
+                            <span className="balance-amount dragon">
+                              {user.balance?.dragon?.toFixed(2) || '0.00'} 🐉
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`status-badge ${user.status === 1 ? 'active' : 'inactive'}`}>
+                              {user.status === 1 ? 'Active' : 'Inactive'}
+                            </span>
+                          </td>
+                          <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                          <td>
+                            <button className="action-btn edit">Edit</button>
+                            <button className="action-btn delete">Delete</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {totalPages > 1 && renderPagination()}
+              </>
             )}
           </div>
 

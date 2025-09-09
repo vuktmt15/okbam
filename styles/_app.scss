@@ -213,6 +213,7 @@
 
 .table-container {
   overflow-x: auto;
+  position: relative;
 }
 
 .admin-table {
@@ -441,6 +442,108 @@
   }
 }
 
+/* User Stats */
+.user-stats {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+  
+  p {
+    margin: 0;
+    color: #ccc;
+    font-size: 14px;
+  }
+}
+
+/* Page Loading */
+.page-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 8px;
+  
+  span {
+    color: #fff;
+    margin-top: 12px;
+    font-size: 14px;
+  }
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #444;
+  border-top: 3px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Balance Display */
+.balance-amount {
+  font-weight: 600;
+  font-size: 14px;
+  
+  &.usdt {
+    color: #4ade80;
+  }
+  
+  &.dragon {
+    color: #f59e0b;
+  }
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 16px 0;
+}
+
+.pagination-btn {
+  padding: 8px 12px;
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background: #3a3a3a;
+    border-color: #667eea;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  &.active {
+    background: #667eea;
+    border-color: #667eea;
+    color: #fff;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .auth-container {
@@ -473,5 +576,58 @@
     .config-controls {
       align-items: center;
     }
+  }
+  
+  /* Mobile table responsive */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+  
+  .admin-table {
+    min-width: 800px;
+    
+    th, td {
+      padding: 8px 6px;
+      font-size: 12px;
+    }
+    
+    .balance-amount {
+      font-size: 12px;
+    }
+    
+    .action-btn {
+      padding: 4px 8px;
+      font-size: 11px;
+      margin: 2px;
+    }
+  }
+  
+  .pagination {
+    flex-wrap: wrap;
+    gap: 4px;
+    
+    .pagination-btn {
+      padding: 6px 8px;
+      font-size: 12px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-table {
+    th, td {
+      padding: 6px 4px;
+      font-size: 11px;
+    }
+    
+    .balance-amount {
+      font-size: 11px;
+    }
+  }
+  
+  .user-stats p {
+    font-size: 12px;
   }
 }

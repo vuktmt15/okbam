@@ -6,7 +6,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const response = await fetch('http://159.223.91.231:8866/api/auth/list-user', {
+    const { page = 1, limit = 10 } = req.query;
+    
+    // Build URL with pagination parameters
+    const url = new URL('http://159.223.91.231:8866/api/auth/list-user');
+    url.searchParams.append('page', page as string);
+    url.searchParams.append('limit', limit as string);
+
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

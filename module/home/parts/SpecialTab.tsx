@@ -124,7 +124,6 @@ export default function SpecialTab(): JSX.Element {
           <div className="special-status">
             <div className="status-left">Current Status:</div>
             <div className="status-right">
-              {ensureScheduled(pkg.id ?? 11)}
               <div className="timer">{msToHHMMSS(remaining(pkg.id ?? 11))}</div>
             </div>
           </div>

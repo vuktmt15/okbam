@@ -89,7 +89,10 @@ export default function BAMTab(): JSX.Element {
             bamPackages.filter((p:any) => {
               const pid = p?.id ?? p?.bamId ?? p?.planId;
               return pid !== 11 && pid !== 1;
-            }).map((pkg, index) => (
+            }).map((pkg, index) => {
+              // Ensure countdown is scheduled for each package
+              ensureScheduled(pkg.id);
+              return (
               <div key={pkg.id} className={`dragon-card dragon-${index}`}>
                 <div className="special-info">
                   <div className="cell name">
@@ -123,7 +126,6 @@ export default function BAMTab(): JSX.Element {
                 <div className="special-status">
                   <div className="status-left">Current Status:</div>
                   <div className="status-right">
-                    {ensureScheduled(pkg.id)}
                     <div className="timer">{msToHHMMSS(remaining(pkg.id))}</div>
                   </div>
                 </div>
@@ -131,7 +133,7 @@ export default function BAMTab(): JSX.Element {
                   <button className="claim" disabled={!canClaim(pkg.id)} onClick={canClaim(pkg.id) ? () => handleClaim(pkg.id) : undefined}>Claim</button>
                 </div>
               </div>
-            ))
+            )})
           )}
         </div>
       </div>

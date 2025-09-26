@@ -5,14 +5,16 @@ type Props = {
   planName: string;
   price: string; // e.g. "50USDT"
   onClose: () => void;
+  showBonusNote?: boolean;
 };
 
-export default function BAMBuySheet({planId, planName, price, onClose}: Props): JSX.Element {
+export default function BAMBuySheet({planId, planName, price, onClose, showBonusNote}: Props): JSX.Element {
   const [detail, setDetail] = React.useState<any | null>(null);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [message, setMessage] = React.useState<string>('');
   const [balance, setBalance] = React.useState({usdt: 0, dragon: 0});
+  const [quantity, setQuantity] = React.useState<number>(1);
 
   React.useEffect(() => {
     let active = true;
@@ -139,24 +141,49 @@ export default function BAMBuySheet({planId, planName, price, onClose}: Props): 
 
   return (
     <div className="bambuy-sheet">
-      <div className="sheet-title">Upgrade Confirmation</div>
+      <div className="sheet-title name-row">
+        <span className="text">{detail?.title || planName}</span>
+        <img
+          src={(planId === 11) ? "/img/dragon/special-dragon-home.png" : "/img/dragon/normal-dragon-home.png"}
+          alt=""
+          className="name-icon"
+        />
+      </div>
       {loading ? (
         <div className="loading">Loading...</div>
       ) : (
-        <div className="detail-list">
-          <div className="row"><span className="label">Level</span><span className="value">{detail?.title || planName}</span></div>
-          <div className="row"><span className="label">Daily Income</span><span className="value">{detail?.dailyIncome} USDT</span></div>
-          <div className="row"><span className="label">Total Profit</span><span className="value">240%</span></div>
-          <div className="row"><span className="label">Total Revenue</span><span className="value">{detail?.amount} USDT</span></div>
-          <div className="row"><span className="label">Period</span><span className="value">{detail?.period} days</span></div>
-          <div className="row"><span className="label">Food Cost</span><span className="value">{Number(detail?.purchaseAmount) * 1.25} USDT</span></div>
-          <div className="row"><span className="label">Purchase Amount</span><span className="value green">{detail?.purchaseAmount} USDT</span></div>
-          <div className="row"><span className="label">Wallet Balance</span><span className="value">{balance.usdt} USDT</span></div>
-        </div>
+        <>
+          <div className="detail-list">
+            <div className="row"><span className="label">Min:</span><span className="value">${detail?.purchaseAmount}</span></div>
+            <div className="row"><span className="label">24h Profit:</span><span className="value">{detail?.dailyIncome} dragon</span></div>
+            <div className="row"><span className="label">Cycle:</span><span className="value">{detail?.period} days</span></div>
+            <div className="row"><span className="label">Mining Speed:</span><span className="value">{detail?.dailyIncome}/h</span></div>
+            <div className="row quantity-row">
+              <span className="label">Quantity:</span>
+              <span className="value">
+                <button className="qty-btn" onClick={() => setQuantity(Math.max(0, quantity - 1))}>-</button>
+                <span className="qty-num">{quantity}</span>
+                <button className="qty-btn" onClick={() => setQuantity(quantity + 1)}>+</button>
+              </span>
+            </div>
+            <div className="row"><span className="label">Total Profit:</span><span className="value">{detail?.amount} dragon</span></div>
+          </div>
+
+          <div className="nft-illustration">
+            <img src="/img/nft.png" alt="NFT" />
+          </div>
+
+          {showBonusNote && (
+            <div className="bonus-note">
+              <div className="line-1">Bonus & special offers for new accounts and members.</div>
+              <div className="line-2">Join now to receive bonus and enjoy daily profit for {detail?.period} days.</div>
+            </div>
+          )}
+        </>
       )}
 
-      <button className="upgrade" disabled={loading || isSubmitting} onClick={handleConfirmUpgrade}>
-        {isSubmitting ? 'Processing...' : 'Confirm Upgrade'}
+      <button className="upgrade" disabled={loading || isSubmitting || quantity === 0} onClick={handleConfirmUpgrade}>
+        {isSubmitting ? 'Processing...' : 'Confirm Purchase'}
       </button>
       {message && (
         <div className={`message ${message.includes('Successfully') ? 'success' : 'error'}`}>

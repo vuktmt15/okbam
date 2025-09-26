@@ -5,6 +5,7 @@ import {
   CopyOutlined,
   CheckCircleTwoTone,
 } from "@ant-design/icons";
+import { ModalCustom } from "@components/ModalCustom";
 
 type NetworkKey = "BEP20" | "USDT";
 
@@ -23,6 +24,7 @@ export default function WithdrawScreen({
   onBack,
 }: Props): JSX.Element {
   const [showNetworks, setShowNetworks] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [network, setNetwork] = useState<NetworkKey>("BEP20");
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState<string>("");
@@ -81,47 +83,41 @@ export default function WithdrawScreen({
         <button className="back" onClick={onBack}>
           <ArrowLeftOutlined />
         </button>
-        <div className="title">Withdraw</div>
-        <div className="spacer" />
+        <div className="title">
+          Withdraw - USDT
+          <span className="usdt-icon">💎</span>
+        </div>
+        <div className="history-link" onClick={() => setShowHistory(true)}>History →</div>
       </div>
 
       <div className="form">
-        <div className="field">
-          <div className="label">Network</div>
+        <div className="field-group">
+          <div className="label">Network :</div>
           <button className="select" onClick={() => setShowNetworks(true)}>
             <span>{NETWORKS[network].label}</span>
             <DownOutlined />
           </button>
         </div>
 
-        <div className="field">
-          <div className="label">Withdrawal Address</div>
+        <div className="field-group">
+          <div className="label">Withdrawal Address :</div>
           <div className="input-with-icon">
             <input
-              placeholder="Please enter withdrawal address"
+              placeholder="Please enter withdrawal address ..."
               value={address}
               onChange={(e) => setAddress(e.target.value)}
             />
-            <CopyOutlined />
           </div>
         </div>
 
-        <div className="field">
-          <div className="label">Supported Currency</div>
-          <div className="token-box">
-            <CheckCircleTwoTone twoToneColor="#52c41a" />
-            <span>USDT</span>
-          </div>
-        </div>
-
-        <div className="field">
-          <div className="label">Withdrawal Amount</div>
+        <div className="field-group">
+          <div className="label">Withdrawal Amount :</div>
           <div className="input-with-max">
             <input
               type="number"
               min="0"
               step="0.01"
-              placeholder={`Minimum withdrawal amount is ${min} USDT`}
+              placeholder="Please enter amount ..."
               value={amount}
               onChange={(e) => {
                 const value = parseFloat(e.target.value);
@@ -130,41 +126,54 @@ export default function WithdrawScreen({
                 }
               }}
             />
-            <button className="max" onClick={() => setAmount(String(balanceUsdt))}>
-              MAX
-            </button>
-          </div>
-          <div className="hint">
-            Available Balance: <b>{balanceUsdt} USDT</b>
+            <button className="max">/max</button>
           </div>
         </div>
 
-        <div className="fees">
-          <div className="row">
-            <span>Processing Fee</span>
-            <span>{processingFeePercent}%</span>
-          </div>
-          <div className="row">
-            <span>Platform Operation Fee</span>
-            <span>{platformFee} USDT</span>
-          </div>
-          <div className="row total">
-            <span>Actual Amount</span>
-            <span>{amountNum > 0 ? receive.toFixed(2) : 0} USDT</span>
+        <div className="field">
+          <div className="label">Min withdrawal :</div>
+          <div className="value">2$</div>
+        </div>
+
+        <div className="field">
+          <div className="label">Wallet Balance :</div>
+          <div className="value">
+            {balanceUsdt}$
+            <span className="usdt-icon">💎</span>
           </div>
         </div>
 
+        <div className="field">
+          <div className="label">Network Fee :</div>
+          <div className="value">1$</div>
+        </div>
 
+        <div className="field">
+          <div className="label">Processing Fee :</div>
+          <div className="value">5%</div>
+        </div>
+
+        <div className="field">
+          <div className="label">Actual Amount :</div>
+          <div className="value">{amountNum > 0 ? receive.toFixed(0) : 0}$</div>
+        </div>
+
+        <div className="note-box">
+          <div className="note-title">Withdrawal Notes :</div>
+          <div className="note-text">
+            Please enter the correct BEP 20 network wallet address to complete the withdrawal.
+          </div>
+          <div className="note-text">
+            If you enter an incorrect address, we will not be responsible.
+          </div>
+          <div className="note-text">
+            After submitting your withdrawal request, it will be completed within 1-5 seconds.
+          </div>
+        </div>
 
         <button className="submit" disabled={!eligible} onClick={handleWithdraw}>
-          Withdraw
+          Confirm Withdrawal
         </button>
-
-        <div className="note">
-          • To ensure the security of your funds, when your account security policy
-          is implemented. When there are changes or your password is changed,
-          we will review the withdrawal
-        </div>
       </div>
 
       {showNetworks && (
@@ -195,6 +204,49 @@ export default function WithdrawScreen({
           </div>
         </div>
       )}
+
+      <ModalCustom
+        open={showHistory}
+        onCancel={() => setShowHistory(false)}
+        footer={false}
+        width="100%"
+        style={{ maxWidth: 520 }}
+        bodyStyle={{ padding: 0, background: "#111" }}
+      >
+        {showHistory && (
+          <div className="withdraw-history" style={{ padding: 16, color: "#fff" }}>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Withdrawal History</div>
+            {[{
+              status: 'Processing', amount: -15, networkFee: 1, processingFee: '5%', time: '15:36:09 2025/09/19'
+            },{
+              status: 'Success', amount: -36, networkFee: 1, processingFee: '5%', time: '11:58:28 2025/09/18'
+            }].map((it, idx) => (
+              <div key={idx} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                  <span>Status:</span><span>{it.status}</span>
+                </div>
+                <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                  <span>Amount:</span><span style={{color:'#ff4d4f'}}>{it.amount}$</span>
+                </div>
+                <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                  <span>Network fee:</span><span>1$</span>
+                </div>
+                <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                  <span>Processing fee:</span><span>{it.processingFee}</span>
+                </div>
+                <div style={{display:'flex', justifyContent:'space-between'}}>
+                  <span>Time:</span><span>{it.time}</span>
+                </div>
+              </div>
+            ))}
+            <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
+              <span style={{background:'#555', borderRadius:14, padding:'4px 10px'}}>1</span>
+              <span>2</span>
+              <span>3</span>
+            </div>
+          </div>
+        )}
+      </ModalCustom>
     </div>
   );
 }

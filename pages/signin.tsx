@@ -11,6 +11,8 @@ export default function SignIn() {
   });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -72,20 +74,11 @@ export default function SignIn() {
       <Head>
         <title>Sign In - BAM</title>
       </Head>
-      <div className="auth-page">
-        <div className="auth-container">
-          <div className="auth-header">
-            <h1>Welcome Back</h1>
-            <p>Sign in to your account</p>
-          </div>
-          
-          {error && (
-            <div className="auth-error">
-              {error}
-            </div>
-          )}
-          
-          <div className="auth-form">
+      <div className="auth-page dark">
+        <div className="dragon-logo">DRAGON</div>
+        <div className="auth-container dark">
+          <div className="auth-form dark">
+            <h1 className="signin-title">Sign In</h1>
             <div className="form-group">
               <label>Email</label>
               <input
@@ -102,34 +95,57 @@ export default function SignIn() {
             
             <div className="form-group">
               <label>Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="Enter your password"
-                required
-                disabled={isSubmitting}
-                autoComplete="current-password"
-              />
+              <div className="password-input-wrapper">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Enter your password"
+                  required
+                  disabled={isSubmitting}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                  disabled={isSubmitting}
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+            </div>
+
+            <div className="form-options">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={isSubmitting}
+                />
+                <span className="checkbox-text">Remember account</span>
+              </label>
+              <a href="#" className="forgot-password">Forgot password?</a>
             </div>
             
             <button 
               type="button" 
-              className="auth-button" 
+              className="auth-button primary" 
               disabled={isSubmitting}
               onClick={handleSubmit}
             >
-              {isSubmitting ? 'Signing In...' : 'Sign In'}
+              {isSubmitting ? 'Signing in...' : 'Sign in'}
             </button>
           
           </div>
           
-          <div className="auth-footer">
+          <div className="auth-footer dark">
             <p>
-              Don't have an account?{' '}
+              Don’t have an account?{' '}
               <a href="/signup" className="auth-link">
-                Sign up here
+                Sign up
               </a>
             </p>
           </div>

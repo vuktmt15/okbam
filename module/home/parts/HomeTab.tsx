@@ -37,6 +37,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const [myInvestments, setMyInvestments] = useState<any[]>([]);
   const [investmentsLoading, setInvestmentsLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [balance, setBalance] = useState({ usdt: 0, dragon: 0 });
 
   // Check withdraw configuration before opening withdraw screen
   const handleWithdrawClick = async () => {
@@ -208,37 +209,62 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
       fetchMyInvestments();
     }
   }, [userDetails]);
+
+  // Fetch user balance
+  useEffect(() => {
+    const fetchBalance = async () => {
+      if (!userDetails?.referrerId && !userDetails?.refererCode) return;
+      
+      try {
+        const referrerId = userDetails?.referrerId || userDetails?.refererCode;
+        const res = await fetch(`/api/getBalance?referrerId=${referrerId}`);
+        const data = await res.json();
+        
+        if (data?.usdt !== undefined && data?.dragon !== undefined) {
+          setBalance({ usdt: data.usdt, dragon: data.dragon });
+        }
+      } catch (error) {
+        console.error('Error fetching balance:', error);
+        // Keep default balance of 0 on error
+      }
+    };
+
+    fetchBalance();
+  }, [userDetails]);
   return (
     <div className="okbam-home">
       <div className="okbam-header">
         <div className="left">
-          <Avatar size={36} icon={<UserOutlined />} />
-          <div className="info">
-            <div className="name">{userDetails?.name || 'BAM'}</div>
-            <div className="sub">{userDetails?.email || 'Bear Asset Management'}</div>
-          </div>
+          <div className="dragon-title">DRAGON</div>
         </div>
         <div className="actions" />
       </div>
 
       <div className="okbam-banner">
-        <div className="title">
-          BAM–Invite Friends
-          <br />
-          BAM3
+        <div className="banner-header">
+          <div className="nft-badge">
+            <img src="/img/nft.png" alt="NFT" />
+          </div>
+          <div className="banner-title">DRAGON</div>
+          <div className="header-spacer" />
         </div>
-        <div className="sub">Earn 300USDT from your friends' monthly income (50%)</div>
-        <div className="banner-bear">
-          <img src="/img/pet1.png" alt="bear" />
+        <div className="banner-left">
+          <div className="banner-sub1">Explore the Dragon world</div>
+          <div className="banner-sub2">NFT Blockchain Project</div>
+          <div className="banner-bullets">
+            <div className="bullet">🐉 Staking NFT to receive regular tokens</div>
+            <div className="bullet">🎁 Daily missions to earn rewards</div>
+            <div className="bullet">👉 Early join to get bonus & special offers</div>
+          </div>
+        </div>
+        <div className="banner-right">
+          <img src="/img/dragon/special-dragon-detail.png" alt="Dragon" />
         </div>
       </div>
 
       <div className="okbam-ticker">
         <div className="ticker-inner">
-          <span className="emoji">🔔</span>
-          July 2025 brings you many benefits and opportunities!
-          <span className="spacer"> · </span>
-          July 2025 brings you many benefits and opportunities!
+          🚀 NFT DRAGON is live! Start today to earn daily token rewards and special offers. 👉 Join now, don’t miss out!
         </div>
       </div>
 
@@ -261,74 +287,94 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
         </button>
       </div>
 
+      <div className="okbam-suggested-section">
+        <div className="suggested-title">Suggested Products:</div>
+        <div className="suggested-bonus">Special bonus for new accounts and members</div>
+      </div>
+
       <div className="okbam-cta">
-        <div className="cta-title">Special program for<br />new accounts and members</div>
-        <div className="cta-content">
-          <div className="cta-row">
-            <span className="cta-label">Premium Product:</span>
-            <span className="cta-value">Dragon</span>
+        <div className="vip-card vip-special" style={{ background: getVipGradient(11) }}>
+          <div className="vip-left">
+            {(() => {
+              const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11));
+              const title = special?.title ?? 'Special Dragon';
+              const min = special?.purchaseAmount ?? 0;
+              const daily = special?.dailyIncome ?? 0;
+              const period = special?.period ?? 0;
+              const total = special?.amount ?? 0;
+              return (
+                <>
+                  <div className="vip-name">{title}</div>
+                  <div className="vip-meta">Min: ${min}</div>
+                  <div className="vip-meta">24h Profit: {daily} dragon</div>
+                  <div className="vip-meta">Cycle: {period} days</div>
+                  <div className="vip-meta">Total Profit: {total} dragon</div>
+                </>
+              );
+            })()}
           </div>
-          <div className="cta-row">
-            <span className="cta-label">Cycle: 20 days</span>
-            <span className="cta-value">3.25$/day</span>
-          </div>
-          <div className="cta-row">
-            <span className="cta-label">Min: 35$</span>
+          <div className="vip-right">
+            {(() => {
+              const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11));
+              const imgSrc = special?.imageUrl || '/img/pet1.png';
+              return <img src={imgSrc} alt="special" className="bear-img" />;
+            })()}
             <button
-              className="cta-button"
+              className="buy"
               onClick={() => {
-                const bam1 = bamPackages.find((p: any) => p.id === 1);
-                if (bam1 && bam1.status === 1) {
+                const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11));
+                if (special && special.status === 1) {
                   setOpenBuy({
-                    plan: bam1.title,
-                    price: `$${bam1.purchaseAmount}`,
-                    id: 1,
+                    plan: special.title,
+                    price: `$${special.purchaseAmount}`,
+                    id: special.id ?? 11,
                   });
-                } else if (bam1 && bam1.status !== 1) {
+                } else if (special && special.status !== 1) {
                   // locked, do nothing
                 } else {
-                  // fallback if package not loaded yet
-                  setOpenBuy({ plan: 'BAM 1', price: '$0', id: 1 });
+                  setOpenBuy({ plan: 'BAM 11', price: '$0', id: 11 });
                 }
               }}
-              disabled={(bamPackages.find((p: any) => p.id === 1)?.status ?? 1) !== 1}
+              disabled={(bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11))?.status ?? 1) !== 1}
             >
-              {(bamPackages.find((p: any) => p.id === 1)?.status ?? 1) === 1 ? 'Join Now' : '🔒'}
+              {(bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11))?.status ?? 1) === 1 ? 'Join Now' : '🔒'}
             </button>
           </div>
         </div>
       </div>
 
       <div className="okbam-section">
-        <div className="section-header">
-          <div className="section-title">
-            <span className="title-icon">🧸</span>
-            <span>BAM VIP</span>
+        <div className="wallet-balance-section">
+          <div className="balance-row">
+            <span className="balance-label">Wallet Balance:</span>
+            <span className="balance-amount">
+              {balance.usdt} USDT
+            </span>
           </div>
-          <button className="see-all" onClick={handleViewAll}>
-            View All <RightOutlined />
-          </button>
+          <div className="rank-row">
+            <span className="rank-label">Dragon Rank</span>
+          </div>
         </div>
         {/** removed available balance block per request */}
         <div className="vip-list">
           {loading ? (
-            <div className="loading">Đang tải danh sách BAM packages...</div>
+            <div className="loading">Loading BAM packages...</div>
           ) : (
-            bamPackages.map((pkg, index) => (
+            bamPackages.filter((p:any) => {
+              const pid = p?.id ?? p?.bamId ?? p?.planId;
+              return pid !== 1 && pid !== 11;
+            }).map((pkg, index) => (
               <div
                 key={pkg.id}
                 className={`vip-card vip-${index + 1}`}
                 style={{ background: getVipGradient(pkg?.id ?? index) }}
               >
                 <div className="vip-left">
-                  <div className="vip-name">{pkg.title}</div>
-                  <div className="vip-meta">Daily Income: ${pkg.dailyIncome}</div>
-                  <div className="vip-meta">Commitment Period: {pkg.period} days</div>
-                  <div className="vip-meta">Total Revenue: ${pkg.amount}</div>
-                  <div className="price-line">
-                    <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
-                    <b className="price">${pkg.purchaseAmount}</b>
-                  </div>
+                  <div className="vip-name">Dragon {index + 1}</div>
+                  <div className="vip-meta">Min: ${pkg.purchaseAmount}</div>
+                  <div className="vip-meta">24h Profit: {pkg.dailyIncome} dragon</div>
+                  <div className="vip-meta">Cycle: {pkg.period} days</div>
+                  <div className="vip-meta">Total Profit: {pkg.amount} dragon</div>
                 </div>
                 <div className="vip-right">
                   {isPackageActive(pkg.id) ? (
@@ -350,7 +396,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
                       onClick={pkg.status === 1 ? () => setOpenBuy({plan: pkg.title, price: `$${pkg.purchaseAmount}`, id: pkg.id}) : undefined}
                       disabled={pkg.status !== 1}
                     >
-                      {pkg.status === 1 ? 'Buy' : '🔒'}
+                      {pkg.status === 1 ? 'BUY' : '🔒'}
                     </button>
                   )}
                 </div>
@@ -373,6 +419,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
             planId={openBuy.id}
             planName={openBuy.plan}
             price={openBuy.price}
+            showBonusNote={(openBuy.id === 11)}
             onClose={() => setOpenBuy(null)}
           />
         )}

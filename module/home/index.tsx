@@ -5,16 +5,18 @@ import {
   HomeOutlined,
   TeamOutlined,
   UserOutlined,
+  StarOutlined,
 } from "@ant-design/icons";
 import HomeTab from "./parts/HomeTab";
 import BAMTab from "./parts/BAMTab";
+import SpecialTab from "./parts/SpecialTab";
 import InviteTab from "./parts/InviteTab";
 import MyTab from "./parts/MyTab";
 import WithdrawScreen from "./parts/WithdrawScreen";
 import {MyTabContext} from "./parts/context";
 
 
-type TabKey = "home" | "bam" | "invite" | "my" | "withdraw";
+type TabKey = "home" | "special" | "bam" | "invite" | "my" | "withdraw";
 
 export function Home(): JSX.Element {
   const [activeTab, setActiveTab] = useState<TabKey>("home");
@@ -23,6 +25,8 @@ export function Home(): JSX.Element {
     switch (activeTab) {
       case "home":
         return <HomeTab onGoToBam={() => setActiveTab("bam")} onGoToInvite={() => setActiveTab("invite")} />;
+      case "special":
+        return <SpecialTab />;
       case "bam":
         return <BAMTab />;
       case "invite":
@@ -50,11 +54,18 @@ export function Home(): JSX.Element {
           <span>Home</span>
         </button>
         <button
+          className={`tab-item ${activeTab === "special" ? "active" : ""}`}
+          onClick={() => setActiveTab("special")}
+        >
+          <StarOutlined />
+          <span>Special</span>
+        </button>
+        <button
           className={`tab-item ${activeTab === "bam" ? "active" : ""}`}
           onClick={() => setActiveTab("bam")}
         >
           <CrownOutlined />
-          <span>BAM</span>
+          <span>DRAGON</span>
         </button>
         <button
           className={`tab-item ${activeTab === "invite" ? "active" : ""}`}

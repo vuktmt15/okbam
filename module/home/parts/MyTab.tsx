@@ -4,6 +4,7 @@ import {BellOutlined, GlobalOutlined, SettingOutlined} from "@ant-design/icons";
 import {MyTabContext} from "./context";
 import {useAuth} from "../../../contexts/AuthContext";
 import DepositScreen from "./DepositScreen";
+import WalletCard from "./WalletCard";
 import SwapScreen from "./SwapScreen";
 import {ModalCustom} from "@components/ModalCustom";
 // import {useLanguage} from "@hooks/useLanguage";
@@ -15,6 +16,7 @@ export default function MyTab(): JSX.Element {
   const [showDeposit, setShowDeposit] = useState(false);
   const [balance, setBalance] = useState({usdt: 0, dragon: 0});
   const [showSwap, setShowSwap] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   // Check withdraw configuration before opening withdraw screen
   const handleWithdrawClick = async () => {
@@ -78,12 +80,15 @@ export default function MyTab(): JSX.Element {
   return (
     <div className="okbam-my">
       <div className="profile">
+        <button className="bell-btn" aria-label="Notifications" onClick={() => setShowNotifications(true)}>
+          <BellOutlined />
+        </button>
         <div className="row top">
           <div className="left">
             <div className="avatar">🧸</div>
             <div className="info">
-              <div className="email">{userDetails?.email || 'Hoa****@gmail.com'}</div>
-              <div className="id">ID: {userDetails?.id || '123456'}</div>
+              <div className="email">{userDetails?.email || user?.email || ''}</div>
+              <div className="id">ID: {userDetails?.id || user?.id || ''}</div>
             </div>
           </div>
           {/* <div className="icons">
@@ -93,23 +98,26 @@ export default function MyTab(): JSX.Element {
           </div> */}
         </div>
         <div className="notice">User*** successfully recharged 830USDT</div>
-        <div className="wallet">
-          <div className="wallet-title">
-            <span className="wallet-label">Wallet Balance:</span>
-            <span className="wallet-amounts">
+        <WalletCard>
+          <div className="wallet">
+            <div className="wallet-title">
+              <span className="wallet-label">Wallet Balance:</span>
+            </div>
+            <div className="wallet-amounts">
               <span className="wallet-coin"><b>{balance.usdt}</b> USDT</span>
               <span className="wallet-coin"><b>{balance.dragon}</b> Dragon</span>
-            </span>
+            </div>
           </div>
-        </div>
-        <div className="quick">
-          <button onClick={() => setShowDeposit(true)}>Deposit</button>
-          <button onClick={handleWithdrawClick}>Withdraw</button>
-          <button onClick={() => setShowSwap(true)}>SWAP</button>
-          <button>History</button>
-        </div>
+          <div className="quick">
+            <button onClick={() => setShowDeposit(true)}>Deposit</button>
+            <button onClick={handleWithdrawClick}>Withdraw</button>
+            <button onClick={() => setShowSwap(true)}>SWAP</button>
+            <button>History</button>
+          </div>
+        </WalletCard>
       </div>
       <div className="list">
+        <button className="item" onClick={() => setShowNotifications(true)}>Notifications</button>
         <button className="item">Online Support</button>
         <button className="item">DRAGON Community</button>
         {/* <button className="item" onClick={() => setOpenLang(true)}>
@@ -118,11 +126,7 @@ export default function MyTab(): JSX.Element {
         </button> */}
       </div>
       <div className="cta">
-        <button className="primary" onClick={() => {
-          logout();
-          window.location.href = '/signup';
-        }}>Switch/Create New Account</button>
-                    <button className="ghost" onClick={logout}>Logout</button>
+        <button className="ghost" onClick={logout}>Logout</button>
       </div>
       <ModalCustom open={showDeposit} onCancel={() => setShowDeposit(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
         {showDeposit && (
@@ -132,6 +136,17 @@ export default function MyTab(): JSX.Element {
       <ModalCustom open={showSwap} onCancel={() => setShowSwap(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
         {showSwap && (
           <SwapScreen onBack={() => setShowSwap(false)} />
+        )}
+      </ModalCustom>
+      <ModalCustom open={showNotifications} onCancel={() => setShowNotifications(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
+        {showNotifications && (
+          <div className="okbam-notifications" style={{padding: 16}}>
+            <div style={{fontWeight: 700, fontSize: 16, marginBottom: 12, color: "#fff"}}>Notifications</div>
+            <div className="notification-item" style={{background: "#1a1a1a", color: "#fff", borderRadius: 10, padding: 12}}>
+              <div style={{fontWeight: 600}}>Đăng ký tài khoản thành công</div>
+              <div style={{opacity: 0.8, fontSize: 12, marginTop: 4}}>Just now</div>
+            </div>
+          </div>
         )}
       </ModalCustom>
       {/* <BottomSheet open={openLang} onClose={() => setOpenLang(false)}>

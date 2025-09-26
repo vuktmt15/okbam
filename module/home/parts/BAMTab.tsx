@@ -7,6 +7,8 @@ export default function BAMTab(): JSX.Element {
   const [bamPackages, setBamPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string; id: number}>(null);
+  const [now, setNow] = useState<number>(Date.now());
+  const [showHistory, setShowHistory] = React.useState(false);
 
   // Fetch BAM packages from API
   React.useEffect(() => {
@@ -33,53 +35,100 @@ export default function BAMTab(): JSX.Element {
     return () => clearInterval(interval);
   }, []);
 
+  // ticker for countdown
+  React.useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  // countdown helpers per package
+  const CHECK_KEY = (id:number) => `bam_next_check_${id}`;
+  const getNextCheck = (id:number) => {
+    const v = localStorage.getItem(CHECK_KEY(id));
+    return v ? parseInt(v, 10) : 0;
+  };
+  const setNextCheck = (id:number, ts:number) => localStorage.setItem(CHECK_KEY(id), String(ts));
+  const ensureScheduled = (id:number) => { if (!getNextCheck(id)) setNextCheck(id, Date.now() + 24*60*60*1000); };
+  const msToHHMMSS = (ms:number) => {
+    const s = Math.max(0, Math.floor(ms/1000));
+    const hh = String(Math.floor(s/3600)).padStart(2,'0');
+    const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
+    const ss = String(s%60).padStart(2,'0');
+    return `${hh}:${mm}:${ss}`;
+  };
+  const canClaim = (id:number) => now >= getNextCheck(id);
+  const remaining = (id:number) => Math.max(0, getNextCheck(id) - now);
+  const handleClaim = async (id:number) => {
+    try {
+      const userStr = localStorage.getItem('userDetails') || localStorage.getItem('user');
+      const user = userStr ? JSON.parse(userStr) : null;
+      const referrerId = user?.referrerId || user?.refererCode || user?.id;
+      if (!referrerId) return alert('Missing user id');
+      const url = `/api/investment-history/check-daily-bam?referrerId=${encodeURIComponent(referrerId)}&bamId=${id}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Claim failed');
+      setNextCheck(id, Date.now() + 24*60*60*1000);
+      alert('Claimed successfully!');
+    } catch (e) {
+      console.error(e);
+      alert('Network error, please try again.');
+    }
+  };
+
   return (
     <div className="okbam-bam">
-      <div className="vip-hero-wrap">
-        <div className="vip-hero">
-          <div className="vipwin-label">VIP WIN</div>
-          <div className="hero-title">Not Activated</div>
-          <div className="hero-sub">Upgrade to BAM1 to unlock group benefits</div>
-          <div className="hero-sub">Upgrade to VIP and receive 50% team income</div>
-          <div className="hero-bear">
-            <img src="/img/pet1.png" alt="bear" />
-          </div>
-        </div>
-      </div>
-
       <div className="vip-dark">
-        <div className="vip-strip">All VIP</div>
-        <div className="vip-list">
+        <div className="special-header">
+          <div className="title-left">DRAGON</div>
+          <button className="history-btn" onClick={() => setShowHistory(true)}>History →</button>
+        </div>
+        <div className="vip-list special-like">
           {loading ? (
             <div className="loading">Đang tải danh sách BAM packages...</div>
           ) : (
-            bamPackages.map((pkg, index) => (
-              <div
-                key={pkg.id}
-                className={`vip-card vip-${index + 1}`}
-                style={{ background: getVipGradient(pkg?.id ?? index) }}
-              >
-                <div className="vip-left">
-                  <div className="vip-name">{pkg.title}</div>
-                  <div className="vip-meta">Daily Income: ${pkg.dailyIncome}</div>
-                  <div className="vip-meta">Commitment Period: {pkg.period} days</div>
-                  <div className="vip-meta">Total Revenue: ${pkg.amount}</div>
-                  <div className="price-line">
-                    <span style={{whiteSpace: "nowrap"}}>Purchase Amount</span>
-                    <b className="price">${pkg.purchaseAmount}</b>
+            bamPackages.filter((p:any) => {
+              const pid = p?.id ?? p?.bamId ?? p?.planId;
+              return pid !== 11 && pid !== 1;
+            }).map((pkg, index) => (
+              <div key={pkg.id} className={`dragon-card dragon-${index}`}>
+                <div className="special-info">
+                  <div className="cell name">
+                    <div className="value name-row">
+                      <span className="text">{pkg.title}</span>
+                      <img src="/img/dragon/normal-dragon-home.png" alt="" className="name-icon" />
+                    </div>
+                  </div>
+                  <div className="cell earn">
+                    <div className="label">Dragon Earned</div>
+                    <div className="value">{pkg.amount}</div>
+                  </div>
+                  <div className="cell cost">
+                    <div className="label">Cost</div>
+                    <div className="value">{pkg.purchaseAmount}</div>
+                  </div>
+                  <div className="cell speed">
+                    <div className="label">Mining Speed</div>
+                    <div className="value">{pkg.dailyIncome}</div>
+                  </div>
+                  <div className="cell cycle">
+                    <div className="label">Cycle</div>
+                    <div className="value">{pkg.period} days</div>
                   </div>
                 </div>
-                <div className="vip-right">
-                  <div className="bear">
-                    <img src={pkg.imageUrl} alt={pkg.title} onError={(e) => { (e.target as HTMLImageElement).src = "/img/avatar/avatar.jpg"; }} />
+
+                <div className="special-dragon">
+                  <img src={pkg.urlDetail || pkg.imageUrl || '/img/pet1.png'} alt={pkg.title} onError={(e) => { (e.target as HTMLImageElement).src = "/img/pet1.png"; }} />
+                </div>
+
+                <div className="special-status">
+                  <div className="status-left">Current Status:</div>
+                  <div className="status-right">
+                    {ensureScheduled(pkg.id)}
+                    <div className="timer">{msToHHMMSS(remaining(pkg.id))}</div>
                   </div>
-                  <button 
-                    className="buy" 
-                    onClick={pkg.status === 1 ? () => setOpenBuy({plan: pkg.title, price: `$${pkg.purchaseAmount}`, id: pkg.id}) : undefined}
-                    disabled={pkg.status !== 1}
-                  >
-                    {pkg.status === 1 ? 'Buy' : '🔒'}
-                  </button>
+                </div>
+                <div className="claim-wrap">
+                  <button className="claim" disabled={!canClaim(pkg.id)} onClick={canClaim(pkg.id) ? () => handleClaim(pkg.id) : undefined}>Claim</button>
                 </div>
               </div>
             ))
@@ -88,7 +137,42 @@ export default function BAMTab(): JSX.Element {
       </div>
       <ModalCustom open={!!openBuy} onCancel={() => setOpenBuy(null)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#141414"}}>
         {openBuy && (
-          <BAMBuySheet planId={openBuy.id} planName={openBuy.plan} price={openBuy.price} onClose={() => setOpenBuy(null)} />
+          <BAMBuySheet planId={openBuy.id} planName={openBuy.plan} price={openBuy.price} showBonusNote={false} onClose={() => setOpenBuy(null)} />
+        )}
+      </ModalCustom>
+
+      <ModalCustom open={showHistory} onCancel={() => setShowHistory(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
+        {showHistory && (
+          <div style={{ padding: 16, color: "#fff" }}>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>History</div>
+            {[{
+              time: '15:33:43 2025/09/17', amount: +3550, unit: 'Dragon'
+            },{
+              time: '15:32:55 2025/09/16', amount: -3555, unit: 's'
+            },{
+              time: '10:27:11 2025/09/15', amount: +50, unit: 'Dragon'
+            },{
+              time: '09:15:33 2025/09/14', amount: +50, unit: 'Dragon'
+            },{
+              time: '09:12:42 2025/09/13', amount: -8, unit: 's'
+            }].map((it, idx) => (
+              <div key={idx} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                <div style={{display:'flex', justifyContent:'space-between'}}>
+                  <span>Time:</span>
+                  <span>{it.time}</span>
+                </div>
+                <div style={{display:'flex', justifyContent:'space-between', marginTop:6}}>
+                  <span />
+                  <span style={{color: it.amount >= 0 ? '#52c41a' : '#ff4d4f'}}>{it.amount >= 0 ? `+${it.amount}` : it.amount} {it.unit}</span>
+                </div>
+              </div>
+            ))}
+            <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
+              <span style={{background:'#555', borderRadius:14, padding:'4px 10px'}}>1</span>
+              <span>2</span>
+              <span>3</span>
+            </div>
+          </div>
         )}
       </ModalCustom>
     </div>

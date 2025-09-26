@@ -150,7 +150,7 @@ export default function InviteTab(): JSX.Element {
         <div className="reward-row">
           <div className="reward-badge">
             <span className="coin">T</span>
-            <span className="amount">0 USDT</span>
+            <span className="amount">10 DRAGON</span>
           </div>
           <button className="btn-claim">Claim</button>
         </div>
@@ -159,6 +159,11 @@ export default function InviteTab(): JSX.Element {
             <span className="label">Referral Code</span>
             <span className="value">{referralCode || '—'}</span>
             <button className="icon" onClick={handleCopyReferralCode}><CopyOutlined /></button>
+          </div>
+          <div className="row">
+            <span className="label">Referral URL</span>
+            <a className="url" href={`/signup?ref=${encodeURIComponent(referralCode || '')}`}>{`${typeof window !== 'undefined' ? window.location.origin : ''}/signup?ref=${encodeURIComponent(referralCode || '')}`}</a>
+            <button className="icon" onClick={() => navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${encodeURIComponent(referralCode || '')}`)}><CopyOutlined /></button>
           </div>
         </div>
       </div>
@@ -247,31 +252,39 @@ export default function InviteTab(): JSX.Element {
           </>
         ) : (
           <div className="stats">
-            <div className="stat-section">
-              <div className="section-title">Number Of Registrations</div>
-              <div className="stat-row"><span>F1</span><b>{teamStats.regs[1] || 0}</b></div>
-              <div className="stat-row"><span>F2</span><b>{teamStats.regs[2] || 0}</b></div>
-              <div className="stat-row"><span>F3</span><b>{teamStats.regs[3] || 0}</b></div>
-              <div className="stat-row"><span>F4</span><b>{teamStats.regs[4] || 0}</b></div>
-              <div className="stat-row"><span>F5</span><b>{teamStats.regs[5] || 0}</b></div>
-            </div>
-            
-            <div className="stat-section">
-              <div className="section-title">Level Distribution</div>
-              <div className="stat-row"><span>F1</span><b>{teamStats.levelCounts[1] || 0}</b></div>
-              <div className="stat-row"><span>F2</span><b>{teamStats.levelCounts[2] || 0}</b></div>
-              <div className="stat-row"><span>F3</span><b>{teamStats.levelCounts[3] || 0}</b></div>
-              <div className="stat-row"><span>F4</span><b>{teamStats.levelCounts[4] || 0}</b></div>
-              <div className="stat-row"><span>F5</span><b>{teamStats.levelCounts[5] || 0}</b></div>
-            </div>
-            
-            <div className="stat-section">
-              <div className="section-title">Team Size</div>
-              <div className="stat-row"><span>F1</span><b>{teamStats.teamSize[1] || 0}</b></div>
-              <div className="stat-row"><span>F2</span><b>{teamStats.teamSize[2] || 0}</b></div>
-              <div className="stat-row"><span>F3</span><b>{teamStats.teamSize[3] || 0}</b></div>
-              <div className="stat-row"><span>F4</span><b>{teamStats.teamSize[4] || 0}</b></div>
-              <div className="stat-row"><span>F5</span><b>{teamStats.teamSize[5] || 0}</b></div>
+            <div className="stats-summary">
+              <div className="summary-row">
+                <div className="summary-item">
+                  <div className="summary-label">Total Registrations</div>
+                  <div className="summary-value">0</div>
+                </div>
+                <div className="summary-item">
+                  <div className="summary-label">F1</div>
+                  <div className="summary-value">0</div>
+                </div>
+              </div>
+              
+              <div className="summary-row">
+                <div className="summary-item">
+                  <div className="summary-label">Total System</div>
+                  <div className="summary-value">0</div>
+                </div>
+                <div className="summary-item">
+                  <div className="summary-label">F1 Quantity</div>
+                  <div className="summary-value">0</div>
+                </div>
+              </div>
+              
+              <div className="summary-row">
+                <div className="summary-item">
+                  <div className="summary-label">Total System Commission</div>
+                  <div className="summary-value">0 Dragon</div>
+                </div>
+                <div className="summary-item">
+                  <div className="summary-label">F1 Commission</div>
+                  <div className="summary-value">0 Dragon</div>
+                </div>
+              </div>
             </div>
 
             {staticsLoading && <div className="loading">Loading statistics...</div>}
@@ -281,31 +294,37 @@ export default function InviteTab(): JSX.Element {
 
       <ModalCustom open={openAgency} onCancel={() => setOpenAgency(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0}}>
         <div className="agency-modal">
-          <div className="agency-title">Agency Rules</div>
+          <div className="agency-title">Agency Reward Rules</div>
           <div className="agency-list">
             <div className="rule-row">
-              <div className="rule-text">Invite 10 direct F1 with $8 investment: reward $5</div>
-              <div className="rule-badge">0/10</div>
+              <div className="rule-text">Invite 10 direct F1 with $8 investment</div>
+              <div className="rule-badge danger">0/10</div>
+              <button className="rule-claim">Claim</button>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 10 direct F1 with $18 investment: reward $13</div>
-              <div className="rule-badge">0/10</div>
+              <div className="rule-text">Invite 10 direct F1 with $18 investment</div>
+              <div className="rule-badge danger">0/10</div>
+              <button className="rule-claim">Claim</button>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 10 direct F1 with $42 investment: reward $25</div>
-              <div className="rule-badge">0/10</div>
+              <div className="rule-text">Invite 10 direct F1 with $42 investment</div>
+              <div className="rule-badge danger">0/10</div>
+              <button className="rule-claim">Claim</button>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 7 direct F1 with $355 investment: reward $88</div>
-              <div className="rule-badge">0/10</div>
+              <div className="rule-text">Invite 7 direct F1 with $355 investment</div>
+              <div className="rule-badge danger">0/7</div>
+              <button className="rule-claim">Claim</button>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 4 direct F1 with $3000 investment: reward $299</div>
-              <div className="rule-badge">0/10</div>
+              <div className="rule-text">Invite 4 direct F1 with $3000 investment</div>
+              <div className="rule-badge danger">0/4</div>
+              <button className="rule-claim">Claim</button>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 1 direct F1 with $12,000 investment: reward $499</div>
-              <div className="rule-badge">0/10</div>
+              <div className="rule-text">Invite 1 direct F1 with $12,000 investment</div>
+              <div className="rule-badge danger">0/1</div>
+              <button className="rule-claim">Claim</button>
             </div>
           </div>
           <button className="agency-close" onClick={() => setOpenAgency(false)}>Close</button>

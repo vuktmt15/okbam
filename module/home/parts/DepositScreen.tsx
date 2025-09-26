@@ -7,6 +7,7 @@ import {
   ReloadOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "../../../contexts/AuthContext";
+import { ModalCustom } from "@components/ModalCustom";
 
 type NetworkKey = "BEP20" | "TRC20";
 
@@ -22,6 +23,7 @@ const NETWORKS: Record<NetworkKey, { label: string; minAmount: string }> = {
 export default function DepositScreen({ onBack }: Props): JSX.Element {
   const [showNetworks, setShowNetworks] = useState(false);
   const [network, setNetwork] = useState<NetworkKey>("BEP20");
+  const [showHistory, setShowHistory] = useState(false);
   const { userDetails } = useAuth();
 
   const depositAddress = userDetails?.address || "0xddbed71fc5e194081ec1914fad8971b8...";
@@ -55,10 +57,10 @@ export default function DepositScreen({ onBack }: Props): JSX.Element {
           <ArrowLeftOutlined />
         </button>
         <div className="title">
-          <span className="token-icon">T</span>
-          USDT-Deposit
+          Deposit - USDT
+          <span className="usdt-icon">💎</span>
         </div>
-        <div className="spacer" />
+        <div className="history-link" onClick={() => setShowHistory(true)}>History →</div>
       </div>
 
       <div className="deposit-content">
@@ -71,14 +73,14 @@ export default function DepositScreen({ onBack }: Props): JSX.Element {
               className="qr-image"
             />
           </div>
-          <div className="refresh-link" onClick={handleRefreshBalance}>
-            Didn't receive deposit? <span className="refresh-text">Click to refresh balance</span>
+          <div className="qr-instruction">
+            Scan QR code or copy BEP 20 network wallet address to deposit.
           </div>
         </div>
 
         {/* Network Selection */}
-        <div className="field">
-          <div className="label">Deposit Network</div>
+        <div className="field-group">
+          <div className="label">Deposit Network :</div>
           <button className="select" onClick={() => setShowNetworks(true)}>
             <span>{NETWORKS[network].label}</span>
             <DownOutlined />
@@ -86,10 +88,9 @@ export default function DepositScreen({ onBack }: Props): JSX.Element {
         </div>
 
         {/* Deposit Address */}
-        <div className="field">
-          <div className="label">Deposit Address</div>
+        <div className="field-group">
+          <div className="label">Deposit Address :</div>
           <div className="input-with-icon">
-            <LinkOutlined className="link-icon" />
             <input
               value={depositAddress}
               readOnly
@@ -104,15 +105,19 @@ export default function DepositScreen({ onBack }: Props): JSX.Element {
         {/* Deposit Information */}
         <div className="deposit-info">
           <div className="info-text">
-            1. Copy the address above or scan the QR code and select BNB Smart Chain (BEP20) network to send USDT.
+            1. Copy the address above or scan the QR code and select BNB Smart Chain (BEP20) network to deposit.
           </div>
           <div className="info-text">
-            2. Please do not send other assets that are not BNB Smart Chain (BEP20)-USDT network.
+            2. Minimum deposit 10$
           </div>
           <div className="info-text">
-            3. Minimum deposit is 5 USDT.
+            3. Estimated 1 minute
           </div>
         </div>
+
+        <button className="submit" onClick={onBack}>
+          Complete
+        </button>
       </div>
 
       {/* Network Selection Modal */}
@@ -144,6 +149,43 @@ export default function DepositScreen({ onBack }: Props): JSX.Element {
           </div>
         </div>
       )}
+
+      <ModalCustom
+        open={showHistory}
+        onCancel={() => setShowHistory(false)}
+        footer={false}
+        width="100%"
+        style={{ maxWidth: 520 }}
+        bodyStyle={{ padding: 0, background: "#111" }}
+      >
+        {showHistory && (
+          <div className="deposit-history" style={{ padding: 16, color: "#fff" }}>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Deposit History</div>
+            {[{
+              amount: 50, time: '21:52:03 2025/09/17', status: 'Success'
+            },{
+              amount: 102, time: '13:45:57 2025/09/15', status: 'Success'
+            }].map((it, idx) => (
+              <div key={idx} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                  <span>Amount:</span><span style={{color:'#52c41a'}}>+{it.amount}$</span>
+                </div>
+                <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                  <span>Time:</span><span>{it.time}</span>
+                </div>
+                <div style={{display:'flex', justifyContent:'space-between'}}>
+                  <span>Status:</span><span>{it.status}</span>
+                </div>
+              </div>
+            ))}
+            <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
+              <span style={{background:'#555', borderRadius:14, padding:'4px 10px'}}>1</span>
+              <span>2</span>
+              <span>3</span>
+            </div>
+          </div>
+        )}
+      </ModalCustom>
     </div>
   );
 }

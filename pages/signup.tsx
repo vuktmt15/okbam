@@ -19,6 +19,15 @@ export default function SignUp() {
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+
+  // Prefill referral code from URL: /signup?ref=XXXX or ?refererCode=XXXX
+  React.useEffect(() => {
+    const ref = (router.query.ref as string) || (router.query.refererCode as string);
+    if (ref) {
+      setFormData(prev => ({...prev, refererCode: ref}));
+    }
+  }, [router.query]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +36,11 @@ export default function SignUp() {
 
     if (formData.password !== formData.confirmPassword) {
       setError('Password and Confirm Password do not match');
+      return;
+    }
+
+    if (!agreeToTerms) {
+      setError('Please agree to the terms and services');
       return;
     }
 
@@ -77,19 +91,18 @@ export default function SignUp() {
   return (
     <>
       <Head>
-        <title>Sign Up - BAM</title>
+        <title>Sign Up - DRAGON</title>
       </Head>
-      <div className="auth-page">
-        <div className="auth-container">
-          <div className="auth-header">
-            <h1>Create Account</h1>
-            <p>Join BAM community today</p>
-          </div>
-
-          {error && <div className="auth-error">{error}</div>}
-          {success && <div className="auth-success">{success}</div>}
-          
-          <form onSubmit={handleSubmit} className="auth-form">
+      <div className="auth-page dark">
+        <div className="dragon-logo">DRAGON</div>
+        <div className="auth-container dark">
+          <div className="auth-form dark">
+            <h1 className="welcome-title">Welcome to Dragon</h1>
+            
+            {error && <div className="auth-error">{error}</div>}
+            {success && <div className="auth-success">{success}</div>}
+            
+            <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>Full Name</label>
               <input
@@ -166,23 +179,34 @@ export default function SignUp() {
                 name="refererCode"
                 value={formData.refererCode}
                 onChange={handleInputChange}
-                placeholder="Enter referral code"
+                placeholder="Enter referral code (if any)"
                 disabled={isSubmitting}
               />
             </div>
 
-            {/* Removed Referred By field per request */}
+            <div className="terms-agreement">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={agreeToTerms}
+                  onChange={(e) => setAgreeToTerms(e.target.checked)}
+                  disabled={isSubmitting}
+                />
+                <span className="checkbox-text">I agree to the terms and services</span>
+              </label>
+            </div>
             
-            <button type="submit" className="auth-button" disabled={isSubmitting}>
-              {isSubmitting ? 'Creating...' : 'Create Account'}
+            <button type="submit" className="auth-button primary" disabled={isSubmitting}>
+              {isSubmitting ? 'Creating...' : 'Sign up'}
             </button>
-          </form>
+            </form>
+          </div>
           
-          <div className="auth-footer">
+          <div className="auth-footer dark">
             <p>
               Already have an account?{' '}
               <a href="/signin" className="auth-link">
-                Sign in here
+                Sign in
               </a>
             </p>
           </div>

@@ -16,6 +16,13 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
   const [balance, setBalance] = React.useState({usdt: 0, dragon: 0});
   const [quantity, setQuantity] = React.useState<number>(1);
 
+  // Set quantity to 1 for special package
+  React.useEffect(() => {
+    if (planId === 11) {
+      setQuantity(1);
+    }
+  }, [planId]);
+
   React.useEffect(() => {
     let active = true;
     const fetchDetail = async () => {
@@ -39,10 +46,10 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
             try {
               const balanceResponse = await fetch(`/api/getBalance?referrerId=${referrerId}`);
               const balanceData = await balanceResponse.json();
-              if (balanceData.statusCode === 'OK' && balanceData.body?.balance) {
+              if (balanceData?.balance?.usdt !== undefined && balanceData?.balance?.dragon !== undefined) {
                 setBalance({
-                  usdt: balanceData.body.balance.usdt || 0,
-                  dragon: balanceData.body.balance.dragon || 0
+                  usdt: balanceData.balance.usdt,
+                  dragon: balanceData.balance.dragon
                 });
               }
             } catch (e) {
@@ -161,9 +168,15 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
             <div className="row quantity-row">
               <span className="label">Quantity:</span>
               <span className="value">
-                <button className="qty-btn" onClick={() => setQuantity(Math.max(0, quantity - 1))}>-</button>
-                <span className="qty-num">{quantity}</span>
-                <button className="qty-btn" onClick={() => setQuantity(quantity + 1)}>+</button>
+                {planId === 11 ? (
+                  <span className="qty-num">1 (Special package)</span>
+                ) : (
+                  <>
+                    <button className="qty-btn" onClick={() => setQuantity(Math.max(0, quantity - 1))}>-</button>
+                    <span className="qty-num">{quantity}</span>
+                    <button className="qty-btn" onClick={() => setQuantity(quantity + 1)}>+</button>
+                  </>
+                )}
               </span>
             </div>
             <div className="row"><span className="label">Total Profit:</span><span className="value">{detail?.amount} dragon</span></div>

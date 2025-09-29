@@ -121,16 +121,13 @@ export default function SpecialTab(): JSX.Element {
             <div className="note-warn">Note: After each 24h, click to start again</div>
           </div>
 
-          <div className="special-status">
-            <div className="status-left">Current Status:</div>
-            <div className="status-right">
-              <div className="timer">{msToHHMMSS(remaining(pkg.id ?? 11))}</div>
+          <div className={`status-combined ${canClaim(pkg.id ?? 11) ? 'ready' : ''}`}>
+            <div className="top">
+              <div className="label">Current status:</div>
+              <div className="time">{msToHHMMSS(remaining(pkg.id ?? 11))}</div>
             </div>
-          </div>
-
-          <div className="claim-wrap">
             <button 
-              className="claim" 
+              className="claim-inline" 
               disabled={!canClaim(pkg.id ?? 11)} 
               onClick={canClaim(pkg.id ?? 11) ? handleClaim : undefined}
             >

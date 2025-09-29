@@ -3,7 +3,6 @@ import BottomSheet from "@components/BottomSheet";
 import {BellOutlined, GlobalOutlined, SettingOutlined} from "@ant-design/icons";
 import {MyTabContext} from "./context";
 import {useAuth} from "../../../contexts/AuthContext";
-import DepositScreen from "./DepositScreen";
 import WalletCard from "./WalletCard";
 import SwapScreen from "./SwapScreen";
 import {ModalCustom} from "@components/ModalCustom";
@@ -13,37 +12,59 @@ import {ModalCustom} from "@components/ModalCustom";
 export default function MyTab(): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
   const {logout, user, userDetails, fetchUserDetails} = useAuth();
-  const [showDeposit, setShowDeposit] = useState(false);
   const [balance, setBalance] = useState({usdt: 0, dragon: 0});
   const [showSwap, setShowSwap] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  // History modals
+  const [showDepositHistory, setShowDepositHistory] = useState(false);
+  const [showWithdrawHistory, setShowWithdrawHistory] = useState(false);
+  const [showSwapHistory, setShowSwapHistory] = useState(false);
+  const [depositHistory, setDepositHistory] = useState<any[]>([]);
+  const [withdrawHistory, setWithdrawHistory] = useState<any[]>([]);
+  const [swapHistory, setSwapHistory] = useState<any[]>([
+    { id: 's1', title: 'Swap Dragon → USDT', amount: -50, unit: 'Dragon', time: '11:56:23 2025/09/16' },
+    { id: 's2', title: 'Commission', amount: +93.75, unit: 'Dragon', time: '11:20:35 2025/09/16' },
+    { id: 's3', title: 'Swap Dragon → USDT', amount: -50, unit: 'Dragon', time: '12:02:58 2025/09/15' },
+  ]);
+  const [depLoading, setDepLoading] = useState(false);
+  const [wdLoading, setWdLoading] = useState(false);
+  const [depPage, setDepPage] = useState(1);
+  const [wdPage, setWdPage] = useState(1);
+  const [depTotalPages, setDepTotalPages] = useState(0);
+  const [wdTotalPages, setWdTotalPages] = useState(0);
 
-  // Check withdraw configuration before opening withdraw screen
-  const handleWithdrawClick = async () => {
+  // Open withdraw history directly from My tab
+  const handleWithdrawClick = () => {
+    setShowWithdrawHistory(true);
+  };
+
+  // Fetch histories
+  const fetchHistory = async (type: 'deposit' | 'withdraw', page: number = 1) => {
+    const setLoading = type === 'deposit' ? setDepLoading : setWdLoading;
+    setLoading(true);
     try {
-      const response = await fetch('http://159.223.91.231:8866/api/admin-configs');
-      const configs = await response.json();
-      
-      if (Array.isArray(configs) && configs.length > 0) {
-        const withdrawConfig = configs.find((config: any) => config.id === 1);
-        
-        if (withdrawConfig) {
-          const isEnabled = withdrawConfig.status === 1;
-          
-          if (isEnabled) {
-            goWithdraw(); // Open withdraw screen
-          } else {
-            alert("System is overloaded, please try again later!");
-          }
+      const userLocal = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+      const parsed = userLocal ? JSON.parse(userLocal) : null;
+      const referrerId = parsed?.referrerId || parsed?.refererCode;
+      if (!referrerId) return;
+      const res = await fetch(`/api/history-balance?ref=${referrerId}&page=${page}&limit=5`);
+      const data = await res.json();
+      if (data?.data) {
+        const items = data.data.filter((i: any) => (type === 'deposit' ? i.typeBalance === 1 : i.typeBalance === 2));
+        if (type === 'deposit') {
+          setDepositHistory(items);
+          setDepPage(data.pagination.currentPage);
+          setDepTotalPages(data.pagination.totalPages);
         } else {
-          alert("System is overloaded, please try again later!");
+          setWithdrawHistory(items);
+          setWdPage(data.pagination.currentPage);
+          setWdTotalPages(data.pagination.totalPages);
         }
-      } else {
-        alert("System is overloaded, please try again later!");
       }
-    } catch (error) {
-      console.error('Error checking withdraw config:', error);
-      alert("System is overloaded, please try again later!");
+    } catch (e) {
+      console.error('Fetch history error', e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -60,10 +81,10 @@ export default function MyTab(): JSX.Element {
         if (userDetails?.referrerId) {
           const balanceResponse = await fetch(`/api/getBalance?referrerId=${userDetails.referrerId}`);
           const balanceData = await balanceResponse.json();
-          if (balanceData.statusCode === 'OK' && balanceData.body?.balance) {
+          if (balanceData?.balance?.usdt !== undefined && balanceData?.balance?.dragon !== undefined) {
             setBalance({
-              usdt: balanceData.body.balance.usdt || 0,
-              dragon: balanceData.body.balance.dragon || 0
+              usdt: balanceData.balance.usdt,
+              dragon: balanceData.balance.dragon
             });
           }
         }
@@ -75,6 +96,14 @@ export default function MyTab(): JSX.Element {
 
     fetchData();
   }, [user, userDetails, fetchUserDetails]);
+
+  // Auto-load history when modals open
+  useEffect(() => {
+    if (showDepositHistory) fetchHistory('deposit', 1);
+  }, [showDepositHistory]);
+  useEffect(() => {
+    if (showWithdrawHistory) fetchHistory('withdraw', 1);
+  }, [showWithdrawHistory]);
   // const [openLang, setOpenLang] = useState(false);
   // const {currentLanguage, changeLanguage, getCurrentLanguageInfo, languageOptions} = useLanguage();
   return (
@@ -109,10 +138,10 @@ export default function MyTab(): JSX.Element {
             </div>
           </div>
           <div className="quick">
-            <button onClick={() => setShowDeposit(true)}>Deposit</button>
+            <button onClick={() => setShowDepositHistory(true)}>Deposit</button>
             <button onClick={handleWithdrawClick}>Withdraw</button>
             <button onClick={() => setShowSwap(true)}>SWAP</button>
-            <button>History</button>
+            <button onClick={() => setShowSwapHistory(true)}>History</button>
           </div>
         </WalletCard>
       </div>
@@ -128,14 +157,103 @@ export default function MyTab(): JSX.Element {
       <div className="cta">
         <button className="ghost" onClick={logout}>Logout</button>
       </div>
-      <ModalCustom open={showDeposit} onCancel={() => setShowDeposit(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
-        {showDeposit && (
-          <DepositScreen onBack={() => setShowDeposit(false)} />
+      {/* Deposit history modal */}
+      <ModalCustom open={showDepositHistory} onCancel={() => setShowDepositHistory(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
+        {showDepositHistory && (
+          <div className="deposit-history" style={{ padding: 16, color: "#fff" }}>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Deposit History</div>
+            {depLoading ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>Loading deposit history...</div>
+            ) : depositHistory.length === 0 ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>
+                <div style={{fontSize:'24px', marginBottom:'8px'}}>📊</div>
+                <div>No deposit history found</div>
+              </div>
+            ) : (
+              depositHistory.map((item: any) => (
+                <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>Amount:</span><span style={{color:'#52c41a'}}>+${item.amount}</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between'}}>
+                    <span>Time:</span><span>{new Date(item.createDate).toLocaleString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit', year:'numeric', month:'2-digit', day:'2-digit'})}</span>
+                  </div>
+                </div>
+              ))
+            )}
+            {depTotalPages > 1 && (
+              <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
+                {Array.from({ length: depTotalPages }, (_, i) => i + 1).map((p) => (
+                  <span key={p} style={{background: p === depPage ? '#ffd700' : '#555', color: p === depPage ? '#000' : '#fff', borderRadius:14, padding:'4px 10px', cursor:'pointer'}} onClick={() => fetchHistory('deposit', p)}>{p}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </ModalCustom>
+      {/* Swap history modal */}
+      <ModalCustom open={showSwapHistory} onCancel={() => setShowSwapHistory(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
+        {showSwapHistory && (
+          <div style={{ padding: 16, color: "#fff" }}>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Swap History</div>
+            {swapHistory.length === 0 ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>
+                <div style={{fontSize:'24px', marginBottom:'8px'}}>📊</div>
+                <div>No swap history found</div>
+              </div>
+            ) : (
+              swapHistory.map((it) => (
+                <div key={it.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>{it.title}</span>
+                    <span style={{color: it.amount >= 0 ? '#52c41a' : '#ff4d4f'}}>{it.amount >= 0 ? `+${it.amount}` : it.amount} {it.unit}</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between'}}>
+                    <span>Time:</span><span>{it.time}</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         )}
       </ModalCustom>
       <ModalCustom open={showSwap} onCancel={() => setShowSwap(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
         {showSwap && (
           <SwapScreen onBack={() => setShowSwap(false)} />
+        )}
+      </ModalCustom>
+      {/* Withdraw history modal */}
+      <ModalCustom open={showWithdrawHistory} onCancel={() => setShowWithdrawHistory(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
+        {showWithdrawHistory && (
+          <div className="withdraw-history" style={{ padding: 16, color: "#fff" }}>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Withdrawal History</div>
+            {wdLoading ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>Loading withdrawal history...</div>
+            ) : withdrawHistory.length === 0 ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>
+                <div style={{fontSize:'24px', marginBottom:'8px'}}>📊</div>
+                <div>No withdrawal history found</div>
+              </div>
+            ) : (
+              withdrawHistory.map((item: any) => (
+                <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>Amount:</span><span style={{color:'#ff4d4f'}}>- ${item.amount}</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between'}}>
+                    <span>Time:</span><span>{new Date(item.createDate).toLocaleString('en-US', {hour:'2-digit', minute:'2-digit', second:'2-digit', year:'numeric', month:'2-digit', day:'2-digit'})}</span>
+                  </div>
+                </div>
+              ))
+            )}
+            {wdTotalPages > 1 && (
+              <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
+                {Array.from({ length: wdTotalPages }, (_, i) => i + 1).map((p) => (
+                  <span key={p} style={{background: p === wdPage ? '#ffd700' : '#555', color: p === wdPage ? '#000' : '#fff', borderRadius:14, padding:'4px 10px', cursor:'pointer'}} onClick={() => fetchHistory('withdraw', p)}>{p}</span>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </ModalCustom>
       <ModalCustom open={showNotifications} onCancel={() => setShowNotifications(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>

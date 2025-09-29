@@ -220,8 +220,8 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
         const res = await fetch(`/api/getBalance?referrerId=${referrerId}`);
         const data = await res.json();
         
-        if (data?.usdt !== undefined && data?.dragon !== undefined) {
-          setBalance({ usdt: data.usdt, dragon: data.dragon });
+        if (data?.balance?.usdt !== undefined && data?.balance?.dragon !== undefined) {
+          setBalance({ usdt: data.balance.usdt, dragon: data.balance.dragon });
         }
       } catch (error) {
         console.error('Error fetching balance:', error);
@@ -377,28 +377,13 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
                   <div className="vip-meta">Total Profit: {pkg.amount} dragon</div>
                 </div>
                 <div className="vip-right">
-                  {isPackageActive(pkg.id) ? (
-                    <div className="countdown-container">
-                      <div className="countdown-title">Daily Countdown</div>
-                      {canCheckNow(pkg.id) ? (
-                        <button className="buy" onClick={() => handleDailyCheck(pkg.id)}>Check In</button>
-                      ) : (
-                        <div className="countdown-time">{getDailyCountdown(pkg.id)}</div>
-                      )}
-                      <div className="countdown-days">{getRemainingDays(pkg.id)} days left</div>
-                    </div>
-                  ) : (
-                    <img src={pkg.imageUrl || '/img/pet1.png'} alt="bear" className="bear-img" />
-                  )}
-                  {!isPackageActive(pkg.id) && (
-                    <button 
-                      className="buy" 
-                      onClick={pkg.status === 1 ? () => setOpenBuy({plan: pkg.title, price: `$${pkg.purchaseAmount}`, id: pkg.id}) : undefined}
-                      disabled={pkg.status !== 1}
-                    >
-                      {pkg.status === 1 ? 'BUY' : '🔒'}
-                    </button>
-                  )}
+                  <img src={pkg.imageUrl || '/img/pet1.png'} alt="bear" className="bear-img" />
+                  <button 
+                    className="buy" 
+                    onClick={() => setOpenBuy({plan: pkg.title, price: `$${pkg.purchaseAmount}`, id: pkg.id})}
+                  >
+                    Buy
+                  </button>
                 </div>
               </div>
             ))

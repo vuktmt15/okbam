@@ -24,12 +24,46 @@ export default function InviteTab(): JSX.Element {
   const [searchTerm, setSearchTerm] = useState("");
   const [staticsLoading, setStaticsLoading] = useState(false);
   const [teamStatics, setTeamStatics] = useState<TeamStaticsApi | null>(null);
+  const [showCopiedCode, setShowCopiedCode] = useState(false);
+  const [showCopiedUrl, setShowCopiedUrl] = useState(false);
   const { user, userDetails } = useAuth();
   const referralCode = userDetails?.refererCode || user?.refererCode || "";
   
-  const handleCopyReferralCode = () => {
-    if (referralCode) navigator.clipboard.writeText(referralCode);
-    // Optional: add toast notification
+  const handleCopyReferralCode = async () => {
+    const codeToCopy = userDetails?.refererCode || user?.refererCode || "";
+    console.log('Copying referral code:', codeToCopy);
+    console.log('User details:', userDetails);
+    console.log('User:', user);
+    
+    if (codeToCopy) {
+      try {
+        await navigator.clipboard.writeText(codeToCopy);
+        console.log('Copy successful, showing notification');
+        setShowCopiedCode(true);
+        setTimeout(() => setShowCopiedCode(false), 1000);
+      } catch (err) {
+        console.error('Failed to copy:', err);
+        // Fallback for older browsers
+        try {
+          const textArea = document.createElement('textarea');
+          textArea.value = codeToCopy;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          console.log('Copy successful (fallback), showing notification');
+          setShowCopiedCode(true);
+          setTimeout(() => setShowCopiedCode(false), 1000);
+        } catch (fallbackErr) {
+          console.error('Fallback copy failed:', fallbackErr);
+        }
+      }
+    } else {
+      console.log('No referral code to copy');
+      // Show notification anyway for testing
+      setShowCopiedCode(true);
+      setTimeout(() => setShowCopiedCode(false), 1000);
+    }
   };
 
   // Fetch team members from API
@@ -158,12 +192,26 @@ export default function InviteTab(): JSX.Element {
           <div className="row">
             <span className="label">Referral Code</span>
             <span className="value">{referralCode || '—'}</span>
-            <button className="icon" onClick={handleCopyReferralCode}><CopyOutlined /></button>
+            <button className="icon" onClick={handleCopyReferralCode}>
+              <CopyOutlined />
+              {showCopiedCode && <span className="copied-notification">Copied</span>}
+            </button>
           </div>
           <div className="row">
             <span className="label">Referral URL</span>
             <a className="url" href={`/signup?ref=${encodeURIComponent(referralCode || '')}`}>{`${typeof window !== 'undefined' ? window.location.origin : ''}/signup?ref=${encodeURIComponent(referralCode || '')}`}</a>
-            <button className="icon" onClick={() => navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${encodeURIComponent(referralCode || '')}`)}><CopyOutlined /></button>
+            <button className="icon" onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${encodeURIComponent(referralCode || '')}`);
+                setShowCopiedUrl(true);
+                setTimeout(() => setShowCopiedUrl(false), 1000);
+              } catch (err) {
+                console.error('Failed to copy:', err);
+              }
+            }}>
+              <CopyOutlined />
+              {showCopiedUrl && <span className="copied-notification">Copied</span>}
+            </button>
           </div>
         </div>
       </div>
@@ -297,32 +345,50 @@ export default function InviteTab(): JSX.Element {
           <div className="agency-title">Agency Reward Rules</div>
           <div className="agency-list">
             <div className="rule-row">
-              <div className="rule-text">Invite 10 direct F1 with $8 investment</div>
+              <div className="rule-text">
+                Invite 10 direct F1 with $8 investment
+                <div className="rule-sub">Reward $5</div>
+              </div>
               <div className="rule-badge danger">0/10</div>
               <button className="rule-claim">Claim</button>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 10 direct F1 with $18 investment</div>
+              <div className="rule-text">
+                Invite 10 direct F1 with $18 investment
+                <div className="rule-sub">Reward $13</div>
+              </div>
               <div className="rule-badge danger">0/10</div>
               <button className="rule-claim">Claim</button>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 10 direct F1 with $42 investment</div>
+              <div className="rule-text">
+                Invite 10 direct F1 with $42 investment
+                <div className="rule-sub">Reward $25</div>
+              </div>
               <div className="rule-badge danger">0/10</div>
               <button className="rule-claim">Claim</button>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 7 direct F1 with $355 investment</div>
+              <div className="rule-text">
+                Invite 7 direct F1 with $355 investment
+                <div className="rule-sub">Reward $88</div>
+              </div>
               <div className="rule-badge danger">0/7</div>
               <button className="rule-claim">Claim</button>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 4 direct F1 with $3000 investment</div>
+              <div className="rule-text">
+                Invite 4 direct F1 with $3000 investment
+                <div className="rule-sub">Reward $299</div>
+              </div>
               <div className="rule-badge danger">0/4</div>
               <button className="rule-claim">Claim</button>
             </div>
             <div className="rule-row">
-              <div className="rule-text">Invite 1 direct F1 with $12,000 investment</div>
+              <div className="rule-text">
+                Invite 1 direct F1 with $12,000 investment
+                <div className="rule-sub">Reward $499</div>
+              </div>
               <div className="rule-badge danger">0/1</div>
               <button className="rule-claim">Claim</button>
             </div>

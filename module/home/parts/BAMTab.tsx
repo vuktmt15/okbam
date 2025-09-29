@@ -5,12 +5,13 @@ import BAMBuySheet from "./BAMBuySheet";
 
 export default function BAMTab(): JSX.Element {
   const [bamPackages, setBamPackages] = useState<any[]>([]);
+  const [purchasedPackages, setPurchasedPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string; id: number}>(null);
   const [now, setNow] = useState<number>(Date.now());
   const [showHistory, setShowHistory] = React.useState(false);
 
-  // Fetch BAM packages from API
+  // Fetch BAM packages and purchased packages from API
   React.useEffect(() => {
     const fetchPackages = async () => {
       try {
@@ -22,15 +23,45 @@ export default function BAMTab(): JSX.Element {
         }
       } catch (error) {
         console.error('Error fetching packages:', error);
+      }
+    };
+
+    const fetchPurchasedPackages = async () => {
+      try {
+        const userDetails = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+        if (userDetails) {
+          const parsed = JSON.parse(userDetails);
+          const referrerId = parsed?.referrerId || parsed?.refererCode;
+          
+          if (referrerId) {
+            const response = await fetch(`/api/investment-packages/get-investment?referrerId=${referrerId}`);
+            const data = await response.json();
+            
+            if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
+              // Filter out special package (ID 11) and get only regular packages
+              const regularPurchased = data.body.filter((investment: any) => {
+                const bamId = investment?.bamId || investment?.id || investment?.planId;
+                return bamId !== 11 && bamId !== 1; // Exclude special (11) and ID 1
+              });
+              setPurchasedPackages(regularPurchased);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching purchased packages:', error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchPackages();
+    fetchPurchasedPackages();
 
     // Poll for updates every 2 seconds
-    const interval = setInterval(fetchPackages, 2000);
+    const interval = setInterval(() => {
+      fetchPackages();
+      fetchPurchasedPackages();
+    }, 2000);
 
     return () => clearInterval(interval);
   }, []);
@@ -84,12 +115,27 @@ export default function BAMTab(): JSX.Element {
         </div>
         <div className="vip-list special-like">
           {loading ? (
-            <div className="loading">Đang tải danh sách BAM packages...</div>
+            <div className="loading">Loading purchased packages...</div>
+          ) : purchasedPackages.length === 0 ? (
+            <div className="no-packages">
+              <div className="no-packages-content">
+                <div className="no-packages-icon">📦</div>
+                <div className="no-packages-title">No purchased packages</div>
+                <div className="no-packages-message">
+                  You haven't purchased any DRAGON packages yet. Go to Home to buy some!
+                </div>
+              </div>
+            </div>
           ) : (
-            bamPackages.filter((p:any) => {
-              const pid = p?.id ?? p?.bamId ?? p?.planId;
-              return pid !== 11 && pid !== 1;
-            }).map((pkg, index) => {
+            purchasedPackages.map((investment, index) => {
+              // Find the package details from bamPackages
+              const pkg = bamPackages.find((p: any) => {
+                const pid = p?.id ?? p?.bamId ?? p?.planId;
+                const investmentId = investment?.bamId || investment?.id || investment?.planId;
+                return pid === investmentId;
+              });
+              
+              if (!pkg) return null;
               // Ensure countdown is scheduled for each package
               ensureScheduled(pkg.id);
               return (
@@ -123,17 +169,27 @@ export default function BAMTab(): JSX.Element {
                   <img src={pkg.urlDetail || pkg.imageUrl || '/img/pet1.png'} alt={pkg.title} onError={(e) => { (e.target as HTMLImageElement).src = "/img/pet1.png"; }} />
                 </div>
 
-                <div className="special-status">
-                  <div className="status-left">Current Status:</div>
-                  <div className="status-right">
-                    <div className="timer">{msToHHMMSS(remaining(pkg.id))}</div>
-                  </div>
+                <div className="dragon-welcome">
+                  <div className="welcome-line">Welcome to join and accompany <b>Dragon</b></div>
+                  <div className="welcome-note">Note: After each 24h, click to start again</div>
                 </div>
-                <div className="claim-wrap">
-                  <button className="claim" disabled={!canClaim(pkg.id)} onClick={canClaim(pkg.id) ? () => handleClaim(pkg.id) : undefined}>Claim</button>
+
+                <div className={`status-combined ${canClaim(pkg.id) ? 'ready' : ''}`}>
+                  <div className="top">
+                    <div className="label">Current status:</div>
+                    <div className="time">{msToHHMMSS(remaining(pkg.id))}</div>
+                  </div>
+                  <button 
+                    className="claim-inline"
+                    disabled={!canClaim(pkg.id)}
+                    onClick={canClaim(pkg.id) ? () => handleClaim(pkg.id) : undefined}
+                  >
+                    Claim
+                  </button>
                 </div>
               </div>
-            )})
+              );
+            })
           )}
         </div>
       </div>

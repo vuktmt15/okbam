@@ -1,5 +1,5 @@
 import "./index.scss";
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {
   CrownOutlined,
   HomeOutlined,
@@ -20,6 +20,55 @@ type TabKey = "home" | "special" | "bam" | "invite" | "my" | "withdraw";
 
 export function Home(): JSX.Element {
   const [activeTab, setActiveTab] = useState<TabKey>("home");
+  const [hasSpecialPackage, setHasSpecialPackage] = useState(false);
+  const [checkingSpecial, setCheckingSpecial] = useState(true);
+
+  // Check if user has purchased special package
+  useEffect(() => {
+    const checkSpecialPurchase = async () => {
+      try {
+        const userDetails = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+        if (userDetails) {
+          const parsed = JSON.parse(userDetails);
+          const referrerId = parsed?.referrerId || parsed?.refererCode;
+          
+          if (referrerId) {
+            const response = await fetch(`/api/investment-packages/get-investment?referrerId=${referrerId}`);
+            const data = await response.json();
+            
+            if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
+              const hasSpecial = data.body.some((investment: any) => 
+                (investment?.bamId === 11 || investment?.id === 11 || investment?.planId === 11)
+              );
+              setHasSpecialPackage(hasSpecial);
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error checking special purchase:', e);
+      } finally {
+        setCheckingSpecial(false);
+      }
+    };
+
+    checkSpecialPurchase();
+  }, []);
+
+  // Listen for navigation events from HomeTab
+  useEffect(() => {
+    const handleNavigateToTab = (event: CustomEvent) => {
+      const tab = event.detail as TabKey;
+      if (tab === 'special' && hasSpecialPackage) {
+        setActiveTab('special');
+      }
+    };
+
+    window.addEventListener('navigateToTab', handleNavigateToTab as EventListener);
+    
+    return () => {
+      window.removeEventListener('navigateToTab', handleNavigateToTab as EventListener);
+    };
+  }, [hasSpecialPackage]);
 
   const renderContent = (): JSX.Element => {
     switch (activeTab) {
@@ -53,13 +102,15 @@ export function Home(): JSX.Element {
           <HomeOutlined />
           <span>Home</span>
         </button>
-        <button
-          className={`tab-item ${activeTab === "special" ? "active" : ""}`}
-          onClick={() => setActiveTab("special")}
-        >
-          <StarOutlined />
-          <span>Special</span>
-        </button>
+        {hasSpecialPackage && (
+          <button
+            className={`tab-item ${activeTab === "special" ? "active" : ""}`}
+            onClick={() => setActiveTab("special")}
+          >
+            <StarOutlined />
+            <span>Special</span>
+          </button>
+        )}
         <button
           className={`tab-item ${activeTab === "bam" ? "active" : ""}`}
           onClick={() => setActiveTab("bam")}

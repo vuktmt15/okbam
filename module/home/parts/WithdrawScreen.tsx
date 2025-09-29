@@ -12,6 +12,7 @@ type NetworkKey = "BEP20" | "USDT";
 type Props = {
   balanceUsdt?: number;
   onBack: () => void;
+  autoShowHistory?: boolean;
 };
 
 const NETWORKS: Record<NetworkKey, {label: string; min: number; networkFee: number; processingFeePercent: number}> = {
@@ -22,9 +23,10 @@ const NETWORKS: Record<NetworkKey, {label: string; min: number; networkFee: numb
 export default function WithdrawScreen({
   balanceUsdt = 31.6,
   onBack,
+  autoShowHistory = false,
 }: Props): JSX.Element {
   const [showNetworks, setShowNetworks] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
+  const [showHistory, setShowHistory] = useState(!!autoShowHistory);
   const [network, setNetwork] = useState<NetworkKey>("BEP20");
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState<string>("");
@@ -87,7 +89,7 @@ export default function WithdrawScreen({
           Withdraw - USDT
           <span className="usdt-icon">💎</span>
         </div>
-        <div className="history-link" onClick={() => setShowHistory(true)}>History →</div>
+        {/* history link removed per request */}
       </div>
 
       <div className="form">

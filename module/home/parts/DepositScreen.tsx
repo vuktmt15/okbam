@@ -9,21 +9,21 @@ import {
 import { useAuth } from "../../../contexts/AuthContext";
 import { ModalCustom } from "@components/ModalCustom";
 
-type NetworkKey = "BEP20" | "TRC20";
+type NetworkKey = "BEP20";
 
 type Props = {
   onBack: () => void;
+  autoShowHistory?: boolean;
 };
 
 const NETWORKS: Record<NetworkKey, { label: string; minAmount: string }> = {
   BEP20: { label: "BNB Smart Chain (BEP20)", minAmount: "10.0000" },
-  TRC20: { label: "Tron (TRC20)", minAmount: "10.0000" },
 };
 
-export default function DepositScreen({ onBack }: Props): JSX.Element {
+export default function DepositScreen({ onBack, autoShowHistory = false }: Props): JSX.Element {
   const [showNetworks, setShowNetworks] = useState(false);
   const [network, setNetwork] = useState<NetworkKey>("BEP20");
-  const [showHistory, setShowHistory] = useState(false);
+  const [showHistory, setShowHistory] = useState(!!autoShowHistory);
   const { userDetails } = useAuth();
 
   const depositAddress = userDetails?.address || "0xddbed71fc5e194081ec1914fad8971b8...";
@@ -60,7 +60,7 @@ export default function DepositScreen({ onBack }: Props): JSX.Element {
           Deposit - USDT
           <span className="usdt-icon">💎</span>
         </div>
-        <div className="history-link" onClick={() => setShowHistory(true)}>History →</div>
+        {/* history link removed per request */}
       </div>
 
       <div className="deposit-content">

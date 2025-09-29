@@ -135,16 +135,7 @@ export default function DepositScreen({ onBack, autoShowHistory = false }: Props
               <div className="name">BNB Smart Chain (BEP20)</div>
               <div className="desc">Minimum deposit {NETWORKS.BEP20.minAmount} USDT</div>
             </button>
-            <button
-              className={`option ${network === "TRC20" ? "active" : ""}`}
-              onClick={() => {
-                setNetwork("TRC20");
-                setShowNetworks(false);
-              }}
-            >
-              <div className="name">Tron (TRC20)</div>
-              <div className="desc">Minimum deposit {NETWORKS.TRC20.minAmount} USDT</div>
-            </button>
+            {/* TRC20 option removed */}
             <div className="warn">Make sure to select the correct network that matches your sending address</div>
           </div>
         </div>

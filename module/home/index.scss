@@ -80,7 +80,7 @@
   background: #000;
   border-top: 1px solid #333;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 999;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
@@ -725,19 +725,24 @@
 .okbam-special .special-info .value, .okbam-bam .dragon-card .special-info .value { color: #2ee59d; font-weight: 800; }
 .okbam-special .special-dragon, .okbam-bam .dragon-card .special-dragon { display: flex; align-items: center; justify-content: center; padding: 20px 0; border-top: none; border-bottom: none; margin: 18px 0; }
 .okbam-special .special-dragon img, .okbam-bam .dragon-card .special-dragon img { width: min(82%, 560px); height: auto; object-fit: contain; margin: 0 auto; display: block; }
-.okbam-special .special-note { text-align: center; margin: 12px 0 10px; color: #fff; }
-.okbam-special .special-note .note-warn { color: #ffd700; font-weight: 700; }
-.okbam-special .special-note div:first-child { font-weight: 600; }
-.okbam-special .special-status, .okbam-bam .dragon-card .special-status { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px; background: linear-gradient(90deg, #001a33, #000); border: 1px solid rgba(80,170,255,0.25); border-radius: 20px; padding: 10px 12px; }
-.okbam-special .special-status .status-left, .okbam-bam .dragon-card .special-status .status-left { color: #cfcfcf; }
-.okbam-special .special-status .timer, .okbam-bam .dragon-card .special-status .timer { color: #ffd700; font-weight: 800; }
-.okbam-special .claim-wrap, .okbam-bam .dragon-card .claim-wrap { display: flex; justify-content: center; margin-top: 10px; }
-.okbam-special .claim-wrap .claim, .okbam-bam .dragon-card .claim-wrap .claim { width: 100%; max-width: 260px; }
-.okbam-special .special-status, .okbam-bam .dragon-card .special-status { grid-template-columns: 1fr auto; }
-.okbam-special .special-status .status-right, .okbam-bam .dragon-card .special-status .status-right { display: flex; align-items: center; justify-content: center; width: 100%; }
-.okbam-special .special-status .status-right .timer, .okbam-bam .dragon-card .special-status .status-right .timer { min-width: 260px; text-align: center; background: rgba(0,0,0,0.35); padding: 8px 12px; border-radius: 999px; border: 1px solid rgba(80,170,255,0.25); }
-.okbam-special .claim-wrap .claim, .okbam-bam .dragon-card .claim-wrap .claim { background: linear-gradient(135deg, #2ee59d, #0b6b3f); color: #0b1d12; font-weight: 800; border-radius: 999px; padding: 10px 20px; border: none; }
-.okbam-special .claim-wrap .claim:disabled, .okbam-bam .dragon-card .claim-wrap .claim:disabled { opacity: 0.5; filter: grayscale(0.3); cursor: not-allowed; }
+/* Unified welcome block like DRAGON tab */
+.okbam-special .dragon-welcome { text-align: center; color: #fff; margin-top: 6px; margin-bottom: 12px; }
+.okbam-special .dragon-welcome .welcome-line { font-weight: 800; font-size: 14px; }
+.okbam-special .dragon-welcome .welcome-note { color: #ffd700; font-weight: 700; margin-top: 4px; font-size: 13px; }
+/* Special tab unified status/claim like DRAGON tab */
+.okbam-special .status-combined { 
+  display: grid; grid-template-rows: auto auto; gap: 0; border-radius: 18px; overflow: hidden; 
+  border: 1px solid rgba(255,255,255,0.2); color: #fff;
+  background: linear-gradient(180deg, #0b0c3a 0%, #120822 38%, #1a0a0a 50%, #2a0b0b 65%, #300000 100%);
+}
+.okbam-special .status-combined .top { 
+  display: grid; grid-template-columns: 1fr auto; align-items: center; padding: 10px 14px; background: transparent;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.4);
+}
+.okbam-special .status-combined .top .label { font-weight: 800; }
+.okbam-special .status-combined .top .time { font-weight: 800; color: #ffd700; }
+.okbam-special .status-combined .claim-inline { width: 100%; padding: 12px 16px; background: transparent; color: #ffd873; font-weight: 900; font-size: 22px; border: none; }
+.okbam-special .status-combined .claim-inline:disabled { opacity: 0.6; filter: grayscale(0.4); cursor: not-allowed; }
 
 @media (max-width: 768px) {
   .okbam-bam {

@@ -293,10 +293,10 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
       </div>
 
       <div className="okbam-cta">
-        <div className="vip-card vip-special" style={{ background: getVipGradient(11) }}>
+        <div className="vip-card vip-special" style={{ background: getVipGradient(1) }}>
           <div className="vip-left">
             {(() => {
-              const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11));
+              const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1));
               const title = special?.title ?? 'Special Dragon';
               const min = special?.purchaseAmount ?? 0;
               const daily = special?.dailyIncome ?? 0;
@@ -315,29 +315,43 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
           </div>
           <div className="vip-right">
             {(() => {
-              const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11));
+              const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1));
               const imgSrc = special?.imageUrl || '/img/pet1.png';
               return <img src={imgSrc} alt="special" className="bear-img" />;
             })()}
             <button
               className="buy"
               onClick={() => {
-                const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11));
+                // If special purchased → navigate to Special tab; else open buy
+                const userDetailsStr = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+                let hasSpecial = false;
+                try {
+                  if (userDetailsStr) {
+                    const parsed = JSON.parse(userDetailsStr);
+                    const referrerId = parsed?.referrerId || parsed?.refererCode;
+                    if (referrerId) {
+                      // Fire and forget check
+                      fetch(`/api/investment-packages/get-investment?referrerId=${referrerId}`).then(r=>r.json()).then(d=>{
+                        if (d?.statusCode === 'OK' && Array.isArray(d.body)) {
+                          const owned = d.body.some((inv:any)=> (inv?.bamId===1||inv?.id===1||inv?.planId===1));
+                          if (owned) {
+                            const ev = new CustomEvent('navigateToTab', { detail: 'special' });
+                            window.dispatchEvent(ev);
+                          }
+                        }
+                      });
+                    }
+                  }
+                } catch {}
+
+                const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1));
                 if (special && special.status === 1) {
-                  setOpenBuy({
-                    plan: special.title,
-                    price: `$${special.purchaseAmount}`,
-                    id: special.id ?? 11,
-                  });
-                } else if (special && special.status !== 1) {
-                  // locked, do nothing
-                } else {
-                  setOpenBuy({ plan: 'BAM 11', price: '$0', id: 11 });
+                  setOpenBuy({ plan: special.title, price: `$${special.purchaseAmount}`, id: special.id ?? 1 });
                 }
               }}
-              disabled={(bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11))?.status ?? 1) !== 1}
             >
-              {(bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11))?.status ?? 1) === 1 ? 'Join Now' : '🔒'}
+              {/* Text changes: simple Go to */}
+              Go to
             </button>
           </div>
         </div>

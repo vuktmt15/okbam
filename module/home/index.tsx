@@ -36,10 +36,10 @@ export function Home(): JSX.Element {
             const response = await fetch(`/api/investment-packages/get-investment?referrerId=${referrerId}`);
             const data = await response.json();
             
-            if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
-              const hasSpecial = data.body.some((investment: any) => 
-                (investment?.bamId === 11 || investment?.id === 11 || investment?.planId === 11)
-              );
+                 if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
+                   const hasSpecial = data.body.some((investment: any) => 
+                     (investment?.bamId === 1 || investment?.id === 1 || investment?.planId === 1)
+                   );
               setHasSpecialPackage(hasSpecial);
             }
           }
@@ -58,9 +58,8 @@ export function Home(): JSX.Element {
   useEffect(() => {
     const handleNavigateToTab = (event: CustomEvent) => {
       const tab = event.detail as TabKey;
-      if (tab === 'special' && hasSpecialPackage) {
-        setActiveTab('special');
-      }
+      if (tab === 'special') setActiveTab('special');
+      if (tab === 'bam') setActiveTab('bam');
     };
 
     window.addEventListener('navigateToTab', handleNavigateToTab as EventListener);
@@ -102,15 +101,13 @@ export function Home(): JSX.Element {
           <HomeOutlined />
           <span>Home</span>
         </button>
-        {hasSpecialPackage && (
-          <button
-            className={`tab-item ${activeTab === "special" ? "active" : ""}`}
-            onClick={() => setActiveTab("special")}
-          >
-            <StarOutlined />
-            <span>Special</span>
-          </button>
-        )}
+            <button
+              className={`tab-item ${activeTab === "special" ? "active" : ""}`}
+              onClick={() => setActiveTab("special")}
+            >
+              <StarOutlined />
+              <span>Special</span>
+            </button>
         <button
           className={`tab-item ${activeTab === "bam" ? "active" : ""}`}
           onClick={() => setActiveTab("bam")}

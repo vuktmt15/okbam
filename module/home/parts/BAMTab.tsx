@@ -4,29 +4,15 @@ import {ModalCustom} from "@components/ModalCustom";
 import BAMBuySheet from "./BAMBuySheet";
 
 export default function BAMTab(): JSX.Element {
-  const [bamPackages, setBamPackages] = useState<any[]>([]);
-  const [purchasedPackages, setPurchasedPackages] = useState<any[]>([]);
+  const [regularInvestment, setRegularInvestment] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string; id: number}>(null);
   const [now, setNow] = useState<number>(Date.now());
   const [showHistory, setShowHistory] = React.useState(false);
 
-  // Fetch BAM packages and purchased packages from API
+  // Fetch regular investment data from API
   React.useEffect(() => {
-    const fetchPackages = async () => {
-      try {
-        const response = await fetch(`/api/product/?t=${Date.now()}`);
-        const data = await response.json();
-        console.log('BAMTab - BAM packages response:', data);
-        if (data.statusCode === 'OK' && data.body) {
-          setBamPackages(data.body);
-        }
-      } catch (error) {
-        console.error('Error fetching packages:', error);
-      }
-    };
-
-    const fetchPurchasedPackages = async () => {
+    const fetchRegularInvestment = async () => {
       try {
         const userDetails = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
         if (userDetails) {
@@ -34,33 +20,29 @@ export default function BAMTab(): JSX.Element {
           const referrerId = parsed?.referrerId || parsed?.refererCode;
           
           if (referrerId) {
-            const response = await fetch(`/api/investment-packages/get-investment?referrerId=${referrerId}`);
+            const response = await fetch(`http://159.223.91.231:8866/api/investment-packages/get-investment-regular?referrerId=${referrerId}`);
             const data = await response.json();
             
-            if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
-              // Filter out special package (ID 11) and get only regular packages
-              const regularPurchased = data.body.filter((investment: any) => {
-                const bamId = investment?.bamId || investment?.id || investment?.planId;
-                return bamId !== 11 && bamId !== 1; // Exclude special (11) and ID 1
-              });
-              setPurchasedPackages(regularPurchased);
+            if (data?.statusCode === 'OK' && data.body) {
+              setRegularInvestment(data.body);
+            } else {
+              setRegularInvestment(null);
             }
           }
         }
       } catch (error) {
-        console.error('Error fetching purchased packages:', error);
+        console.error('Error fetching regular investment:', error);
+        setRegularInvestment(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPackages();
-    fetchPurchasedPackages();
+    fetchRegularInvestment();
 
     // Poll for updates every 2 seconds
     const interval = setInterval(() => {
-      fetchPackages();
-      fetchPurchasedPackages();
+      fetchRegularInvestment();
     }, 2000);
 
     return () => clearInterval(interval);
@@ -106,6 +88,13 @@ export default function BAMTab(): JSX.Element {
     }
   };
 
+  // Ensure countdown is scheduled for regular investment
+  React.useEffect(() => {
+    if (regularInvestment?.bamId) {
+      ensureScheduled(regularInvestment.bamId);
+    }
+  }, [regularInvestment]);
+
   return (
     <div className="okbam-bam">
       <div className="vip-dark">
@@ -115,81 +104,67 @@ export default function BAMTab(): JSX.Element {
         </div>
         <div className="vip-list special-like">
           {loading ? (
-            <div className="loading">Loading purchased packages...</div>
-          ) : purchasedPackages.length === 0 ? (
+            <div className="loading">Loading investment data...</div>
+          ) : !regularInvestment ? (
             <div className="no-packages">
               <div className="no-packages-content">
                 <div className="no-packages-icon">📦</div>
-                <div className="no-packages-title">No purchased packages</div>
+                <div className="no-packages-title">No regular investment</div>
                 <div className="no-packages-message">
                   You haven't purchased any DRAGON packages yet. Go to Home to buy some!
                 </div>
               </div>
             </div>
           ) : (
-            purchasedPackages.map((investment, index) => {
-              // Find the package details from bamPackages
-              const pkg = bamPackages.find((p: any) => {
-                const pid = p?.id ?? p?.bamId ?? p?.planId;
-                const investmentId = investment?.bamId || investment?.id || investment?.planId;
-                return pid === investmentId;
-              });
-              
-              if (!pkg) return null;
-              // Ensure countdown is scheduled for each package
-              ensureScheduled(pkg.id);
-              return (
-              <div key={pkg.id} className={`dragon-card dragon-${index}`}>
-                <div className="special-info">
-                  <div className="cell name">
-                    <div className="value name-row">
-                      <span className="text">{pkg.title}</span>
-                      <img src="/img/dragon/normal-dragon-home.png" alt="" className="name-icon" />
-                    </div>
-                  </div>
-                  <div className="cell earn">
-                    <div className="label">Dragon Earned</div>
-                    <div className="value">{pkg.amount}</div>
-                  </div>
-                  <div className="cell cost">
-                    <div className="label">Cost</div>
-                    <div className="value">{pkg.purchaseAmount}</div>
-                  </div>
-                  <div className="cell speed">
-                    <div className="label">Mining Speed</div>
-                    <div className="value">{pkg.dailyIncome}</div>
-                  </div>
-                  <div className="cell cycle">
-                    <div className="label">Cycle</div>
-                    <div className="value">{pkg.period} days</div>
+            <div className="dragon-card dragon-0">
+              <div className="special-info">
+                <div className="cell name">
+                  <div className="value name-row">
+                    <span className="text">{regularInvestment.name}</span>
+                    <img src="/img/dragon/normal-dragon-home.png" alt="" className="name-icon" />
                   </div>
                 </div>
-
-                <div className="special-dragon">
-                  <img src={pkg.urlDetail || pkg.imageUrl || '/img/pet1.png'} alt={pkg.title} onError={(e) => { (e.target as HTMLImageElement).src = "/img/pet1.png"; }} />
+                <div className="cell earn">
+                  <div className="label">Dragon Earned</div>
+                  <div className="value">{regularInvestment.amount}</div>
                 </div>
-
-                <div className="dragon-welcome">
-                  <div className="welcome-line">Welcome to join and accompany <b>Dragon</b></div>
-                  <div className="welcome-note">Note: After each 24h, click to start again</div>
+                <div className="cell cost">
+                  <div className="label">Cost</div>
+                  <div className="value">{regularInvestment.minAmount}</div>
                 </div>
-
-                <div className={`status-combined ${canClaim(pkg.id) ? 'ready' : ''}`}>
-                  <div className="top">
-                    <div className="label">Current status:</div>
-                    <div className="time">{msToHHMMSS(remaining(pkg.id))}</div>
-                  </div>
-                  <button 
-                    className="claim-inline"
-                    disabled={!canClaim(pkg.id)}
-                    onClick={canClaim(pkg.id) ? () => handleClaim(pkg.id) : undefined}
-                  >
-                    Claim
-                  </button>
+                <div className="cell speed">
+                  <div className="label">Mining Speed</div>
+                  <div className="value">{regularInvestment.interestRate}/h</div>
+                </div>
+                <div className="cell cycle">
+                  <div className="label">Cycle</div>
+                  <div className="value">{regularInvestment.durationDays} days</div>
                 </div>
               </div>
-              );
-            })
+
+              <div className="special-dragon">
+                <img src="/img/dragon/normal-dragon-detail.png" alt={regularInvestment.name} onError={(e) => { (e.target as HTMLImageElement).src = "/img/dragon/normal-dragon-detail.png"; }} />
+              </div>
+
+              <div className="dragon-welcome">
+                <div className="welcome-line">Welcome to join and accompany <b>Dragon</b></div>
+                <div className="welcome-note">Note: After each 24h, click to start again</div>
+              </div>
+
+              <div className={`status-combined ${canClaim(regularInvestment.bamId) ? 'ready' : ''}`}>
+                <div className="top">
+                  <div className="label">Current status:</div>
+                  <div className="time">{msToHHMMSS(remaining(regularInvestment.bamId))}</div>
+                </div>
+                <button 
+                  className="claim-inline"
+                  disabled={!canClaim(regularInvestment.bamId)}
+                  onClick={canClaim(regularInvestment.bamId) ? () => handleClaim(regularInvestment.bamId) : undefined}
+                >
+                  Claim
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>

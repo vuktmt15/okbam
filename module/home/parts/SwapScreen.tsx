@@ -11,8 +11,28 @@ export default function SwapScreen({ onBack }: Props): JSX.Element {
   const [to, setTo] = useState<string>("USDT");
   const [asset, setAsset] = useState<string>("USDT");
   const [amount, setAmount] = useState<string>("");
+  const [maxAmount, setMaxAmount] = useState<number>(0);
 
-  const maxAmount = 30; // placeholder per request (~30 USDT)
+  // Load user's USDT balance as maximum
+  React.useEffect(() => {
+    const loadBalance = async () => {
+      try {
+        const userDetailsStr = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+        if (!userDetailsStr) return;
+        const parsed = JSON.parse(userDetailsStr);
+        const referrerId = parsed?.referrerId || parsed?.refererCode;
+        if (!referrerId) return;
+        const res = await fetch(`/api/getBalance?referrerId=${referrerId}`);
+        const data = await res.json();
+        const usdt = data?.balance?.usdt ?? 0;
+        setMaxAmount(usdt);
+      } catch (e) {
+        console.error('Load balance error:', e);
+      }
+    };
+    loadBalance();
+  }, []);
+
   const canSubmit = Number(amount) > 0 && Number(amount) <= maxAmount;
 
   return (
@@ -60,7 +80,7 @@ export default function SwapScreen({ onBack }: Props): JSX.Element {
             <span className="unit">USDT</span>
             <button className="max" onClick={() => setAmount(String(maxAmount))}>MAX</button>
           </div>
-          <div className="hint">100 dragon = 1$</div>
+          <div className="hint">Maximum transferable {maxAmount} USDT (100 dragon = 1$)</div>
         </div>
 
         <button className="submit" disabled={!canSubmit}>Confirm</button>

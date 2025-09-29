@@ -16,9 +16,9 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
   const [balance, setBalance] = React.useState({usdt: 0, dragon: 0});
   const [quantity, setQuantity] = React.useState<number>(1);
 
-  // Set quantity to 1 for special package
+  // Set quantity to 1 for special package (ID 1)
   React.useEffect(() => {
-    if (planId === 11) {
+    if (planId === 1) {
       setQuantity(1);
     }
   }, [planId]);
@@ -76,8 +76,9 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
   const handleConfirmUpgrade = async () => {
     if (!detail || isSubmitting) return;
     
-    // Check if balance is sufficient
-    const purchaseAmount = Number(detail.purchaseAmount);
+    // Check if balance is sufficient (multiply by quantity for regular packages)
+    const unitPrice = Number(detail.purchaseAmount) || 0;
+    const purchaseAmount = unitPrice * (planId === 1 ? 1 : quantity);
     if (balance.usdt < purchaseAmount) {
       setMessage(`Insufficient balance. You have ${balance.usdt} USDT but need ${purchaseAmount} USDT.`);
       return;
@@ -109,7 +110,8 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
         },
         body: JSON.stringify({
           referrerId: referrerId,
-          bamId: String(planId)
+          bamId: String(planId),
+          quantity: planId === 1 ? 1 : quantity,
         }),
       });
 
@@ -151,7 +153,7 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
       <div className="sheet-title name-row">
         <span className="text">{detail?.title || planName}</span>
         <img
-          src={(planId === 11) ? "/img/dragon/special-dragon-home.png" : "/img/dragon/normal-dragon-home.png"}
+          src={(planId === 1) ? "/img/dragon/special-dragon-home.png" : "/img/dragon/normal-dragon-home.png"}
           alt=""
           className="name-icon"
         />
@@ -161,14 +163,14 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
       ) : (
         <>
           <div className="detail-list">
-            <div className="row"><span className="label">Min:</span><span className="value">${detail?.purchaseAmount}</span></div>
-            <div className="row"><span className="label">24h Profit:</span><span className="value">{detail?.dailyIncome} dragon</span></div>
+            <div className="row"><span className="label">Min:</span><span className="value">${((Number(detail?.purchaseAmount) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)}</span></div>
+            <div className="row"><span className="label">24h Profit:</span><span className="value">{((Number(detail?.dailyIncome) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)} dragon</span></div>
             <div className="row"><span className="label">Cycle:</span><span className="value">{detail?.period} days</span></div>
-            <div className="row"><span className="label">Mining Speed:</span><span className="value">{detail?.dailyIncome}/h</span></div>
+            <div className="row"><span className="label">Mining Speed:</span><span className="value">{((Number(detail?.dailyIncome) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)}/h</span></div>
             <div className="row quantity-row">
               <span className="label">Quantity:</span>
               <span className="value">
-                {planId === 11 ? (
+                {planId === 1 ? (
                   <span className="qty-num">1 (Special package)</span>
                 ) : (
                   <>
@@ -179,7 +181,7 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
                 )}
               </span>
             </div>
-            <div className="row"><span className="label">Total Profit:</span><span className="value">{detail?.amount} dragon</span></div>
+            <div className="row"><span className="label">Total Profit:</span><span className="value">{((Number(detail?.amount) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)} dragon</span></div>
           </div>
 
           <div className="nft-illustration">

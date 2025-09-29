@@ -15,7 +15,7 @@ export default function SpecialTab(): JSX.Element {
         const response = await fetch(`/api/product/?t=${Date.now()}`);
         const data = await response.json();
         if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
-          const special = data.body.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 11)) || null;
+          const special = data.body.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1)) || null;
           setPkg(special);
         }
       } catch (e) {
@@ -63,10 +63,10 @@ export default function SpecialTab(): JSX.Element {
       const user = userStr ? JSON.parse(userStr) : null;
       const referrerId = user?.referrerId || user?.refererCode || user?.id;
       if (!referrerId) return alert('Missing user id');
-      const url = `/api/investment-history/check-daily-bam?referrerId=${encodeURIComponent(referrerId)}&bamId=${pkg.id ?? 11}`;
+      const url = `/api/investment-history/check-daily-bam?referrerId=${encodeURIComponent(referrerId)}&bamId=${pkg.id ?? 1}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('Claim failed');
-      setNextCheck(pkg.id ?? 11, Date.now() + 24*60*60*1000);
+      setNextCheck(pkg.id ?? 1, Date.now() + 24*60*60*1000);
       alert('Claimed successfully!');
     } catch (e) {
       console.error(e);
@@ -79,7 +79,17 @@ export default function SpecialTab(): JSX.Element {
       {loading ? (
         <div className="loading">Loading special package...</div>
       ) : !pkg ? (
-        <div className="loading">No special package found.</div>
+        <div className="special-not-purchased">
+          <div className="not-purchased-content">
+            <div className="not-purchased-icon">⭐️</div>
+            <div className="not-purchased-title">You haven't registered the special package yet</div>
+            <div className="not-purchased-message">Go to Home to join the Special package and unlock exclusive rewards.</div>
+            <button className="not-purchased-btn" onClick={() => {
+              const ev = new CustomEvent('navigateToTab', { detail: 'home' });
+              window.dispatchEvent(ev);
+            }}>Go to Home</button>
+          </div>
+        </div>
       ) : (
         <>
           <div className="special-header">
@@ -116,20 +126,20 @@ export default function SpecialTab(): JSX.Element {
             <img src={pkg.urlDetail || pkg.imageUrl || '/img/dragon/special-dragon-detail.png'} alt={pkg.title} onError={(e) => { (e.target as HTMLImageElement).src = "/img/dragon/special-dragon-detail.png"; }} />
           </div>
 
-          <div className="special-note">
-            <div>Welcome to join and accompany Dragon</div>
-            <div className="note-warn">Note: After each 24h, click to start again</div>
+          <div className="dragon-welcome">
+            <div className="welcome-line">Welcome to join and accompany <b>Dragon</b></div>
+            <div className="welcome-note">Note: After each 24h, click to start again</div>
           </div>
 
-          <div className={`status-combined ${canClaim(pkg.id ?? 11) ? 'ready' : ''}`}>
+          <div className={`status-combined ${canClaim(pkg.id ?? 1) ? 'ready' : ''}`}>
             <div className="top">
               <div className="label">Current status:</div>
-              <div className="time">{msToHHMMSS(remaining(pkg.id ?? 11))}</div>
+              <div className="time">{msToHHMMSS(remaining(pkg.id ?? 1))}</div>
             </div>
             <button 
               className="claim-inline" 
-              disabled={!canClaim(pkg.id ?? 11)} 
-              onClick={canClaim(pkg.id ?? 11) ? handleClaim : undefined}
+              disabled={!canClaim(pkg.id ?? 1)} 
+              onClick={canClaim(pkg.id ?? 1) ? handleClaim : undefined}
             >
               Claim
             </button>

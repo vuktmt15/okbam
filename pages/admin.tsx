@@ -93,6 +93,13 @@ export default function Admin() {
   const [balanceCache, setBalanceCache] = useState<{[key: string]: {usdt: number, dragon: number}}>({});
   const [pageLoading, setPageLoading] = useState(false);
 
+  // Deposit/Withdraw history (admin)
+  const [txLoading, setTxLoading] = useState(false);
+  const [txData, setTxData] = useState<Array<{userName:string; typeBalance:number; createDate:string; amount:number}>>([]);
+  const [txPage, setTxPage] = useState(1);
+  const [txTotalPages, setTxTotalPages] = useState(1);
+  const txPerPage = 10;
+
   // Fetch all users once on component mount
   React.useEffect(() => {
     const fetchAllUsers = async () => {
@@ -186,6 +193,36 @@ export default function Admin() {
 
     fetchCurrentPageUsers();
   }, [currentPage, allUsers, allUsersLoaded, usersPerPage]);
+
+  // Fetch deposit/withdraw history for admin
+  React.useEffect(() => {
+    const fetchTx = async () => {
+      try {
+        setTxLoading(true);
+        const res = await fetch('http://159.223.91.231:8866/api/admin-users/list-user');
+        const data = await res.json();
+        if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
+          // Sort newest first
+          const sorted = [...data.body].sort((a,b)=> new Date(b.createDate).getTime() - new Date(a.createDate).getTime());
+          // Pagination client-side (API chưa có paging)
+          const total = Math.ceil(sorted.length / txPerPage) || 1;
+          setTxTotalPages(total);
+          const start = (txPage - 1) * txPerPage;
+          const end = start + txPerPage;
+          setTxData(sorted.slice(start, end));
+        } else {
+          setTxData([]);
+          setTxTotalPages(1);
+        }
+      } catch (e) {
+        console.error('Fetch admin tx error', e);
+        setTxData([]);
+      } finally {
+        setTxLoading(false);
+      }
+    };
+    fetchTx();
+  }, [txPage]);
 
   // Fetch BAM packages and config from API
   React.useEffect(() => {
@@ -435,6 +472,58 @@ export default function Admin() {
                 </div>
                 {totalPages > 1 && renderPagination()}
               </>
+            )}
+          </div>
+
+          {/* Deposit/Withdraw History Section */}
+          <div className="admin-section">
+            <h2>Deposit / Withdraw History</h2>
+            {txLoading ? (
+              <div className="loading">Loading history...</div>
+            ) : (
+              <div className="table-container">
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Type</th>
+                      <th>Amount</th>
+                      <th>Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {txData.length === 0 ? (
+                      <tr>
+                        <td colSpan={4} style={{textAlign:'center', opacity:0.7}}>No data</td>
+                      </tr>
+                    ) : (
+                      txData.map((row, idx) => (
+                        <tr key={`${row.userName}-${idx}`}>
+                          <td>{row.userName}</td>
+                          <td>
+                            <span className={`status-badge ${row.typeBalance === 1 ? 'active' : 'inactive'}`}>
+                              {row.typeBalance === 1 ? 'Deposit' : 'Withdraw'}
+                            </span>
+                          </td>
+                          <td style={{color: row.typeBalance === 1 ? '#52c41a' : '#ff4d4f'}}>
+                            {row.typeBalance === 1 ? `+${row.amount}` : `-${row.amount}`}
+                          </td>
+                          <td>{new Date(row.createDate).toLocaleString()}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+                {txTotalPages > 1 && (
+                  <div className="pagination" style={{marginTop: 10}}>
+                    <button className="pagination-btn" onClick={() => setTxPage(Math.max(1, txPage-1))} disabled={txPage===1}>Previous</button>
+                    {Array.from({length: txTotalPages}, (_,i)=>i+1).map(p=> (
+                      <button key={p} className={`pagination-btn ${p===txPage?'active':''}`} onClick={()=>setTxPage(p)}>{p}</button>
+                    ))}
+                    <button className="pagination-btn" onClick={() => setTxPage(Math.min(txTotalPages, txPage+1))} disabled={txPage===txTotalPages}>Next</button>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

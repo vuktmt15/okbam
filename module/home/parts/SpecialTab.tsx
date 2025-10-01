@@ -5,6 +5,8 @@ import BAMBuySheet from "./BAMBuySheet";
 export default function SpecialTab(): JSX.Element {
   const [pkg, setPkg] = React.useState<any | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [checkingPurchase, setCheckingPurchase] = React.useState(true);
+  const [hasSpecialPackage, setHasSpecialPackage] = React.useState(false);
   const [openBuy, setOpenBuy] = React.useState(false);
   const [now, setNow] = React.useState<number>(Date.now());
   const [showHistory, setShowHistory] = React.useState(false);
@@ -25,6 +27,35 @@ export default function SpecialTab(): JSX.Element {
       }
     };
     fetchSpecial();
+  }, []);
+
+  // Check if user has purchased the special package (ID 1)
+  React.useEffect(() => {
+    const checkPurchase = async () => {
+      try {
+        const userStr = localStorage.getItem('user_details') || localStorage.getItem('userDetails') || localStorage.getItem('user');
+        const user = userStr ? JSON.parse(userStr) : null;
+        const referrerId = user?.referrerId || user?.refererCode || user?.id || user?.userId || user?.user?.id;
+        if (!referrerId) {
+          setHasSpecialPackage(false);
+          return;
+        }
+        const res = await fetch(`/api/investment-packages/get-investment?referrerId=${encodeURIComponent(referrerId)}`);
+        const data = await res.json();
+        if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
+          const has = data.body.some((it:any) => (it?.bamId === 1 || it?.id === 1 || it?.planId === 1));
+          setHasSpecialPackage(has);
+        } else {
+          setHasSpecialPackage(false);
+        }
+      } catch (e) {
+        console.error('Error checking special purchase:', e);
+        setHasSpecialPackage(false);
+      } finally {
+        setCheckingPurchase(false);
+      }
+    };
+    checkPurchase();
   }, []);
 
   // simple 1s ticker for countdown display
@@ -59,15 +90,25 @@ export default function SpecialTab(): JSX.Element {
   const handleClaim = async () => {
     if (!pkg) return;
     try {
-      const userStr = localStorage.getItem('userDetails') || localStorage.getItem('user');
+      const userStr = localStorage.getItem('user_details') || localStorage.getItem('userDetails') || localStorage.getItem('user');
       const user = userStr ? JSON.parse(userStr) : null;
-      const referrerId = user?.referrerId || user?.refererCode || user?.id;
+      const referrerId = user?.referrerId || user?.refererCode || user?.id || user?.userId || user?.user?.id;
       if (!referrerId) return alert('Missing user id');
-      const url = `/api/investment-history/check-daily-bam?referrerId=${encodeURIComponent(referrerId)}&bamId=${pkg.id ?? 1}`;
+      
+      const url = `http://159.223.91.231:8866/api/investment-history/check-daily-bam?referrerId=${encodeURIComponent(referrerId)}&isSpecial=1`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('Claim failed');
-      setNextCheck(pkg.id ?? 1, Date.now() + 24*60*60*1000);
-      alert('Claimed successfully!');
+      
+      const data = await res.json();
+      if (data?.statusCode === 'OK' && data.body) {
+        const investedAtStr = data.body.investedAt || data.body.dateCheck || data.body.createdAt;
+        if (!investedAtStr) throw new Error('Missing invested time');
+        const investedAt = new Date(investedAtStr).getTime();
+        setNextCheck(pkg.id ?? 1, investedAt + 24*60*60*1000);
+        alert('Claimed successfully!');
+      } else {
+        throw new Error('Invalid response');
+      }
     } catch (e) {
       console.error(e);
       alert('Network error, please try again.');
@@ -76,9 +117,9 @@ export default function SpecialTab(): JSX.Element {
 
   return (
     <div className="okbam-special">
-      {loading ? (
+      {loading || checkingPurchase ? (
         <div className="loading">Loading special package...</div>
-      ) : !pkg ? (
+      ) : (!pkg || !hasSpecialPackage) ? (
         <div className="special-not-purchased">
           <div className="not-purchased-content">
             <div className="not-purchased-icon">⭐️</div>
@@ -110,11 +151,11 @@ export default function SpecialTab(): JSX.Element {
             </div>
             <div className="cell cost">
               <div className="label">Cost</div>
-              <div className="value">{pkg.purchaseAmount}</div>
+              <div className="value">${pkg.purchaseAmount}</div>
             </div>
             <div className="cell speed">
               <div className="label">Mining Speed</div>
-              <div className="value">{pkg.dailyIncome}</div>
+              <div className="value">${pkg.dailyIncome}/h</div>
             </div>
             <div className="cell cycle">
               <div className="label">Cycle</div>

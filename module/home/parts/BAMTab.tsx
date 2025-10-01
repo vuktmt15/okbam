@@ -73,15 +73,25 @@ export default function BAMTab(): JSX.Element {
   const remaining = (id:number) => Math.max(0, getNextCheck(id) - now);
   const handleClaim = async (id:number) => {
     try {
-      const userStr = localStorage.getItem('userDetails') || localStorage.getItem('user');
+      const userStr = localStorage.getItem('user_details') || localStorage.getItem('userDetails') || localStorage.getItem('user');
       const user = userStr ? JSON.parse(userStr) : null;
-      const referrerId = user?.referrerId || user?.refererCode || user?.id;
+      const referrerId = user?.referrerId || user?.refererCode || user?.id || user?.userId || user?.user?.id;
       if (!referrerId) return alert('Missing user id');
-      const url = `/api/investment-history/check-daily-bam?referrerId=${encodeURIComponent(referrerId)}&bamId=${id}`;
+      
+      const url = `http://159.223.91.231:8866/api/investment-history/check-daily-bam?referrerId=${encodeURIComponent(referrerId)}&isSpecial=0`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('Claim failed');
-      setNextCheck(id, Date.now() + 24*60*60*1000);
-      alert('Claimed successfully!');
+      
+      const data = await res.json();
+      if (data?.statusCode === 'OK' && data.body) {
+        const investedAtStr = data.body.investedAt || data.body.dateCheck || data.body.createdAt;
+        if (!investedAtStr) throw new Error('Missing invested time');
+        const investedAt = new Date(investedAtStr).getTime();
+        setNextCheck(id, investedAt + 24*60*60*1000);
+        alert('Claimed successfully!');
+      } else {
+        throw new Error('Invalid response');
+      }
     } catch (e) {
       console.error(e);
       alert('Network error, please try again.');
@@ -130,11 +140,11 @@ export default function BAMTab(): JSX.Element {
                 </div>
                 <div className="cell cost">
                   <div className="label">Cost</div>
-                  <div className="value">{regularInvestment.minAmount}</div>
+                  <div className="value">${regularInvestment.minAmount}</div>
                 </div>
                 <div className="cell speed">
                   <div className="label">Mining Speed</div>
-                  <div className="value">{regularInvestment.interestRate}/h</div>
+                  <div className="value">${regularInvestment.interestRate}/h</div>
                 </div>
                 <div className="cell cycle">
                   <div className="label">Cycle</div>

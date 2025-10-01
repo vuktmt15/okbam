@@ -74,11 +74,12 @@ export default function SwapScreen({ onBack }: Props): JSX.Element {
         alert('Missing user id');
         return;
       }
-      const url = `http://159.223.91.231:8866/api/investment-history/swap-amount?referrerId=${encodeURIComponent(referrerId)}&amount=${encodeURIComponent(String(amt))}&typeSwap=${typeSwap}`;
+      const url = `/api/investment-history/swap-amount?referrerId=${encodeURIComponent(referrerId)}&amount=${encodeURIComponent(String(amt))}&typeSwap=${typeSwap}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('Swap failed');
-      const text = await res.text();
-      if (text?.toLowerCase().includes('done')) {
+      const resp = await res.json();
+      const text = String(resp?.body || '');
+      if (text.toLowerCase().includes('done')) {
         alert('Swap successful');
       } else {
         alert('Swap processed');

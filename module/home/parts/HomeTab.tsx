@@ -230,6 +230,9 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
     };
 
     fetchBalance();
+    const onBalanceUpdate = () => fetchBalance();
+    window.addEventListener('balanceUpdate', onBalanceUpdate);
+    return () => window.removeEventListener('balanceUpdate', onBalanceUpdate);
   }, [userDetails]);
   return (
     <div className="okbam-home">

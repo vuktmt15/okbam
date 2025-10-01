@@ -95,6 +95,9 @@ export default function MyTab(): JSX.Element {
     };
 
     fetchData();
+    const onBalanceUpdate = () => fetchData();
+    window.addEventListener('balanceUpdate', onBalanceUpdate);
+    return () => window.removeEventListener('balanceUpdate', onBalanceUpdate);
   }, [user, userDetails, fetchUserDetails]);
 
   // Auto-load history when modals open

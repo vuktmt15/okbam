@@ -15,8 +15,9 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
   const [message, setMessage] = React.useState<string>('');
   const [balance, setBalance] = React.useState({usdt: 0, dragon: 0});
   const [quantity, setQuantity] = React.useState<number>(1);
+  const [isFirstBy, setIsFirstBy] = React.useState<boolean | null>(null);
 
-  // Set quantity to 1 for special package (ID 1)
+  // Initialize quantity for special package (ID 1)
   React.useEffect(() => {
     if (planId === 1) {
       setQuantity(1);
@@ -28,9 +29,31 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
     const fetchDetail = async () => {
       try {
         if (planId) {
-          const res = await fetch(`/api/product/detail-bam?id=${planId}`);
+          // read refId from localStorage to forward to detail API
+          let refId: string | undefined = undefined;
+          try {
+            const userDetails = typeof window !== 'undefined' ? (localStorage.getItem('user_details') || localStorage.getItem('userDetails') || localStorage.getItem('user')) : null;
+            if (userDetails) {
+              const parsed = JSON.parse(userDetails);
+              refId = parsed?.referrerId || parsed?.refererCode || parsed?.id || parsed?.userId || parsed?.user?.id;
+            }
+          } catch {}
+          const qs = refId ? `id=${planId}&refId=${encodeURIComponent(refId)}` : `id=${planId}`;
+          const res = await fetch(`/api/product/detail-bam?${qs}`);
           const data = await res.json();
-          if (active && data?.statusCode === 'OK') setDetail(data.body);
+          if (active && data?.statusCode === 'OK') {
+            setDetail(data.body);
+            // pick isFirstBy from response body if present
+            if (typeof data.body?.isFirstBy === 'boolean') {
+              setIsFirstBy(data.body.isFirstBy);
+              // For special package: if not first-by (false), lock quantity at 1
+              if (planId === 1) {
+                setQuantity(1);
+              }
+            } else {
+              setIsFirstBy(null);
+            }
+          }
         } else {
           // fallback: derive from name/price if id not provided
           setDetail({ title: planName, purchaseAmount: price.replace(/[^0-9.]/g, ''), dailyIncome: '-', period: '360', amount: '-' });
@@ -78,7 +101,8 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
     
     // Check if balance is sufficient (multiply by quantity for regular packages)
     const unitPrice = Number(detail.purchaseAmount) || 0;
-    const purchaseAmount = unitPrice * (planId === 1 ? 1 : quantity);
+    const specialQty = planId === 1 ? ((isFirstBy ? quantity : 1)) : quantity;
+    const purchaseAmount = unitPrice * specialQty;
     if (balance.usdt < purchaseAmount) {
       setMessage(`Insufficient balance. You have ${balance.usdt} USDT but need ${purchaseAmount} USDT.`);
       return;
@@ -111,7 +135,7 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
         body: JSON.stringify({
           referrerId: referrerId,
           bamId: String(planId),
-          quantity: planId === 1 ? 1 : quantity,
+          quantity: specialQty,
         }),
       });
 
@@ -171,7 +195,15 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
               <span className="label">Quantity:</span>
               <span className="value">
                 {planId === 1 ? (
-                  <span className="qty-num">1 (Special package)</span>
+                  (isFirstBy === false) ? (
+                    <span className="qty-num">1 (Special package)</span>
+                  ) : (
+                    <>
+                      <button className="qty-btn" onClick={() => setQuantity(Math.max(0, quantity - 1))}>-</button>
+                      <span className="qty-num">{quantity}</span>
+                      <button className="qty-btn" onClick={() => setQuantity(quantity + 1)}>+</button>
+                    </>
+                  )
                 ) : (
                   <>
                     <button className="qty-btn" onClick={() => setQuantity(Math.max(0, quantity - 1))}>-</button>

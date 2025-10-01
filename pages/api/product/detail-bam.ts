@@ -6,11 +6,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { id } = req.query;
+  const { id, refId } = req.query;
   if (!id) return res.status(400).json({ message: 'Missing id' });
 
   try {
-    const resp = await fetch(`http://159.223.91.231:8866/api/product/detail-bam?id=${encodeURIComponent(String(id))}`);
+    const qs = new URLSearchParams();
+    qs.set('id', String(id));
+    if (refId) qs.set('refId', String(refId));
+    const resp = await fetch(`http://159.223.91.231:8866/api/product/detail-bam?${qs.toString()}`);
     const data = await resp.json();
     res.status(resp.status).json(data);
   } catch (e: any) {

@@ -135,7 +135,7 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
         body: JSON.stringify({
           referrerId: referrerId,
           bamId: String(planId),
-          quantity: specialQty,
+          quantities: String(specialQty),
         }),
       });
 

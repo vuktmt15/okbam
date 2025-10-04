@@ -9,6 +9,10 @@ export default function BAMTab(): JSX.Element {
   const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string; id: number}>(null);
   const [now, setNow] = useState<number>(Date.now());
   const [showHistory, setShowHistory] = React.useState(false);
+  const [historyData, setHistoryData] = React.useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = React.useState(false);
+  const [historyPage, setHistoryPage] = React.useState(1);
+  const [historyTotalPages, setHistoryTotalPages] = React.useState(1);
 
   // Fetch regular investment data from API
   React.useEffect(() => {
@@ -78,7 +82,7 @@ export default function BAMTab(): JSX.Element {
       const referrerId = user?.referrerId || user?.refererCode || user?.id || user?.userId || user?.user?.id;
       if (!referrerId) return alert('Missing user id');
       
-      const url = `http://159.223.91.231:8866/api/investment-history/check-daily-bam?referrerId=${encodeURIComponent(referrerId)}&isSpecial=0`;
+      const url = `/api/investment-history/check-daily-bam?referrerId=${encodeURIComponent(referrerId)}&isSpecial=0`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('Claim failed');
       
@@ -98,12 +102,61 @@ export default function BAMTab(): JSX.Element {
     }
   };
 
+  // Fetch claim history for DRAGON packages (isSpecial=0)
+  const fetchClaimHistory = async (page: number = 1) => {
+    setHistoryLoading(true);
+    try {
+      const userLocal = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+      const parsed = userLocal ? JSON.parse(userLocal) : null;
+      const referrerId = parsed?.referrerId || parsed?.refererCode;
+      if (!referrerId) return;
+
+      const res = await fetch(`/api/history-balance-claim?ref=${referrerId}&isSpecial=0`);
+      const data = await res.json();
+      
+      if (data?.body && Array.isArray(data.body)) {
+        let items = data.body;
+        
+        // Sort by date descending
+        items.sort((a: any, b: any) => {
+          const dateA = new Date(a.investedAt);
+          const dateB = new Date(b.investedAt);
+          return dateB.getTime() - dateA.getTime();
+        });
+
+        // Paginate (5 items per page)
+        const itemsPerPage = 5;
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedItems = items.slice(startIndex, endIndex);
+        
+        setHistoryData(paginatedItems);
+        setHistoryPage(page);
+        setHistoryTotalPages(Math.ceil(items.length / itemsPerPage));
+      } else {
+        setHistoryData([]);
+        setHistoryPage(1);
+        setHistoryTotalPages(1);
+      }
+    } catch (e) {
+      console.error('Fetch claim history error', e);
+      setHistoryData([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
   // Ensure countdown is scheduled for regular investment
   React.useEffect(() => {
     if (regularInvestment?.bamId) {
       ensureScheduled(regularInvestment.bamId);
     }
   }, [regularInvestment]);
+
+  // Auto-load history when modal opens
+  React.useEffect(() => {
+    if (showHistory) fetchClaimHistory(1);
+  }, [showHistory]);
 
   return (
     <div className="okbam-bam">
@@ -187,34 +240,57 @@ export default function BAMTab(): JSX.Element {
       <ModalCustom open={showHistory} onCancel={() => setShowHistory(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
         {showHistory && (
           <div style={{ padding: 16, color: "#fff" }}>
-            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>History</div>
-            {[{
-              time: '15:33:43 2025/09/17', amount: +3550, unit: 'Dragon'
-            },{
-              time: '15:32:55 2025/09/16', amount: -3555, unit: 's'
-            },{
-              time: '10:27:11 2025/09/15', amount: +50, unit: 'Dragon'
-            },{
-              time: '09:15:33 2025/09/14', amount: +50, unit: 'Dragon'
-            },{
-              time: '09:12:42 2025/09/13', amount: -8, unit: 's'
-            }].map((it, idx) => (
-              <div key={idx} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
-                <div style={{display:'flex', justifyContent:'space-between'}}>
-                  <span>Time:</span>
-                  <span>{it.time}</span>
-                </div>
-                <div style={{display:'flex', justifyContent:'space-between', marginTop:6}}>
-                  <span />
-                  <span style={{color: it.amount >= 0 ? '#52c41a' : '#ff4d4f'}}>{it.amount >= 0 ? `+${it.amount}` : it.amount} {it.unit}</span>
-                </div>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Claim History</div>
+            
+            {historyLoading ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>Loading history...</div>
+            ) : historyData.length === 0 ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>
+                <div style={{fontSize:'24px', marginBottom:'8px'}}>📊</div>
+                <div>No claim history found</div>
               </div>
-            ))}
-            <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
-              <span style={{background:'#555', borderRadius:14, padding:'4px 10px'}}>1</span>
-              <span>2</span>
-              <span>3</span>
-            </div>
+            ) : (
+              historyData.map((item: any) => (
+                <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>DRAGON Package Claim</span>
+                    <span style={{color:'#52c41a'}}>+{item.amount} USDT</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between'}}>
+                    <span>Time:</span>
+                    <span>{new Date(item.investedAt).toLocaleString('en-US', {
+                      hour:'2-digit', 
+                      minute:'2-digit', 
+                      second:'2-digit', 
+                      year:'numeric', 
+                      month:'2-digit', 
+                      day:'2-digit'
+                    })}</span>
+                  </div>
+                </div>
+              ))
+            )}
+
+            {/* Pagination */}
+            {historyTotalPages > 1 && (
+              <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
+                {Array.from({ length: historyTotalPages }, (_, i) => i + 1).map((p) => (
+                  <span 
+                    key={p} 
+                    style={{
+                      background: p === historyPage ? '#ffd700' : '#555', 
+                      color: p === historyPage ? '#000' : '#fff', 
+                      borderRadius:14, 
+                      padding:'4px 10px', 
+                      cursor:'pointer'
+                    }} 
+                    onClick={() => fetchClaimHistory(p)}
+                  >
+                    {p}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </ModalCustom>

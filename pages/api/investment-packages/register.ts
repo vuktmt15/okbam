@@ -7,7 +7,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { referrerId, bamId } = req.body;
+    const { referrerId, bamId, quantities } = req.body;
     
     if (!referrerId || !bamId) {
       return res.status(400).json({ 
@@ -18,15 +18,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
     }
 
+    const requestBody: any = {
+      referrerId: String(referrerId),
+      bamId: String(bamId)
+    };
+
+    // Add quantities if provided
+    if (quantities !== undefined) {
+      requestBody.quantities = String(quantities);
+    }
+
     const response = await fetch('http://159.223.91.231:8866/api/investment-packages/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        referrerId: String(referrerId),
-        bamId: String(bamId)
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     const data = await response.json();

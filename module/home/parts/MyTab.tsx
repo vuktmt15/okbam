@@ -18,14 +18,14 @@ export default function MyTab(): JSX.Element {
   // History modals
   const [showDepositHistory, setShowDepositHistory] = useState(false);
   const [showWithdrawHistory, setShowWithdrawHistory] = useState(false);
-  const [showSwapHistory, setShowSwapHistory] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [depositHistory, setDepositHistory] = useState<any[]>([]);
   const [withdrawHistory, setWithdrawHistory] = useState<any[]>([]);
-  const [swapHistory, setSwapHistory] = useState<any[]>([
-    { id: 's1', title: 'Swap Dragon → USDT', amount: -50, unit: 'Dragon', time: '11:56:23 2025/09/16' },
-    { id: 's2', title: 'Commission', amount: +93.75, unit: 'Dragon', time: '11:20:35 2025/09/16' },
-    { id: 's3', title: 'Swap Dragon → USDT', amount: -50, unit: 'Dragon', time: '12:02:58 2025/09/15' },
-  ]);
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [historyTab, setHistoryTab] = useState<'swap' | 'commission'>('swap');
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [historyTotalPages, setHistoryTotalPages] = useState(1);
   const [depLoading, setDepLoading] = useState(false);
   const [wdLoading, setWdLoading] = useState(false);
   const [depPage, setDepPage] = useState(1);
@@ -68,6 +68,50 @@ export default function MyTab(): JSX.Element {
     }
   };
 
+  // Fetch swap and commission history
+  const fetchHistoryData = async (tab: 'swap' | 'commission', page: number = 1) => {
+    setHistoryLoading(true);
+    try {
+      const userLocal = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+      const parsed = userLocal ? JSON.parse(userLocal) : null;
+      const referrerId = parsed?.referrerId || parsed?.refererCode;
+      if (!referrerId) return;
+
+      let res;
+      if (tab === 'swap') {
+        res = await fetch(`/api/history-balance-swap?ref=${referrerId}`);
+      } else {
+        res = await fetch(`/api/history-balance-invest?ref=${referrerId}`);
+      }
+      
+      const data = await res.json();
+      if (data?.body) {
+        let items = data.body;
+        
+        // Sort by date descending
+        items.sort((a: any, b: any) => {
+          const dateA = new Date(a.createDate || a.investedAt);
+          const dateB = new Date(b.createDate || b.investedAt);
+          return dateB.getTime() - dateA.getTime();
+        });
+
+        // Paginate (5 items per page)
+        const itemsPerPage = 5;
+        const startIndex = (page - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const paginatedItems = items.slice(startIndex, endIndex);
+        
+        setHistoryData(paginatedItems);
+        setHistoryPage(page);
+        setHistoryTotalPages(Math.ceil(items.length / itemsPerPage));
+      }
+    } catch (e) {
+      console.error('Fetch history data error', e);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
   // Fetch user details and balance
   useEffect(() => {
     const fetchData = async () => {
@@ -107,6 +151,9 @@ export default function MyTab(): JSX.Element {
   useEffect(() => {
     if (showWithdrawHistory) fetchHistory('withdraw', 1);
   }, [showWithdrawHistory]);
+  useEffect(() => {
+    if (showHistory) fetchHistoryData(historyTab, 1);
+  }, [showHistory, historyTab]);
   // const [openLang, setOpenLang] = useState(false);
   // const {currentLanguage, changeLanguage, getCurrentLanguageInfo, languageOptions} = useLanguage();
   return (
@@ -144,7 +191,7 @@ export default function MyTab(): JSX.Element {
             <button onClick={() => setShowDepositHistory(true)}>Deposit</button>
             <button onClick={handleWithdrawClick}>Withdraw</button>
             <button onClick={() => setShowSwap(true)}>SWAP</button>
-            <button onClick={() => setShowSwapHistory(true)}>History</button>
+            <button onClick={() => setShowHistory(true)}>History</button>
           </div>
         </WalletCard>
       </div>
@@ -194,28 +241,116 @@ export default function MyTab(): JSX.Element {
           </div>
         )}
       </ModalCustom>
-      {/* Swap history modal */}
-      <ModalCustom open={showSwapHistory} onCancel={() => setShowSwapHistory(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
-        {showSwapHistory && (
+      {/* History modal */}
+      <ModalCustom open={showHistory} onCancel={() => setShowHistory(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
+        {showHistory && (
           <div style={{ padding: 16, color: "#fff" }}>
-            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Swap History</div>
-            {swapHistory.length === 0 ? (
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>History</div>
+            
+            {/* Tab selector */}
+            <div style={{display: 'flex', marginBottom: 16, background: '#1a1a1a', borderRadius: 8, padding: 4}}>
+              <button 
+                style={{
+                  flex: 1, 
+                  padding: '8px 16px', 
+                  border: 'none', 
+                  borderRadius: 6, 
+                  background: historyTab === 'swap' ? '#ffd700' : 'transparent',
+                  color: historyTab === 'swap' ? '#000' : '#fff',
+                  fontWeight: 600
+                }}
+                onClick={() => setHistoryTab('swap')}
+              >
+                Swap
+              </button>
+              <button 
+                style={{
+                  flex: 1, 
+                  padding: '8px 16px', 
+                  border: 'none', 
+                  borderRadius: 6, 
+                  background: historyTab === 'commission' ? '#ffd700' : 'transparent',
+                  color: historyTab === 'commission' ? '#000' : '#fff',
+                  fontWeight: 600
+                }}
+                onClick={() => setHistoryTab('commission')}
+              >
+                Commission
+              </button>
+            </div>
+
+            {historyLoading ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>Loading history...</div>
+            ) : historyData.length === 0 ? (
               <div style={{textAlign:'center', padding:'20px', color:'#999'}}>
                 <div style={{fontSize:'24px', marginBottom:'8px'}}>📊</div>
-                <div>No swap history found</div>
+                <div>No {historyTab} history found</div>
               </div>
             ) : (
-              swapHistory.map((it) => (
-                <div key={it.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
-                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
-                    <span>{it.title}</span>
-                    <span style={{color: it.amount >= 0 ? '#52c41a' : '#ff4d4f'}}>{it.amount >= 0 ? `+${it.amount}` : it.amount} {it.unit}</span>
-                  </div>
-                  <div style={{display:'flex', justifyContent:'space-between'}}>
-                    <span>Time:</span><span>{it.time}</span>
-                  </div>
+              historyData.map((item: any) => (
+                <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                  {historyTab === 'swap' ? (
+                    <>
+                      <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                        <span>{item.typeBalance === 3 ? 'USDT → Dragon' : 'Dragon → USDT'}</span>
+                        <span style={{color: '#52c41a'}}>
+                          {item.typeBalance === 3 ? `+${item.amount} Dragon` : `+${item.amount} USDT`}
+                        </span>
+                      </div>
+                      <div style={{display:'flex', justifyContent:'space-between'}}>
+                        <span>Time:</span>
+                        <span>{new Date(item.createDate).toLocaleString('en-US', {
+                          hour:'2-digit', 
+                          minute:'2-digit', 
+                          second:'2-digit', 
+                          year:'numeric', 
+                          month:'2-digit', 
+                          day:'2-digit'
+                        })}</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                        <span>Commission</span>
+                        <span style={{color:'#52c41a'}}>+{item.amount} USDT</span>
+                      </div>
+                      <div style={{display:'flex', justifyContent:'space-between'}}>
+                        <span>Time:</span>
+                        <span>{new Date(item.investedAt).toLocaleString('en-US', {
+                          hour:'2-digit', 
+                          minute:'2-digit', 
+                          second:'2-digit', 
+                          year:'numeric', 
+                          month:'2-digit', 
+                          day:'2-digit'
+                        })}</span>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))
+            )}
+
+            {/* Pagination */}
+            {historyTotalPages > 1 && (
+              <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
+                {Array.from({ length: historyTotalPages }, (_, i) => i + 1).map((p) => (
+                  <span 
+                    key={p} 
+                    style={{
+                      background: p === historyPage ? '#ffd700' : '#555', 
+                      color: p === historyPage ? '#000' : '#fff', 
+                      borderRadius:14, 
+                      padding:'4px 10px', 
+                      cursor:'pointer'
+                    }} 
+                    onClick={() => fetchHistoryData(historyTab, p)}
+                  >
+                    {p}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
         )}

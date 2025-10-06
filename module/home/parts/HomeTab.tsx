@@ -321,10 +321,10 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
             {(() => {
               const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1));
               const title = special?.title ?? 'Special Dragon';
-              const min = special?.purchaseAmount ?? 0;
+              const min = special?.amount ?? 0; // Đảo: amount thành Min
               const daily = special?.dailyIncome ?? 0;
               const period = special?.period ?? 0;
-              const total = special?.amount ?? 0;
+              const total = special?.purchaseAmount ?? 0; // Đảo: purchaseAmount thành Total Profit
               return (
                 <>
                   <div className="vip-name">{title}</div>
@@ -392,10 +392,10 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
               >
                 <div className="vip-left">
                   <div className="vip-name">Dragon {index + 1}</div>
-                  <div className="vip-meta">Min: ${pkg.purchaseAmount}</div>
+                  <div className="vip-meta">Min: ${pkg.amount}</div>
                   <div className="vip-meta">24h Profit: {pkg.dailyIncome} dragon</div>
                   <div className="vip-meta">Cycle: {pkg.period} days</div>
-                  <div className="vip-meta">Total Profit: {pkg.amount} dragon</div>
+                  <div className="vip-meta">Total Profit: {pkg.purchaseAmount} dragon</div>
                 </div>
                 <div className="vip-right">
                   <img src={pkg.imageUrl || '/img/pet1.png'} alt="bear" className="bear-img" />

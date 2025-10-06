@@ -187,7 +187,7 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
       ) : (
         <>
           <div className="detail-list">
-            <div className="row"><span className="label">Min:</span><span className="value">${((Number(detail?.purchaseAmount) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)}</span></div>
+            <div className="row"><span className="label">Min:</span><span className="value">${((Number(detail?.amount) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)}</span></div>
             <div className="row"><span className="label">24h Profit:</span><span className="value">{((Number(detail?.dailyIncome) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)} dragon</span></div>
             <div className="row"><span className="label">Cycle:</span><span className="value">{detail?.period} days</span></div>
             <div className="row"><span className="label">Mining Speed:</span><span className="value">{((Number(detail?.dailyIncome) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)}/h</span></div>
@@ -213,7 +213,7 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
                 )}
               </span>
             </div>
-            <div className="row"><span className="label">Total Profit:</span><span className="value">{((Number(detail?.amount) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)} dragon</span></div>
+            <div className="row"><span className="label">Total Profit:</span><span className="value">{((Number(detail?.purchaseAmount) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)} dragon</span></div>
           </div>
 
           <div className="nft-illustration">

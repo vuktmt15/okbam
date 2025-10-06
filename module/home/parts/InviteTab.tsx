@@ -15,6 +15,16 @@ interface TeamStaticsApi {
   teamSize: Record<string, number>; // F1..F5
 }
 
+interface AgencyRewardRule {
+  rule: {
+    requiredCount: number;
+    minInvestment: number;
+    rewardAmount: number;
+  };
+  currentCount: number;
+  claimable: boolean;
+}
+
 export default function InviteTab(): JSX.Element {
   const [active, setActive] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [memberTab, setMemberTab] = useState<"members" | "stats">("members");
@@ -26,6 +36,8 @@ export default function InviteTab(): JSX.Element {
   const [teamStatics, setTeamStatics] = useState<TeamStaticsApi | null>(null);
   const [showCopiedCode, setShowCopiedCode] = useState(false);
   const [showCopiedUrl, setShowCopiedUrl] = useState(false);
+  const [agencyRewards, setAgencyRewards] = useState<AgencyRewardRule[]>([]);
+  const [agencyLoading, setAgencyLoading] = useState(false);
   const { user, userDetails } = useAuth();
   const referralCode = userDetails?.refererCode || user?.refererCode || "";
   
@@ -114,11 +126,73 @@ export default function InviteTab(): JSX.Element {
     }
   };
 
+  // Handle claim reward
+  const handleClaimReward = async (rewardIndex: number) => {
+    const reward = agencyRewards[rewardIndex];
+    if (!reward.claimable) return;
+    
+    try {
+      const referrerId = userDetails?.referrerId || userDetails?.refererCode;
+      if (!referrerId) {
+        alert('User referrer ID not found');
+        return;
+      }
+      
+      // regisDone is 1-indexed (1 to 6) based on position in array
+      const regisDone = rewardIndex + 1;
+      
+      console.log(`Claiming reward ${regisDone} for referrer ${referrerId}`);
+      
+      // Call done-regis-dragon API
+      const response = await fetch(`/api/investment-history/done-regis-dragon?referrerId=${referrerId}&regisDone=${regisDone}`, {
+        method: 'POST'
+      });
+      
+      const data = await response.json();
+      
+      if (data.statusCode === 'OK') {
+        alert(`Successfully claimed reward of $${reward.rule.rewardAmount}!`);
+        // Refresh data after successful claim
+        await fetchAgencyRewards();
+      } else {
+        alert('Failed to claim reward: ' + (data.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error claiming reward:', error);
+      alert('Failed to claim reward. Please try again.');
+    }
+  };
+
+  // Fetch agency rewards from API
+  const fetchAgencyRewards = async () => {
+    if (!userDetails?.referrerId && !userDetails?.refererCode) return;
+    setAgencyLoading(true);
+    try {
+      const referrerId = userDetails?.referrerId || userDetails?.refererCode;
+      const res = await fetch(`/api/investment-history/check-regis-dragon?referrerId=${referrerId}`);
+      const data = await res.json();
+      if (data?.statusCode === 'OK' && data?.body && Array.isArray(data.body)) {
+        setAgencyRewards(data.body as AgencyRewardRule[]);
+      }
+    } catch (e) {
+      console.error('Error fetching agency rewards:', e);
+    } finally {
+      setAgencyLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (userDetails?.referrerId || userDetails?.refererCode) {
       fetchTeamStatics();
     }
   }, [userDetails]);
+
+  // Fetch agency rewards when modal opens
+  useEffect(() => {
+    if (openAgency && (userDetails?.referrerId || userDetails?.refererCode)) {
+      fetchAgencyRewards();
+    }
+  }, [openAgency, userDetails]);
 
   // Filter team members by level and search term
   const filteredMembers = teamMembers.filter(member => {
@@ -344,54 +418,28 @@ export default function InviteTab(): JSX.Element {
         <div className="agency-modal">
           <div className="agency-title">Agency Reward Rules</div>
           <div className="agency-list">
-            <div className="rule-row">
-              <div className="rule-text">
-                Invite 10 direct F1 with $8 investment
-                <div className="rule-sub">Reward $5</div>
-              </div>
-              <div className="rule-badge danger">0/10</div>
-              <button className="rule-claim">Claim</button>
-            </div>
-            <div className="rule-row">
-              <div className="rule-text">
-                Invite 10 direct F1 with $18 investment
-                <div className="rule-sub">Reward $13</div>
-              </div>
-              <div className="rule-badge danger">0/10</div>
-              <button className="rule-claim">Claim</button>
-            </div>
-            <div className="rule-row">
-              <div className="rule-text">
-                Invite 10 direct F1 with $42 investment
-                <div className="rule-sub">Reward $25</div>
-              </div>
-              <div className="rule-badge danger">0/10</div>
-              <button className="rule-claim">Claim</button>
-            </div>
-            <div className="rule-row">
-              <div className="rule-text">
-                Invite 7 direct F1 with $355 investment
-                <div className="rule-sub">Reward $88</div>
-              </div>
-              <div className="rule-badge danger">0/7</div>
-              <button className="rule-claim">Claim</button>
-            </div>
-            <div className="rule-row">
-              <div className="rule-text">
-                Invite 4 direct F1 with $3000 investment
-                <div className="rule-sub">Reward $299</div>
-              </div>
-              <div className="rule-badge danger">0/4</div>
-              <button className="rule-claim">Claim</button>
-            </div>
-            <div className="rule-row">
-              <div className="rule-text">
-                Invite 1 direct F1 with $12,000 investment
-                <div className="rule-sub">Reward $499</div>
-              </div>
-              <div className="rule-badge danger">0/1</div>
-              <button className="rule-claim">Claim</button>
-            </div>
+            {agencyLoading ? (
+              <div className="loading">Loading agency rewards...</div>
+            ) : (
+              agencyRewards.map((reward, index) => (
+                <div key={index} className="rule-row">
+                  <div className="rule-text">
+                    Invite {reward.rule.requiredCount} direct F1 with ${reward.rule.minInvestment} investment
+                    <div className="rule-sub">Reward ${reward.rule.rewardAmount}</div>
+                  </div>
+                  <div className={`rule-badge ${reward.claimable ? 'success' : 'danger'}`}>
+                    {reward.currentCount}/{reward.rule.requiredCount}
+                  </div>
+                  <button 
+                    className={`rule-claim ${reward.claimable ? 'success' : 'disabled'}`}
+                    disabled={!reward.claimable}
+                    onClick={() => handleClaimReward(index)}
+                  >
+                    Claim
+                  </button>
+                </div>
+              ))
+            )}
           </div>
           <button className="agency-close" onClick={() => setOpenAgency(false)}>Close</button>
         </div>

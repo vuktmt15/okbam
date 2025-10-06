@@ -127,7 +127,7 @@ export default function SignIn() {
                 />
                 <span className="checkbox-text">Remember account</span>
               </label>
-              <a href="#" className="forgot-password">Forgot password?</a>
+              <a href="/forgot-password" className="forgot-password">Forgot password?</a>
             </div>
             
             <button 

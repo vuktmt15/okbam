@@ -47,8 +47,8 @@ export default function Routes({
     }
   }, [isLoading, isAuthenticated, user, currentPath, router]);
 
-  // Public pages (signin, signup)
-  if (currentPath === '/signin' || currentPath === '/signup') {
+  // Public pages (signin, signup, forgot-password, reset-password)
+  if (currentPath === '/signin' || currentPath === '/signup' || currentPath === '/forgot-password' || currentPath === '/reset-password') {
     return <Component {...pageProps} />;
   }
 

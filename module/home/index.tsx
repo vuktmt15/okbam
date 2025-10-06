@@ -58,8 +58,9 @@ export function Home(): JSX.Element {
   useEffect(() => {
     const handleNavigateToTab = (event: CustomEvent) => {
       const tab = event.detail as TabKey;
-      if (tab === 'special') setActiveTab('special');
-      if (tab === 'bam') setActiveTab('bam');
+  if (tab === 'special') setActiveTab('special');
+  if (tab === 'bam') setActiveTab('bam');
+  if (tab === 'home') setActiveTab('home');
     };
 
     window.addEventListener('navigateToTab', handleNavigateToTab as EventListener);

@@ -169,13 +169,16 @@ export default function BAMTab(): JSX.Element {
           {loading ? (
             <div className="loading">Loading investment data...</div>
           ) : !regularInvestment ? (
-            <div className="no-packages">
-              <div className="no-packages-content">
-                <div className="no-packages-icon">📦</div>
-                <div className="no-packages-title">No regular investment</div>
-                <div className="no-packages-message">
-                  You haven't purchased any DRAGON packages yet. Go to Home to buy some!
+            <div className="special-not-purchased">
+              <div className="not-purchased-content">
+                <div className="not-purchased-title">You haven't registered any DRAGON package yet</div>
+                <div className="not-purchased-message">
+                  Go to Home to join the DRAGON packages and start earning rewards.
                 </div>
+                <button className="not-purchased-btn" onClick={() => {
+                  const ev = new CustomEvent('navigateToTab', { detail: 'home' });
+                  window.dispatchEvent(ev);
+                }}>Go to Home</button>
               </div>
             </div>
           ) : (
@@ -193,7 +196,7 @@ export default function BAMTab(): JSX.Element {
                 </div>
                 <div className="cell cost">
                   <div className="label">Cost</div>
-                  <div className="value">${regularInvestment.minAmount}</div>
+                  <div className="value">${regularInvestment.amount}</div>
                 </div>
                 <div className="cell speed">
                   <div className="label">Mining Speed</div>

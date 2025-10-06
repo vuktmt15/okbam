@@ -175,9 +175,10 @@ export default function SpecialTab(): JSX.Element {
       ) : (!pkg || !hasSpecialPackage) ? (
         <div className="special-not-purchased">
           <div className="not-purchased-content">
-            <div className="not-purchased-icon">⭐️</div>
-            <div className="not-purchased-title">You haven't registered the special package yet</div>
-            <div className="not-purchased-message">Go to Home to join the Special package and unlock exclusive rewards.</div>
+            <div className="not-purchased-title">You haven't registered the Special package yet</div>
+            <div className="not-purchased-message">
+              Go to Home to join the Special package and unlock exclusive rewards.
+            </div>
             <button className="not-purchased-btn" onClick={() => {
               const ev = new CustomEvent('navigateToTab', { detail: 'home' });
               window.dispatchEvent(ev);
@@ -204,7 +205,7 @@ export default function SpecialTab(): JSX.Element {
             </div>
             <div className="cell cost">
               <div className="label">Cost</div>
-              <div className="value">${pkg.purchaseAmount}</div>
+              <div className="value">${pkg.amount}</div>
             </div>
             <div className="cell speed">
               <div className="label">Mining Speed</div>

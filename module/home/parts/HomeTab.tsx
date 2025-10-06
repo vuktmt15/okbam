@@ -38,6 +38,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const [investmentsLoading, setInvestmentsLoading] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [balance, setBalance] = useState({ usdt: 0, dragon: 0 });
+  const [hasSpecialPackage, setHasSpecialPackage] = useState(false);
 
   // Check withdraw configuration before opening withdraw screen
   const handleWithdrawClick = async () => {
@@ -83,6 +84,25 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
         console.log('HomeTab - BAM packages response:', packagesData);
         if (packagesData.statusCode === 'OK' && packagesData.body) {
           setBamPackages(packagesData.body);
+        }
+
+        // Check if user has purchased special package
+        const userDetailsStr = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+        if (userDetailsStr) {
+          const parsed = JSON.parse(userDetailsStr);
+          const referrerId = parsed?.referrerId || parsed?.refererCode;
+          
+          if (referrerId) {
+            const response = await fetch(`/api/investment-packages/get-investment?referrerId=${referrerId}`);
+            const data = await response.json();
+            
+            if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
+              const hasSpecial = data.body.some((investment: any) => 
+                (investment?.bamId === 1 || investment?.id === 1 || investment?.planId === 1)
+              );
+              setHasSpecialPackage(hasSpecial);
+            }
+          }
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -325,36 +345,20 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
             <button
               className="buy"
               onClick={() => {
-                // If special purchased → navigate to Special tab; else open buy
-                const userDetailsStr = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
-                let hasSpecial = false;
-                try {
-                  if (userDetailsStr) {
-                    const parsed = JSON.parse(userDetailsStr);
-                    const referrerId = parsed?.referrerId || parsed?.refererCode;
-                    if (referrerId) {
-                      // Fire and forget check
-                      fetch(`/api/investment-packages/get-investment?referrerId=${referrerId}`).then(r=>r.json()).then(d=>{
-                        if (d?.statusCode === 'OK' && Array.isArray(d.body)) {
-                          const owned = d.body.some((inv:any)=> (inv?.bamId===1||inv?.id===1||inv?.planId===1));
-                          if (owned) {
-                            const ev = new CustomEvent('navigateToTab', { detail: 'special' });
-                            window.dispatchEvent(ev);
-                          }
-                        }
-                      });
-                    }
+                if (hasSpecialPackage) {
+                  // If already purchased → navigate to Special tab
+                  const ev = new CustomEvent('navigateToTab', { detail: 'special' });
+                  window.dispatchEvent(ev);
+                } else {
+                  // If not purchased → open buy modal
+                  const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1));
+                  if (special && special.status === 1) {
+                    setOpenBuy({ plan: special.title, price: `$${special.purchaseAmount}`, id: special.id ?? 1 });
                   }
-                } catch {}
-
-                const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1));
-                if (special && special.status === 1) {
-                  setOpenBuy({ plan: special.title, price: `$${special.purchaseAmount}`, id: special.id ?? 1 });
                 }
               }}
             >
-              {/* Text changes: simple Go to */}
-              Go to
+              {hasSpecialPackage ? 'Go to' : 'Join Now'}
             </button>
           </div>
         </div>

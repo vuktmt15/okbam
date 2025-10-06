@@ -761,6 +761,64 @@
   }
 }
 
+/* Unified styling for "not purchased" state in both Special and Dragon tabs */
+.special-not-purchased {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  padding: 32px 16px;
+}
+
+.not-purchased-content {
+  text-align: center;
+  max-width: 320px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.not-purchased-icon {
+  display: none; /* Hide icons in "not purchased" state */
+}
+
+.not-purchased-title {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.not-purchased-message {
+  color: #ccc;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.not-purchased-btn {
+  background: linear-gradient(135deg, #ff6b6b, #ffa500);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 480px) {
   .okbam-bam {
     padding: 16px;

@@ -24,7 +24,7 @@ export default function BAMTab(): JSX.Element {
           const referrerId = parsed?.referrerId || parsed?.refererCode;
           
           if (referrerId) {
-            const response = await fetch(`http://159.223.91.231:8866/api/investment-packages/get-investment-regular?referrerId=${referrerId}`);
+            const response = await fetch(`/api/investment-packages/get-investment-regular?referrerId=${referrerId}`);
             const data = await response.json();
             
             if (data?.statusCode === 'OK' && data.body) {

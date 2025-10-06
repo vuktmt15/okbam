@@ -43,7 +43,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   // Check withdraw configuration before opening withdraw screen
   const handleWithdrawClick = async () => {
     try {
-      const response = await fetch('http://159.223.91.231:8866/api/admin-configs');
+      const response = await fetch('/api/admin-configs');
       const configs = await response.json();
       
       if (Array.isArray(configs) && configs.length > 0) {

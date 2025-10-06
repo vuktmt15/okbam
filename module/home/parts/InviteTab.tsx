@@ -76,7 +76,7 @@ export default function InviteTab(): JSX.Element {
     setLoading(true);
     try {
       const referrerId = userDetails?.referrerId || userDetails?.refererCode;
-      const response = await fetch(`http://159.223.91.231:8866/api/investment-history/team-size?referrerId=${referrerId}`);
+      const response = await fetch(`/api/investment-history/team-size?referrerId=${referrerId}`);
       const data = await response.json();
       
       if (data.statusCode === 'OK' && data.body) {
@@ -102,7 +102,7 @@ export default function InviteTab(): JSX.Element {
     setStaticsLoading(true);
     try {
       const referrerId = userDetails?.referrerId || userDetails?.refererCode;
-      const res = await fetch(`http://159.223.91.231:8866/api/investment-history/team-statics?referrerId=${referrerId}`);
+      const res = await fetch(`/api/investment-history/team-statics?referrerId=${referrerId}`);
       const data = await res.json();
       if (data?.statusCode === 'OK' && data?.body) {
         setTeamStatics(data.body as TeamStaticsApi);

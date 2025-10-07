@@ -200,7 +200,7 @@ export default function BAMTab(): JSX.Element {
                 </div>
                 <div className="cell speed">
                   <div className="label">Mining Speed</div>
-                  <div className="value">${regularInvestment.interestRate}/h</div>
+                  <div className="value">{regularInvestment.speed} dragon/h</div>
                 </div>
                 <div className="cell cycle">
                   <div className="label">Cycle</div>

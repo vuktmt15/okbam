@@ -18,14 +18,25 @@ export default function SpecialTab(): JSX.Element {
   React.useEffect(() => {
     const fetchSpecial = async () => {
       try {
-        const response = await fetch(`/api/product/?t=${Date.now()}`);
-        const data = await response.json();
-        if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
-          const special = data.body.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1)) || null;
-          setPkg(special);
+        const userDetails = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+        if (userDetails) {
+          const parsed = JSON.parse(userDetails);
+          const referrerId = parsed?.referrerId || parsed?.refererCode;
+          
+          if (referrerId) {
+            const response = await fetch(`/api/investment-packages/get-investment-special?referrerId=${referrerId}`);
+            const data = await response.json();
+            
+            if (data?.statusCode === 'OK' && data.body) {
+              setPkg(data.body);
+            } else {
+              setPkg(null);
+            }
+          }
         }
       } catch (e) {
         console.error('Error fetching special package:', e);
+        setPkg(null);
       } finally {
         setLoading(false);
       }
@@ -209,11 +220,11 @@ export default function SpecialTab(): JSX.Element {
             </div>
             <div className="cell speed">
               <div className="label">Mining Speed</div>
-              <div className="value">${pkg.dailyIncome}/h</div>
+              <div className="value">{pkg.speed} dragon/h</div>
             </div>
             <div className="cell cycle">
               <div className="label">Cycle</div>
-              <div className="value">{pkg.period} days</div>
+              <div className="value">{pkg.durationDays} days</div>
             </div>
           </div>
 

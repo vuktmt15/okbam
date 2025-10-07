@@ -38,6 +38,9 @@ export default function InviteTab(): JSX.Element {
   const [showCopiedUrl, setShowCopiedUrl] = useState(false);
   const [agencyRewards, setAgencyRewards] = useState<AgencyRewardRule[]>([]);
   const [agencyLoading, setAgencyLoading] = useState(false);
+  const [totalClaim, setTotalClaim] = useState<number>(0);
+  const [totalClaimLoading, setTotalClaimLoading] = useState(false);
+  const [claimStatus, setClaimStatus] = useState<boolean>(false);
   const { user, userDetails } = useAuth();
   const referralCode = userDetails?.refererCode || user?.refererCode || "";
   
@@ -105,6 +108,7 @@ export default function InviteTab(): JSX.Element {
   useEffect(() => {
     if (userDetails?.referrerId || userDetails?.refererCode) {
       fetchTeamMembers();
+      fetchTotalClaim();
     }
   }, [userDetails]);
 
@@ -123,6 +127,30 @@ export default function InviteTab(): JSX.Element {
       console.error('Error fetching team statics:', e);
     } finally {
       setStaticsLoading(false);
+    }
+  };
+
+  // Fetch total claim amount from API
+  const fetchTotalClaim = async () => {
+    if (!userDetails?.referrerId && !userDetails?.refererCode) return;
+    setTotalClaimLoading(true);
+    try {
+      const referrerId = userDetails?.referrerId || userDetails?.refererCode;
+      const res = await fetch(`/api/investment-history/total-claim?referrerId=${referrerId}`);
+      const data = await res.json();
+      console.log('Total claim API response:', data);
+      if (data?.statusCode === 'OK' && data?.body) {
+        // Update to handle new response structure
+        const amount = data.body.amount || 0;
+        const status = data.body.status || false;
+        console.log('Setting totalClaim:', amount, 'claimStatus:', status);
+        setTotalClaim(amount);
+        setClaimStatus(status);
+      }
+    } catch (e) {
+      console.error('Error fetching total claim:', e);
+    } finally {
+      setTotalClaimLoading(false);
     }
   };
 
@@ -160,6 +188,48 @@ export default function InviteTab(): JSX.Element {
     } catch (error) {
       console.error('Error claiming reward:', error);
       alert('Failed to claim reward. Please try again.');
+    }
+  };
+
+  // Handle claim dragon button  
+  const handleClaimDragon = async () => {
+    console.log('=== CLAIM BUTTON CLICKED ===');
+    
+    const referrerId = userDetails?.referrerId || userDetails?.refererCode;
+    console.log('ReferrerId:', referrerId);
+    console.log('Total Claim Amount:', totalClaim);
+    
+    if (!referrerId) {
+      alert('Không tìm thấy referrerId');
+      return;
+    }
+    
+    if (!totalClaim || totalClaim <= 0) {
+      alert('Số tiền claim phải lớn hơn 0');
+      return;
+    }
+    
+    try {
+      const apiUrl = `/api/investment-history/history-claim?referrerId=${referrerId}&amount=${totalClaim}`;
+      console.log('Calling API:', apiUrl);
+      
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      
+      console.log('API Response:', data);
+      
+      if (data.statusCode === 'OK') {
+        alert(`Claim thành công ${totalClaim} DRAGON!`);
+        // Disable nút bằng cách set claimStatus = false
+        setClaimStatus(false);
+        // Refresh data
+        await fetchTotalClaim();
+      } else {
+        alert('Claim thất bại: ' + (data.message || 'Lỗi không xác định'));
+      }
+    } catch (error) {
+      console.error('Error claiming:', error);
+      alert('Lỗi khi claim. Vui lòng thử lại.');
     }
   };
 
@@ -258,9 +328,26 @@ export default function InviteTab(): JSX.Element {
         <div className="reward-row">
           <div className="reward-badge">
             <span className="coin">T</span>
-            <span className="amount">10 DRAGON</span>
+            <span className="amount">
+              {totalClaimLoading ? 'Loading...' : `${totalClaim} DRAGON`}
+            </span>
           </div>
-          <button className="btn-claim">Claim</button>
+          <button 
+            className="btn-claim"
+            onClick={handleClaimDragon}
+            style={{
+              background: claimStatus ? '#a56a46' : '#666',
+              color: claimStatus ? '#fff' : '#999',
+              cursor: claimStatus ? 'pointer' : 'not-allowed',
+              opacity: claimStatus ? 1 : 0.6,
+              border: 'none',
+              borderRadius: '10px',
+              padding: '6px 10px',
+              marginTop: '2px'
+            }}
+          >
+            Claim
+          </button>
         </div>
         <div className="rows">
           <div className="row">

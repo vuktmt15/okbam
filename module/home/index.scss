@@ -1137,6 +1137,16 @@
   border-radius: 10px;
   padding: 6px 10px;
   margin-top: 2px;
+  border: none;
+  cursor: pointer;
+  
+  &.disabled,
+  &:disabled {
+    background: #666 !important;
+    color: #999 !important;
+    cursor: not-allowed !important;
+    opacity: 0.6 !important;
+  }
 }
 .okbam-invite .invite-hero .reward { font-weight: 800; font-size: 20px; margin: 6px 0; }
 .okbam-invite .invite-hero .rows .row {

@@ -179,6 +179,13 @@ export default function SpecialTab(): JSX.Element {
     if (showHistory) fetchClaimHistory(1);
   }, [showHistory]);
 
+  // Ensure countdown is scheduled for special package
+  React.useEffect(() => {
+    if (pkg && hasSpecialPackage) {
+      ensureScheduled(pkg.id ?? 1);
+    }
+  }, [pkg, hasSpecialPackage]);
+
   return (
     <div className="okbam-special">
       {loading || checkingPurchase ? (
@@ -276,7 +283,7 @@ export default function SpecialTab(): JSX.Element {
                 <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
                     <span>Special Package Claim</span>
-                    <span style={{color:'#52c41a'}}>+{item.amount} USDT</span>
+                    <span style={{color:'#52c41a'}}>+{item.amount} dragon</span>
                   </div>
                   <div style={{display:'flex', justifyContent:'space-between'}}>
                     <span>Time:</span>

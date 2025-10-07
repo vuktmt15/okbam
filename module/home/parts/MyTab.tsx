@@ -399,7 +399,7 @@ export default function MyTab(): JSX.Element {
           <div className="okbam-notifications" style={{padding: 16}}>
             <div style={{fontWeight: 700, fontSize: 16, marginBottom: 12, color: "#fff"}}>Notifications</div>
             <div className="notification-item" style={{background: "#1a1a1a", color: "#fff", borderRadius: 10, padding: 12}}>
-              <div style={{fontWeight: 600}}>Đăng ký tài khoản thành công</div>
+              <div style={{fontWeight: 600}}>Account registration successful</div>
               <div style={{opacity: 0.8, fontSize: 12, marginTop: 4}}>Just now</div>
             </div>
           </div>

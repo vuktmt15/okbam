@@ -257,7 +257,7 @@ export default function BAMTab(): JSX.Element {
                 <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
                     <span>DRAGON Package Claim</span>
-                    <span style={{color:'#52c41a'}}>+{item.amount} USDT</span>
+                    <span style={{color:'#52c41a'}}>+{item.amount} dragon</span>
                   </div>
                   <div style={{display:'flex', justifyContent:'space-between'}}>
                     <span>Time:</span>

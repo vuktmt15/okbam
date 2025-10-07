@@ -31,17 +31,17 @@ export default function DepositScreen({ onBack, autoShowHistory = false }: Props
   const handleCopyAddress = async () => {
     try {
       await navigator.clipboard.writeText(depositAddress);
-      // Có thể thêm toast notification ở đây
-      console.log('Địa chỉ đã được copy:', depositAddress);
+      // Can add toast notification here
+      console.log('Address copied:', depositAddress);
     } catch (err) {
-      // Fallback cho các trình duyệt cũ
+      // Fallback for older browsers
       const textArea = document.createElement('textarea');
       textArea.value = depositAddress;
       document.body.appendChild(textArea);
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
-      console.log('Địa chỉ đã được copy (fallback):', depositAddress);
+      console.log('Address copied (fallback):', depositAddress);
     }
   };
 

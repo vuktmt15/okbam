@@ -190,7 +190,7 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
             <div className="row"><span className="label">Min:</span><span className="value">${((Number(detail?.amount) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)}</span></div>
             <div className="row"><span className="label">24h Profit:</span><span className="value">{((Number(detail?.dailyIncome) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)} dragon</span></div>
             <div className="row"><span className="label">Cycle:</span><span className="value">{detail?.period} days</span></div>
-            <div className="row"><span className="label">Mining Speed:</span><span className="value">{(((Number(detail?.dailyIncome) || 0) * (planId === 1 ? 1 : quantity)) / 24).toFixed(4)} dragon/h</span></div>
+            <div className="row"><span className="label">Mining Speed:</span><span className="value">{(((Number(detail?.dailyIncome) || 0) * (planId === 1 ? 1 : quantity)) / 24).toFixed(2)} dragon/h</span></div>
             <div className="row quantity-row">
               <span className="label">Quantity:</span>
               <span className="value">

@@ -200,12 +200,12 @@ export default function InviteTab(): JSX.Element {
     console.log('Total Claim Amount:', totalClaim);
     
     if (!referrerId) {
-      alert('Không tìm thấy referrerId');
+      alert('ReferrerId not found');
       return;
     }
     
     if (!totalClaim || totalClaim <= 0) {
-      alert('Số tiền claim phải lớn hơn 0');
+      alert('Claim amount must be greater than 0');
       return;
     }
     
@@ -219,17 +219,17 @@ export default function InviteTab(): JSX.Element {
       console.log('API Response:', data);
       
       if (data.statusCode === 'OK') {
-        alert(`Claim thành công ${totalClaim} DRAGON!`);
+        alert(`Successfully claimed ${totalClaim} DRAGON!`);
         // Disable nút bằng cách set claimStatus = false
         setClaimStatus(false);
         // Refresh data
         await fetchTotalClaim();
       } else {
-        alert('Claim thất bại: ' + (data.message || 'Lỗi không xác định'));
+        alert('Failed to claim dragon reward: ' + (data.message || 'Unknown error'));
       }
     } catch (error) {
       console.error('Error claiming:', error);
-      alert('Lỗi khi claim. Vui lòng thử lại.');
+      alert('Error claiming. Please try again.');
     }
   };
 
@@ -256,6 +256,13 @@ export default function InviteTab(): JSX.Element {
       fetchTeamStatics();
     }
   }, [userDetails]);
+
+  // Fetch team statistics when switching to stats tab
+  useEffect(() => {
+    if (memberTab === 'stats' && (userDetails?.referrerId || userDetails?.refererCode)) {
+      fetchTeamStatics();
+    }
+  }, [memberTab, userDetails]);
 
   // Fetch agency rewards when modal opens
   useEffect(() => {
@@ -465,33 +472,33 @@ export default function InviteTab(): JSX.Element {
               <div className="summary-row">
                 <div className="summary-item">
                   <div className="summary-label">Total Registrations</div>
-                  <div className="summary-value">0</div>
+                  <div className="summary-value">{Object.values(teamStats.regs || {}).reduce((a, b) => a + b, 0)}</div>
                 </div>
                 <div className="summary-item">
                   <div className="summary-label">F1</div>
-                  <div className="summary-value">0</div>
+                  <div className="summary-value">{teamStats.regs?.[1] || 0}</div>
                 </div>
               </div>
               
               <div className="summary-row">
                 <div className="summary-item">
                   <div className="summary-label">Total System</div>
-                  <div className="summary-value">0</div>
+                  <div className="summary-value">{Object.values(teamStats.teamSize || {}).reduce((a, b) => a + b, 0)}</div>
                 </div>
                 <div className="summary-item">
                   <div className="summary-label">F1 Quantity</div>
-                  <div className="summary-value">0</div>
+                  <div className="summary-value">{teamStats.teamSize?.[1] || 0}</div>
                 </div>
               </div>
               
               <div className="summary-row">
                 <div className="summary-item">
                   <div className="summary-label">Total System Commission</div>
-                  <div className="summary-value">0 Dragon</div>
+                  <div className="summary-value">{Object.values(teamStats.levelCounts || {}).reduce((a, b) => a + b, 0)} Dragon</div>
                 </div>
                 <div className="summary-item">
                   <div className="summary-label">F1 Commission</div>
-                  <div className="summary-value">0 Dragon</div>
+                  <div className="summary-value">{teamStats.levelCounts?.[1] || 0} Dragon</div>
                 </div>
               </div>
             </div>

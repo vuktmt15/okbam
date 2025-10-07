@@ -286,6 +286,38 @@ export default function Admin() {
     }
   };
 
+  const handleDeleteUser = async (userId: number) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin-users/delete-history?id=${userId}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Remove user from local state
+        setAllUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+        
+        // Update total count
+        setTotalUsers(prev => prev - 1);
+        setTotalPages(Math.ceil((totalUsers - 1) / usersPerPage));
+        
+        alert('User deleted successfully');
+      } else {
+        console.error('Failed to delete user:', data);
+        alert(`Failed to delete user: ${data.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Error deleting user. Please try again.');
+    }
+  };
+
   const toggleWithdrawConfig = async () => {
     if (!withdrawConfig) return;
 
@@ -462,8 +494,12 @@ export default function Admin() {
                           </td>
                           <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                           <td>
-                            <button className="action-btn edit">Edit</button>
-                            <button className="action-btn delete">Delete</button>
+                            <button 
+                              className="action-btn delete"
+                              onClick={() => handleDeleteUser(user.id)}
+                            >
+                              Delete
+                            </button>
                           </td>
                         </tr>
                       ))}

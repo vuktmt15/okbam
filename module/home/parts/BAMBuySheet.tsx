@@ -99,12 +99,12 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
   const handleConfirmUpgrade = async () => {
     if (!detail || isSubmitting) return;
     
-    // Check if balance is sufficient (multiply by quantity for regular packages)
-    const unitPrice = Number(detail.purchaseAmount) || 0;
+    // Check if balance is sufficient - use Min (amount) * quantity
+    const minAmount = Number(detail.amount) || 0;
     const specialQty = planId === 1 ? ((isFirstBy ? quantity : 1)) : quantity;
-    const purchaseAmount = unitPrice * specialQty;
-    if (balance.usdt < purchaseAmount) {
-      setMessage(`Insufficient balance. You have ${balance.usdt} USDT but need ${purchaseAmount} USDT.`);
+    const requiredAmount = minAmount * specialQty;
+    if (balance.usdt < requiredAmount) {
+      setMessage(`Insufficient balance. You have ${balance.usdt} USDT but need ${requiredAmount} USDT.`);
       return;
     }
     
@@ -190,7 +190,7 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
             <div className="row"><span className="label">Min:</span><span className="value">${((Number(detail?.amount) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)}</span></div>
             <div className="row"><span className="label">24h Profit:</span><span className="value">{((Number(detail?.dailyIncome) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)} dragon</span></div>
             <div className="row"><span className="label">Cycle:</span><span className="value">{detail?.period} days</span></div>
-            <div className="row"><span className="label">Mining Speed:</span><span className="value">{((Number(detail?.dailyIncome) || 0) * (planId === 1 ? 1 : quantity)).toFixed(2)}/h</span></div>
+            <div className="row"><span className="label">Mining Speed:</span><span className="value">{(((Number(detail?.dailyIncome) || 0) * (planId === 1 ? 1 : quantity)) / 24).toFixed(4)} dragon/h</span></div>
             <div className="row quantity-row">
               <span className="label">Quantity:</span>
               <span className="value">

@@ -81,7 +81,8 @@ export default function MyTab(): JSX.Element {
       if (tab === 'swap') {
         res = await fetch(`/api/history-balance-swap?ref=${referrerId}`);
       } else {
-        res = await fetch(`/api/history-balance-invest?ref=${referrerId}`);
+        // Updated to use new commission history API
+        res = await fetch(`/api/customers/history-balance-claim?ref=${referrerId}`);
       }
       
       const data = await res.json();
@@ -313,11 +314,11 @@ export default function MyTab(): JSX.Element {
                     <>
                       <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
                         <span>Commission</span>
-                        <span style={{color:'#52c41a'}}>+{item.amount} USDT</span>
+                        <span style={{color:'#52c41a'}}>+{item.amount} Dragon</span>
                       </div>
                       <div style={{display:'flex', justifyContent:'space-between'}}>
                         <span>Time:</span>
-                        <span>{new Date(item.investedAt).toLocaleString('en-US', {
+                        <span>{new Date(item.createDate).toLocaleString('en-US', {
                           hour:'2-digit', 
                           minute:'2-digit', 
                           second:'2-digit', 

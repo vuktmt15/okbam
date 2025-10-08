@@ -41,8 +41,54 @@ export default function InviteTab(): JSX.Element {
   const [totalClaim, setTotalClaim] = useState<number>(0);
   const [totalClaimLoading, setTotalClaimLoading] = useState(false);
   const [claimStatus, setClaimStatus] = useState<boolean>(false);
+  
+  // State for managing claim button disabled status
+  const [dragonClaimDisabled, setDragonClaimDisabled] = useState<boolean>(false);
+  const [agencyClaimDisabled, setAgencyClaimDisabled] = useState<boolean[]>([]);
+  
   const { user, userDetails } = useAuth();
   const referralCode = userDetails?.refererCode || user?.refererCode || "";
+  
+  // Check if claim was disabled today and reset at midnight
+  useEffect(() => {
+    const checkAndResetClaimStatus = () => {
+      const today = new Date().toDateString();
+      const lastClaimDate = localStorage.getItem('lastDragonClaimDate');
+      const lastAgencyClaimDates = JSON.parse(localStorage.getItem('lastAgencyClaimDates') || '{}');
+      
+      // Reset dragon claim if it's a new day
+      if (lastClaimDate !== today) {
+        setDragonClaimDisabled(false);
+        localStorage.removeItem('lastDragonClaimDate');
+      } else {
+        setDragonClaimDisabled(true);
+      }
+      
+      // Reset agency claims if it's a new day
+      const newAgencyDisabled = agencyRewards.map((_, index) => {
+        return lastAgencyClaimDates[index] === today;
+      });
+      setAgencyClaimDisabled(newAgencyDisabled);
+    };
+    
+    checkAndResetClaimStatus();
+    
+    // Set up interval to check at midnight
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const msUntilMidnight = tomorrow.getTime() - now.getTime();
+    
+    const timeoutId = setTimeout(() => {
+      checkAndResetClaimStatus();
+      // Set up daily interval
+      const intervalId = setInterval(checkAndResetClaimStatus, 24 * 60 * 60 * 1000);
+      return () => clearInterval(intervalId);
+    }, msUntilMidnight);
+    
+    return () => clearTimeout(timeoutId);
+  }, [agencyRewards]);
   
   const handleCopyReferralCode = async () => {
     const codeToCopy = userDetails?.refererCode || user?.refererCode || "";
@@ -159,6 +205,11 @@ export default function InviteTab(): JSX.Element {
     const reward = agencyRewards[rewardIndex];
     if (!reward.claimable) return;
     
+    if (agencyClaimDisabled[rewardIndex]) {
+      alert('You have already claimed this reward today. Please wait until midnight to claim again.');
+      return;
+    }
+    
     try {
       const referrerId = userDetails?.referrerId || userDetails?.refererCode;
       if (!referrerId) {
@@ -180,6 +231,18 @@ export default function InviteTab(): JSX.Element {
       
       if (data.statusCode === 'OK') {
         alert(`Successfully claimed reward of $${reward.rule.rewardAmount}!`);
+        
+        // Disable this specific agency claim button
+        const newAgencyDisabled = [...agencyClaimDisabled];
+        newAgencyDisabled[rewardIndex] = true;
+        setAgencyClaimDisabled(newAgencyDisabled);
+        
+        // Save to localStorage
+        const today = new Date().toDateString();
+        const lastAgencyClaimDates = JSON.parse(localStorage.getItem('lastAgencyClaimDates') || '{}');
+        lastAgencyClaimDates[rewardIndex] = today;
+        localStorage.setItem('lastAgencyClaimDates', JSON.stringify(lastAgencyClaimDates));
+        
         // Refresh data after successful claim
         await fetchAgencyRewards();
       } else {
@@ -194,6 +257,11 @@ export default function InviteTab(): JSX.Element {
   // Handle claim dragon button  
   const handleClaimDragon = async () => {
     console.log('=== CLAIM BUTTON CLICKED ===');
+    
+    if (dragonClaimDisabled) {
+      alert('You have already claimed today. Please wait until midnight to claim again.');
+      return;
+    }
     
     const referrerId = userDetails?.referrerId || userDetails?.refererCode;
     console.log('ReferrerId:', referrerId);
@@ -220,6 +288,12 @@ export default function InviteTab(): JSX.Element {
       
       if (data.statusCode === 'OK') {
         alert(`Successfully claimed ${totalClaim} DRAGON!`);
+        
+        // Disable the button and save to localStorage
+        setDragonClaimDisabled(true);
+        const today = new Date().toDateString();
+        localStorage.setItem('lastDragonClaimDate', today);
+        
         // Disable nút bằng cách set claimStatus = false
         setClaimStatus(false);
         // Refresh data
@@ -342,18 +416,19 @@ export default function InviteTab(): JSX.Element {
           <button 
             className="btn-claim"
             onClick={handleClaimDragon}
+            disabled={!claimStatus || dragonClaimDisabled}
             style={{
-              background: claimStatus ? '#a56a46' : '#666',
-              color: claimStatus ? '#fff' : '#999',
-              cursor: claimStatus ? 'pointer' : 'not-allowed',
-              opacity: claimStatus ? 1 : 0.6,
+              background: (claimStatus && !dragonClaimDisabled) ? '#a56a46' : '#666',
+              color: (claimStatus && !dragonClaimDisabled) ? '#fff' : '#999',
+              cursor: (claimStatus && !dragonClaimDisabled) ? 'pointer' : 'not-allowed',
+              opacity: (claimStatus && !dragonClaimDisabled) ? 1 : 0.6,
               border: 'none',
               borderRadius: '10px',
               padding: '6px 10px',
               marginTop: '2px'
             }}
           >
-            Claim
+            {dragonClaimDisabled ? 'Claimed Today' : 'Claim'}
           </button>
         </div>
         <div className="rows">
@@ -525,11 +600,11 @@ export default function InviteTab(): JSX.Element {
                     {reward.currentCount}/{reward.rule.requiredCount}
                   </div>
                   <button 
-                    className={`rule-claim ${reward.claimable ? 'success' : 'disabled'}`}
-                    disabled={!reward.claimable}
+                    className={`rule-claim ${(reward.claimable && !agencyClaimDisabled[index]) ? 'success' : 'disabled'}`}
+                    disabled={!reward.claimable || agencyClaimDisabled[index]}
                     onClick={() => handleClaimReward(index)}
                   >
-                    Claim
+                    {agencyClaimDisabled[index] ? 'Claimed Today' : 'Claim'}
                   </button>
                 </div>
               ))

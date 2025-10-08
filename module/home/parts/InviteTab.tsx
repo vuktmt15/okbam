@@ -54,9 +54,8 @@ export default function InviteTab(): JSX.Element {
     const checkAndResetClaimStatus = () => {
       const today = new Date().toDateString();
       const lastClaimDate = localStorage.getItem('lastDragonClaimDate');
-      const lastAgencyClaimDates = JSON.parse(localStorage.getItem('lastAgencyClaimDates') || '{}');
       
-      // Reset dragon claim if it's a new day
+      // Reset dragon claim if it's a new day (only for dragon claim)
       if (lastClaimDate !== today) {
         setDragonClaimDisabled(false);
         localStorage.removeItem('lastDragonClaimDate');
@@ -64,16 +63,17 @@ export default function InviteTab(): JSX.Element {
         setDragonClaimDisabled(true);
       }
       
-      // Reset agency claims if it's a new day
+      // Agency claims remain permanently disabled - no reset
+      const permanentAgencyClaimDisabled = JSON.parse(localStorage.getItem('permanentAgencyClaimDisabled') || '{}');
       const newAgencyDisabled = agencyRewards.map((_, index) => {
-        return lastAgencyClaimDates[index] === today;
+        return !!permanentAgencyClaimDisabled[index];
       });
       setAgencyClaimDisabled(newAgencyDisabled);
     };
     
     checkAndResetClaimStatus();
     
-    // Set up interval to check at midnight
+    // Set up interval to check at midnight (only affects dragon claim)
     const now = new Date();
     const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -206,7 +206,7 @@ export default function InviteTab(): JSX.Element {
     if (!reward.claimable) return;
     
     if (agencyClaimDisabled[rewardIndex]) {
-      alert('You have already claimed this reward today. Please wait until midnight to claim again.');
+      alert('This reward has already been claimed.');
       return;
     }
     
@@ -232,16 +232,15 @@ export default function InviteTab(): JSX.Element {
       if (data.statusCode === 'OK') {
         alert(`Successfully claimed reward of $${reward.rule.rewardAmount}!`);
         
-        // Disable this specific agency claim button
+        // Permanently disable this specific agency claim button
         const newAgencyDisabled = [...agencyClaimDisabled];
         newAgencyDisabled[rewardIndex] = true;
         setAgencyClaimDisabled(newAgencyDisabled);
         
-        // Save to localStorage
-        const today = new Date().toDateString();
-        const lastAgencyClaimDates = JSON.parse(localStorage.getItem('lastAgencyClaimDates') || '{}');
-        lastAgencyClaimDates[rewardIndex] = today;
-        localStorage.setItem('lastAgencyClaimDates', JSON.stringify(lastAgencyClaimDates));
+        // Save permanently to localStorage (no reset)
+        const permanentAgencyClaimDisabled = JSON.parse(localStorage.getItem('permanentAgencyClaimDisabled') || '{}');
+        permanentAgencyClaimDisabled[rewardIndex] = true;
+        localStorage.setItem('permanentAgencyClaimDisabled', JSON.stringify(permanentAgencyClaimDisabled));
         
         // Refresh data after successful claim
         await fetchAgencyRewards();
@@ -604,7 +603,7 @@ export default function InviteTab(): JSX.Element {
                     disabled={!reward.claimable || agencyClaimDisabled[index]}
                     onClick={() => handleClaimReward(index)}
                   >
-                    {agencyClaimDisabled[index] ? 'Claimed Today' : 'Claim'}
+                    {agencyClaimDisabled[index] ? 'Claimed' : 'Claim'}
                   </button>
                 </div>
               ))

@@ -441,7 +441,7 @@ export default function InviteTab(): JSX.Element {
           </div>
           <div className="row">
             <span className="label">Referral URL</span>
-            <a className="url" href={`/signup?ref=${encodeURIComponent(referralCode || '')}`}>{`${typeof window !== 'undefined' ? window.location.origin : ''}/signup?ref=${encodeURIComponent(referralCode || '')}`}</a>
+            <span className="url">{`${typeof window !== 'undefined' ? window.location.origin : ''}/signup?ref=${encodeURIComponent(referralCode || '')}`}</span>
             <button className="icon" onClick={async () => {
               try {
                 await navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${encodeURIComponent(referralCode || '')}`);

@@ -17,6 +17,7 @@ import {
 import {Avatar} from "antd";
 import {ModalCustom} from "@components/ModalCustom";
 import BAMBuySheet from "./BAMBuySheet";
+import CheckinModal from "@components/CheckinModal";
 import {MyTabContext} from "./context";
 import DepositScreen from "./DepositScreen";
 import {useAuth} from "../../../contexts/AuthContext";
@@ -30,6 +31,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
   const {user, userDetails, fetchUserDetails} = useAuth();
   const [showDeposit, setShowDeposit] = useState(false);
+  const [showCheckin, setShowCheckin] = useState(false);
   const [bamPackages, setBamPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [openBuy, setOpenBuy] = useState<null | {plan: string; price: string; id: number}>(null);
@@ -300,9 +302,9 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
           <DollarCircleOutlined />
           <span>Withdraw</span>
         </button>
-        <button className="action">
+        <button className="action" onClick={() => setShowCheckin(true)}>
           <CalendarOutlined />
-          <span>Login</span>
+          <span>Checkin</span>
         </button>
         <button className="action" onClick={onGoToInvite}>
           <TeamOutlined />
@@ -528,6 +530,12 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
           </div>
         </div>
       </ModalCustom>
+
+      {/* Checkin Modal */}
+      <CheckinModal 
+        open={showCheckin}
+        onCancel={() => setShowCheckin(false)}
+      />
     </div>
   );
 

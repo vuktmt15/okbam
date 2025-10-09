@@ -184,8 +184,8 @@ export default function MyTab(): JSX.Element {
               <span className="wallet-label">Wallet Balance:</span>
             </div>
             <div className="wallet-amounts">
-              <span className="wallet-coin"><b>{balance.usdt}</b> USDT</span>
-              <span className="wallet-coin"><b>{balance.dragon}</b> Dragon</span>
+              <span className="wallet-coin"><b>{balance.usdt}</b> USDT <span style={{marginLeft: '4px', verticalAlign: 'middle'}}>💎</span></span>
+              <span className="wallet-coin"><b>{balance.dragon}</b> Dragon <img src="/img/dragon/special-dragon-home.png" alt="dragon egg" style={{width: '16px', height: '16px', marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block'}} /></span>
             </div>
           </div>
           <div className="quick">

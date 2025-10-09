@@ -409,7 +409,11 @@ export default function InviteTab(): JSX.Element {
           <div className="reward-badge">
             <span className="coin">T</span>
             <span className="amount">
-              {totalClaimLoading ? 'Loading...' : `${totalClaim} DRAGON`}
+              {totalClaimLoading ? 'Loading...' : (
+                <>
+                  {totalClaim} DRAGON <img src="/img/dragon/special-dragon-home.png" alt="dragon egg" style={{width: '16px', height: '16px', marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block'}} />
+                </>
+              )}
             </span>
           </div>
           <button 

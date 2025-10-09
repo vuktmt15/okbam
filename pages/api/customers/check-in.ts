@@ -5,14 +5,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
-  const { ref, amount } = req.query;
+  const { ref, amount, day } = req.query;
 
-  if (!ref || !amount) {
-    return res.status(400).json({ message: 'ref and amount parameters are required' });
+  if (!ref || !amount || !day) {
+    return res.status(400).json({ message: 'ref, amount, and day parameters are required' });
   }
 
   try {
-    const apiUrl = `http://159.223.91.231:8866/api/customers/check-in?ref=${ref}&amount=${amount}`;
+    const apiUrl = `http://159.223.91.231:8866/api/customers/check-in?ref=${ref}&amount=${amount}&day=${day}`;
     console.log('Check-in API URL:', apiUrl);
 
     const response = await fetch(apiUrl, {

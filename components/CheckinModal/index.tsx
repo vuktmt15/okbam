@@ -28,53 +28,66 @@ export default function CheckinModal({ open, onCancel }: CheckinModalProps): JSX
   ]);
   const [currentDay, setCurrentDay] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [lastCheckinDate, setLastCheckinDate] = useState<string | null>(null);
+  const [totalCheckedDays, setTotalCheckedDays] = useState(0);
+  const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // Load checkin status from localStorage
+  // Load checkin status from API when modal opens
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedCheckinData = localStorage.getItem('checkinData');
-      const savedLastCheckinDate = localStorage.getItem('lastCheckinDate');
-      
-      if (savedCheckinData) {
-        const data = JSON.parse(savedCheckinData);
-        setCheckinDays(data.checkinDays || checkinDays);
-        setCurrentDay(data.currentDay || 1);
+    if (open) {
+      fetchCheckinStatus();
+    } else {
+      // Reset loading state when modal closes
+      setIsInitialLoading(true);
+    }
+  }, [open, userDetails]);
+
+  const fetchCheckinStatus = async () => {
+    try {
+      setIsInitialLoading(true);
+      const referrerId = userDetails?.referrerId || userDetails?.refererCode;
+      if (!referrerId) {
+        setIsInitialLoading(false);
+        return;
       }
-      
-      if (savedLastCheckinDate) {
-        setLastCheckinDate(savedLastCheckinDate);
+
+      const response = await fetch(`/api/customers/total-check-in?ref=${referrerId}`);
+      const data = await response.json();
+
+      if (response.ok && data.statusCode === 'OK') {
+        const checkedDays = data.body?.total || 0;
+        const hasCheckedToday = data.body?.checkInDay || false;
         
-        // Check if it's a new day
-        const today = new Date().toDateString();
-        if (savedLastCheckinDate !== today) {
-          // New day, user can checkin the next day
-          // Don't automatically advance currentDay here, let them checkin manually
-        }
+        setTotalCheckedDays(checkedDays);
+        setHasCheckedInToday(hasCheckedToday);
+        
+        // Update checkin status based on server data
+        const newCheckinDays = checkinDays.map((day: any, index: number) => ({
+          ...day,
+          claimed: (index + 1) <= checkedDays // Day 1 = index 0, Day 2 = index 1, etc.
+        }));
+        setCheckinDays(newCheckinDays);
+        
+        // Set current day (next day to checkin)
+        setCurrentDay(Math.min(checkedDays + 1, 9));
+        
+        console.log('Checkin status updated:', {
+          totalCheckedDays: checkedDays,
+          hasCheckedInToday: hasCheckedToday,
+          currentDay: Math.min(checkedDays + 1, 9),
+          newCheckinDays
+        });
       }
+    } catch (error) {
+      console.error('Failed to fetch checkin status:', error);
+    } finally {
+      setIsInitialLoading(false);
     }
-  }, []);
-
-  // Save checkin data to localStorage
-  const saveCheckinData = (newCurrentDay?: number) => {
-    if (typeof window !== 'undefined') {
-      const data = { 
-        checkinDays, 
-        currentDay: newCurrentDay !== undefined ? newCurrentDay : currentDay 
-      };
-      localStorage.setItem('checkinData', JSON.stringify(data));
-    }
-  };
-
-  // Check if user can checkin today
-  const canCheckinToday = () => {
-    const today = new Date().toDateString();
-    return lastCheckinDate !== today;
   };
 
   const handleCheckin = async (day: number, amount: number) => {
-    // Check if it's the correct day and user hasn't already checked in today
-    if (day !== currentDay || checkinDays[day - 1].claimed || !canCheckinToday()) {
+    // Check if this day can be checked in and user hasn't checked in today
+    if (day !== currentDay || day <= totalCheckedDays || hasCheckedInToday) {
       return;
     }
 
@@ -86,29 +99,16 @@ export default function CheckinModal({ open, onCancel }: CheckinModalProps): JSX
         return;
       }
 
-      const response = await fetch(`/api/customers/check-in?ref=${referrerId}&amount=${amount}`);
+      // Convert day 1-9 to API day 3-11 (day + 2)  
+      const apiDay = day + 2;
+      const response = await fetch(`/api/customers/check-in?ref=${referrerId}&amount=${amount}&day=${apiDay}`);
       const data = await response.json();
 
       if (response.ok && data.statusCode === 'OK') {
-        // Mark current day as claimed
-        const newCheckinDays = [...checkinDays];
-        newCheckinDays[day - 1].claimed = true;
-        setCheckinDays(newCheckinDays);
-
-        // Save today's checkin date
-        const today = new Date().toDateString();
-        setLastCheckinDate(today);
-        localStorage.setItem('lastCheckinDate', today);
-
-        // Move to next day if not the last day
-        const newCurrentDay = currentDay < 9 ? currentDay + 1 : currentDay;
-        if (currentDay < 9) {
-          setCurrentDay(newCurrentDay);
-        }
-
-        // Save updated data
-        saveCheckinData(newCurrentDay);
-        alert(`Successfully checked in! Received ${amount} DRAGON!`);
+        // Refresh checkin status from server
+        await fetchCheckinStatus();
+        
+        alert(`Successfully checked in Day ${day}! Received ${amount} DRAGON!`);
       } else {
         alert('Check-in failed: ' + (data.message || 'Unknown error'));
       }
@@ -132,21 +132,28 @@ export default function CheckinModal({ open, onCancel }: CheckinModalProps): JSX
       <div className="checkin-modal">
         <button className="close-btn" onClick={onCancel}>×</button>
         
-        <div className="checkin-header">
-          <div className="nft-logo">
-            <img src="/img/nft.png" alt="NFT Logo" />
+        {isInitialLoading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <div className="loading-text">Loading check-in status...</div>
           </div>
-          
-          <div className="title-row">
-            <div className="calendar-icon">📅</div>
-            <div className="checkin-title">Daily Check-in</div>
-            <div className="dragon-icon">
-              <img src="/img/dragon/special-dragon-home.png" alt="Dragon" />
+        ) : (
+          <>
+            <div className="checkin-header">
+              <div className="nft-logo">
+                <img src="/img/nft.png" alt="NFT Logo" />
+              </div>
+              
+              <div className="title-row">
+                <div className="calendar-icon">📅</div>
+                <div className="checkin-title">Daily Check-in</div>
+                <div className="dragon-icon">
+                  <img src="/img/dragon/special-dragon-home.png" alt="Dragon" />
+                </div>
+              </div>
+              
+              <div className="checkin-subtitle">Check in daily to earn DRAGON rewards!</div>
             </div>
-          </div>
-          
-          <div className="checkin-subtitle">Check in daily to earn DRAGON rewards!</div>
-        </div>
         
         <div className="checkin-grid">
           {checkinDays.map((dayReward) => (
@@ -175,17 +182,20 @@ export default function CheckinModal({ open, onCancel }: CheckinModalProps): JSX
             className="claim-btn"
             onClick={() => {
               const currentDayData = checkinDays[currentDay - 1];
-              if (currentDayData && !currentDayData.claimed && canCheckinToday()) {
+              if (currentDayData && !currentDayData.claimed && currentDay > totalCheckedDays && !hasCheckedInToday) {
                 handleCheckin(currentDay, currentDayData.amount);
               }
             }}
-            disabled={loading || checkinDays[currentDay - 1]?.claimed || currentDay > 9 || !canCheckinToday()}
+            disabled={loading || checkinDays[currentDay - 1]?.claimed || currentDay > 9 || currentDay <= totalCheckedDays || hasCheckedInToday}
           >
             {loading ? 'Checking...' : 
-             !canCheckinToday() ? 'Already checked in today' : 
+             hasCheckedInToday ? 'Already checked in today' :
+             currentDay <= totalCheckedDays ? 'Already claimed' : 
              `Claim Day ${currentDay}`}
           </button>
         </div>
+        </>
+        )}
       </div>
     </ModalCustom>
   );

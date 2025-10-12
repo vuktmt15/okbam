@@ -342,7 +342,26 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
             {(() => {
               const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1));
               const imgSrc = special?.imageUrl || '/img/pet1.png';
-              return <img src={imgSrc} alt="special" className="bear-img" />;
+              
+              const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+                const img = e.target as HTMLImageElement;
+                // Try to reload with cache busting
+                if (!img.src.includes('_bust=')) {
+                  img.src = `${special?.imageUrl}?_bust=${Date.now()}`;
+                } else if (special?.imageUrl && !img.src.includes('/img/pet1.png')) {
+                  // If original URL failed, try fallback
+                  img.src = '/img/pet1.png';
+                }
+              };
+              
+              return (
+                <img 
+                  src={`${imgSrc}?_bust=${Date.now()}`} 
+                  alt="special" 
+                  className="bear-img"
+                  onError={handleImageError}
+                />
+              );
             })()}
             <button
               className="buy"
@@ -400,7 +419,21 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
                   <div className="vip-meta">Total Profit: {pkg.purchaseAmount} dragon</div>
                 </div>
                 <div className="vip-right">
-                  <img src={pkg.imageUrl || '/img/pet1.png'} alt="bear" className="bear-img" />
+                  <img 
+                    src={`${pkg.imageUrl}?_bust=${Date.now()}`} 
+                    alt="dragon" 
+                    className="bear-img"
+                    onError={(e) => {
+                      const img = e.target as HTMLImageElement;
+                      // Try to reload with different cache busting
+                      if (!img.src.includes('_retry=')) {
+                        img.src = `${pkg.imageUrl || '/img/pet1.png'}?_retry=${Date.now()}`;
+                      } else if (pkg.imageUrl && !img.src.includes('/img/pet1.png')) {
+                        // If original URL failed, try fallback
+                        img.src = '/img/pet1.png';
+                      }
+                    }}
+                  />
                   <button 
                     className="buy" 
                     onClick={() => setOpenBuy({plan: pkg.title, price: `$${pkg.purchaseAmount}`, id: pkg.id})}

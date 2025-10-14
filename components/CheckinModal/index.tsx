@@ -62,7 +62,17 @@ export default function CheckinModal({ open, onCancel }: CheckinModalProps): JSX
         setHasCheckedInToday(hasCheckedToday);
         
         // Update checkin status based on server data
-        const newCheckinDays = checkinDays.map((day: any, index: number) => ({
+        const newCheckinDays = [
+          { day: 1, amount: 1.5, claimed: false },
+          { day: 2, amount: 1.7, claimed: false },
+          { day: 3, amount: 1.9, claimed: false },
+          { day: 4, amount: 2.15, claimed: false },
+          { day: 5, amount: 2.45, claimed: false },
+          { day: 6, amount: 2.8, claimed: false },
+          { day: 7, amount: 3.5, claimed: false },
+          { day: 8, amount: 5, claimed: false },
+          { day: 9, amount: 8, claimed: false },
+        ].map((day, index) => ({
           ...day,
           claimed: (index + 1) <= checkedDays // Day 1 = index 0, Day 2 = index 1, etc.
         }));
@@ -86,8 +96,24 @@ export default function CheckinModal({ open, onCancel }: CheckinModalProps): JSX
   };
 
   const handleCheckin = async (day: number, amount: number) => {
+    // Debug information
+    console.log('Checkin attempt:', {
+      day,
+      currentDay,
+      totalCheckedDays,
+      hasCheckedInToday,
+      canCheckin: day === currentDay && day > totalCheckedDays && !hasCheckedInToday
+    });
+
     // Check if this day can be checked in and user hasn't checked in today
     if (day !== currentDay || day <= totalCheckedDays || hasCheckedInToday) {
+      if (hasCheckedInToday) {
+        alert(`You have already checked in today (Day ${totalCheckedDays}). Please wait until tomorrow!`);
+      } else if (day <= totalCheckedDays) {
+        alert(`Day ${day} has already been claimed!`);
+      } else if (day !== currentDay) {
+        alert(`Please check in for Day ${currentDay} first!`);
+      }
       return;
     }
 
@@ -146,13 +172,13 @@ export default function CheckinModal({ open, onCancel }: CheckinModalProps): JSX
               
               <div className="title-row">
                 <div className="calendar-icon">📅</div>
-                <div className="checkin-title">Daily Check-in</div>
+                <div className="checkin-title" style={{ fontSize: '28px', fontWeight: 'bold' }}>Daily Check-in</div>
                 <div className="dragon-icon">
                   <img src="/img/dragon/special-dragon-home.png" alt="Dragon" />
                 </div>
               </div>
               
-              <div className="checkin-subtitle">Check in daily to earn DRAGON rewards!</div>
+              <div className="checkin-subtitle" style={{ fontSize: '18px', fontWeight: '600' }}>Check in daily to earn DRAGON rewards!</div>
             </div>
         
         <div className="checkin-grid">
@@ -160,6 +186,12 @@ export default function CheckinModal({ open, onCancel }: CheckinModalProps): JSX
             <div 
               key={dayReward.day}
               className={`checkin-day ${dayReward.claimed ? 'claimed' : ''} ${dayReward.day === currentDay ? 'current' : ''} ${dayReward.day < currentDay ? 'missed' : ''}`}
+              onClick={() => {
+                if (dayReward.day === currentDay && !dayReward.claimed && !hasCheckedInToday) {
+                  handleCheckin(dayReward.day, dayReward.amount);
+                }
+              }}
+              style={{ cursor: dayReward.day === currentDay && !dayReward.claimed && !hasCheckedInToday ? 'pointer' : 'default' }}
             >
               <div className="day-number">Day {dayReward.day}</div>
               

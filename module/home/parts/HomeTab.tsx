@@ -42,6 +42,14 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const [balance, setBalance] = useState({ usdt: 0, dragon: 0 });
   const [hasSpecialPackage, setHasSpecialPackage] = useState(false);
 
+  // Number formatting function with thousand separators
+  const formatNumber = (num: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(num);
+  };
+
   // Check withdraw configuration before opening withdraw screen
   const handleWithdrawClick = async () => {
     try {
@@ -322,18 +330,27 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
           <div className="vip-left">
             {(() => {
               const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1));
-              const title = special?.title ?? 'Special Dragon';
-              const min = special?.amount ?? 0; // Đảo: amount thành Min
-              const daily = special?.dailyIncome ?? 0;
-              const period = special?.period ?? 0;
-              const total = special?.purchaseAmount ?? 0; // Đảo: purchaseAmount thành Total Profit
+              const title = special?.title ?? '';
+              const min = special?.amount; // Đảo: amount thành Min
+              const daily = special?.dailyIncome;
+              const period = special?.period;
+              const total = special?.purchaseAmount; // Đảo: purchaseAmount thành Total Profit
               return (
                 <>
                   <div className="vip-name">{title}</div>
-                  <div className="vip-meta">Min: ${min}</div>
-                  <div className="vip-meta">24h Profit: {daily} dragon</div>
-                  <div className="vip-meta">Cycle: {period} days</div>
-                  <div className="vip-meta">Total Profit: {total} dragon</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: '4px 8px', alignItems: 'center' }}>
+                    <span className="vip-label">Min:</span>
+                    <span className="vip-value">${min}</span>
+                    
+                    <span className="vip-label">24h Profit:</span>
+                    <span className="vip-value">{daily} dragon</span>
+                    
+                    <span className="vip-label">Cycle:</span>
+                    <span className="vip-value">{period} days</span>
+                    
+                    <span className="vip-label">Total Profit:</span>
+                    <span className="vip-value">{total} dragon</span>
+                  </div>
                 </>
               );
             })()}
@@ -343,23 +360,17 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
               const special = bamPackages.find((p: any) => ((p?.id ?? p?.bamId ?? p?.planId) === 1));
               const imgSrc = special?.imageUrl || '/img/pet1.png';
               
-              const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-                const img = e.target as HTMLImageElement;
-                // Try to reload with cache busting
-                if (!img.src.includes('_bust=')) {
-                  img.src = `${special?.imageUrl}?_bust=${Date.now()}`;
-                } else if (special?.imageUrl && !img.src.includes('/img/pet1.png')) {
-                  // If original URL failed, try fallback
-                  img.src = '/img/pet1.png';
-                }
-              };
-              
               return (
                 <img 
-                  src={`${imgSrc}?_bust=${Date.now()}`} 
+                  src={imgSrc} 
                   alt="special" 
                   className="bear-img"
-                  onError={handleImageError}
+                  onError={(e) => {
+                    const img = e.target as HTMLImageElement;
+                    if (special?.imageUrl && !img.src.includes('/img/pet1.png')) {
+                      img.src = '/img/pet1.png';
+                    }
+                  }}
                 />
               );
             })()}
@@ -390,7 +401,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
           <div className="balance-row">
             <span className="balance-label">Wallet Balance:</span>
             <span className="balance-amount">
-              {balance.usdt} USDT
+              {formatNumber(balance.usdt)} USDT
             </span>
           </div>
           <div className="rank-row">
@@ -413,23 +424,28 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
               >
                 <div className="vip-left">
                   <div className="vip-name">Dragon {index + 1}</div>
-                  <div className="vip-meta">Min: ${pkg.amount}</div>
-                  <div className="vip-meta">24h Profit: {pkg.dailyIncome} dragon</div>
-                  <div className="vip-meta">Cycle: {pkg.period} days</div>
-                  <div className="vip-meta">Total Profit: {pkg.purchaseAmount} dragon</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '100px 1fr', gap: '4px 8px', alignItems: 'center' }}>
+                    <span className="vip-label">Min:</span>
+                    <span className="vip-value">${pkg.amount}</span>
+                    
+                    <span className="vip-label">24h Profit:</span>
+                    <span className="vip-value">{pkg.dailyIncome} dragon</span>
+                    
+                    <span className="vip-label">Cycle:</span>
+                    <span className="vip-value">{pkg.period} days</span>
+                    
+                    <span className="vip-label">Total Profit:</span>
+                    <span className="vip-value">{pkg.purchaseAmount} dragon</span>
+                  </div>
                 </div>
                 <div className="vip-right">
                   <img 
-                    src={`${pkg.imageUrl}?_bust=${Date.now()}`} 
+                    src={pkg.imageUrl || '/img/pet1.png'} 
                     alt="dragon" 
                     className="bear-img"
                     onError={(e) => {
                       const img = e.target as HTMLImageElement;
-                      // Try to reload with different cache busting
-                      if (!img.src.includes('_retry=')) {
-                        img.src = `${pkg.imageUrl || '/img/pet1.png'}?_retry=${Date.now()}`;
-                      } else if (pkg.imageUrl && !img.src.includes('/img/pet1.png')) {
-                        // If original URL failed, try fallback
+                      if (pkg.imageUrl && !img.src.includes('/img/pet1.png')) {
                         img.src = '/img/pet1.png';
                       }
                     }}

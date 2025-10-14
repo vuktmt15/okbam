@@ -413,11 +413,11 @@ export default function InviteTab(): JSX.Element {
         </div>
         <div className="reward-row">
           <div className="reward-badge">
-            <span className="coin">T</span>
             <span className="amount">
               {totalClaimLoading ? 'Loading...' : (
                 <>
-                  {totalClaim} DRAGON <img src="/img/dragon/special-dragon-home.png" alt="dragon egg" style={{width: '16px', height: '16px', marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block'}} />
+                  <img src="/img/dragon/special-dragon-home.png" alt="dragon egg" style={{width: '20px', height: '20px', marginRight: '8px', verticalAlign: 'middle', display: 'inline-block'}} />
+                  {totalClaim} DRAGON
                 </>
               )}
             </span>

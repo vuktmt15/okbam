@@ -14,6 +14,14 @@ export default function BAMTab(): JSX.Element {
   const [historyPage, setHistoryPage] = React.useState(1);
   const [historyTotalPages, setHistoryTotalPages] = React.useState(1);
 
+  // Number formatting function with thousand separators
+  const formatNumber = (num: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(num);
+  };
+
   // Fetch regular investment data from API
   React.useEffect(() => {
     const fetchRegularInvestment = async () => {
@@ -192,15 +200,15 @@ export default function BAMTab(): JSX.Element {
                 </div>
                 <div className="cell earn">
                   <div className="label">Dragon Earned</div>
-                  <div className="value">{regularInvestment.amount}</div>
+                  <div className="value">{formatNumber(regularInvestment.amount)}</div>
                 </div>
                 <div className="cell cost">
                   <div className="label">Cost</div>
-                  <div className="value">${regularInvestment.amount}</div>
+                  <div className="value">${formatNumber(regularInvestment.amount)}</div>
                 </div>
                 <div className="cell speed">
                   <div className="label">Mining Speed</div>
-                  <div className="value">{regularInvestment.speed} dragon/h</div>
+                  <div className="value">{formatNumber(regularInvestment.speed)} dragon/h</div>
                 </div>
                 <div className="cell cycle">
                   <div className="label">Cycle</div>
@@ -256,8 +264,8 @@ export default function BAMTab(): JSX.Element {
               historyData.map((item: any) => (
                 <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
-                    <span>{item.name ? `${item.name} Package Claim` : 'DRAGON Package Claim'}</span>
-                    <span style={{color:'#52c41a'}}>+{item.amount} dragon</span>
+                    <span>{item.name ? `${item.name} Profit Claim` : 'DRAGON Profit Claim'}</span>
+                    <span style={{color:'#52c41a'}}>+{formatNumber(item.amount)} dragon</span>
                   </div>
                   <div style={{display:'flex', justifyContent:'space-between'}}>
                     <span>Time:</span>

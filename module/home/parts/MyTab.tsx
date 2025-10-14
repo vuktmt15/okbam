@@ -28,10 +28,19 @@ export default function MyTab(): JSX.Element {
   const [historyTotalPages, setHistoryTotalPages] = useState(1);
   const [depLoading, setDepLoading] = useState(false);
   const [wdLoading, setWdLoading] = useState(false);
+  const [fakeNotification, setFakeNotification] = useState("User*** successfully recharged 830USDT");
   const [depPage, setDepPage] = useState(1);
   const [wdPage, setWdPage] = useState(1);
   const [depTotalPages, setDepTotalPages] = useState(0);
   const [wdTotalPages, setWdTotalPages] = useState(0);
+
+  // Number formatting function with thousand separators
+  const formatNumber = (num: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(num);
+  };
 
   // Open withdraw history directly from My tab
   const handleWithdrawClick = () => {
@@ -155,6 +164,28 @@ export default function MyTab(): JSX.Element {
   useEffect(() => {
     if (showHistory) fetchHistoryData(historyTab, 1);
   }, [showHistory, historyTab]);
+
+  // Fake notification rotation system
+  useEffect(() => {
+    const generateFakeNotification = () => {
+      const userIds = ['User0***', 'User0***', 'User0***', 'User1***', 'User2***', 'User3***', 'User4***', 'User5***', 'User7***', 'User8***'];
+      const amounts = [150, 230, 450, 680, 830, 920, 1200, 1580, 2340, 3200, 4500, 5800];
+      const actions = ['successfully recharged', 'successfully withdrew', 'completed deposit of'];
+      
+      const randomUser = userIds[Math.floor(Math.random() * userIds.length)];
+      const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
+      const randomAction = actions[Math.floor(Math.random() * actions.length)];
+      
+      return `${randomUser} ${randomAction} ${randomAmount}USDT`;
+    };
+
+    const interval = setInterval(() => {
+      setFakeNotification(generateFakeNotification());
+    }, 15000 + Math.random() * 5000); // 15-20 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   // const [openLang, setOpenLang] = useState(false);
   // const {currentLanguage, changeLanguage, getCurrentLanguageInfo, languageOptions} = useLanguage();
   return (
@@ -177,15 +208,15 @@ export default function MyTab(): JSX.Element {
             <SettingOutlined />
           </div> */}
         </div>
-        <div className="notice">User*** successfully recharged 830USDT</div>
+        <div className="notice">{fakeNotification}</div>
         <WalletCard>
           <div className="wallet">
             <div className="wallet-title">
               <span className="wallet-label">Wallet Balance:</span>
             </div>
             <div className="wallet-amounts">
-              <span className="wallet-coin"><b>{balance.usdt}</b> USDT <span style={{marginLeft: '4px', verticalAlign: 'middle'}}>💎</span></span>
-              <span className="wallet-coin"><b>{balance.dragon}</b> Dragon <img src="/img/dragon/special-dragon-home.png" alt="dragon egg" style={{width: '16px', height: '16px', marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block'}} /></span>
+              <span className="wallet-coin"><b>{formatNumber(balance.usdt)}</b> USDT <img src="/img/usdt-logo.png" alt="USDT" style={{width: '20px', height: '20px', marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block'}} /></span>
+              <span className="wallet-coin"><b>{formatNumber(balance.dragon)}</b> Dragon <img src="/img/dragon/special-dragon-home.png" alt="dragon egg" style={{width: '24px', height: '24px', marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block'}} /></span>
             </div>
           </div>
           <div className="quick">
@@ -295,7 +326,7 @@ export default function MyTab(): JSX.Element {
                       <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
                         <span>{item.typeBalance === 3 ? 'USDT → Dragon' : 'Dragon → USDT'}</span>
                         <span style={{color: '#52c41a'}}>
-                          {item.typeBalance === 3 ? `+${item.amount} Dragon` : `+${item.amount} USDT`}
+                          {item.typeBalance === 3 ? `+${formatNumber(item.amount)} Dragon` : `+${formatNumber(item.amount)} USDT`}
                         </span>
                       </div>
                       <div style={{display:'flex', justifyContent:'space-between'}}>

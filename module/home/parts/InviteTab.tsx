@@ -7,6 +7,7 @@ import {useAuth} from "../../../contexts/AuthContext";
 interface TeamMember {
   name: string;
   level: number;
+  uid?: string; // Added uid field from API response
 }
 
 interface TeamStaticsApi {

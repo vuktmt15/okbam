@@ -264,8 +264,10 @@ export default function BAMTab(): JSX.Element {
               historyData.map((item: any) => (
                 <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
-                    <span>{item.name ? `${item.name} Profit Claim` : 'DRAGON Profit Claim'}</span>
-                    <span style={{color:'#52c41a'}}>+{formatNumber(item.amount)} dragon</span>
+                    <span>{item.typeBalance === 7 ? 'DRAGON Deduction' : (item.name ? `${item.name} Profit Claim` : 'DRAGON Profit Claim')}</span>
+                    <span style={{color: item.typeBalance === 7 ? '#ff4d4f' : '#52c41a'}}>
+                      {item.typeBalance === 7 ? '-' : '+'}{formatNumber(item.amount)} dragon
+                    </span>
                   </div>
                   <div style={{display:'flex', justifyContent:'space-between'}}>
                     <span>Time:</span>

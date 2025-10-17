@@ -353,7 +353,7 @@ export default function InviteTab(): JSX.Element {
   // Filter team members by level and search term
   const filteredMembers = teamMembers.filter(member => {
     const matchesLevel = member.level === active;
-    const matchesSearch = member.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = member.uid?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
     return matchesLevel && matchesSearch;
   });
 
@@ -520,7 +520,7 @@ export default function InviteTab(): JSX.Element {
               </div>
               <div className="search">
                 <input 
-                  placeholder="Search member name" 
+                  placeholder="Search member UID" 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -539,7 +539,7 @@ export default function InviteTab(): JSX.Element {
                 {filteredMembers.map((member, index) => (
                   <div key={index} className="member-item">
                     <div className="member-info">
-                      <div className="member-name">{member.name}</div>
+                      <div className="member-name">{member.uid || 'N/A'}</div>
                       <div className="member-level">Level {member.level}</div>
                     </div>
                     <div className="member-status">

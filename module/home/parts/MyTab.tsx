@@ -5,16 +5,21 @@ import {MyTabContext} from "./context";
 import {useAuth} from "../../../contexts/AuthContext";
 import WalletCard from "./WalletCard";
 import SwapScreen from "./SwapScreen";
+import DepositScreen from "./DepositScreen";
+import WithdrawScreen from "./WithdrawScreen";
 import {ModalCustom} from "@components/ModalCustom";
 // import {useLanguage} from "@hooks/useLanguage";
 // import LanguageSelector from "@components/LanguageSelector";
 
-export default function MyTab(): JSX.Element {
+export default function MyTab() {
   const {goWithdraw} = useContext(MyTabContext);
   const {logout, user, userDetails, fetchUserDetails} = useAuth();
   const [balance, setBalance] = useState({usdt: 0, dragon: 0});
   const [showSwap, setShowSwap] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  // Modal states  
+  const [showDeposit, setShowDeposit] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
   // History modals
   const [showDepositHistory, setShowDepositHistory] = useState(false);
   const [showWithdrawHistory, setShowWithdrawHistory] = useState(false);
@@ -42,9 +47,14 @@ export default function MyTab(): JSX.Element {
     }).format(num);
   };
 
-  // Open withdraw history directly from My tab
+  // Open withdraw modal from My tab  
   const handleWithdrawClick = () => {
-    setShowWithdrawHistory(true);
+    setShowWithdraw(true);
+  };
+
+  // Open deposit modal from My tab
+  const handleDepositClick = () => {
+    setShowDeposit(true);
   };
 
   // Fetch histories
@@ -215,12 +225,20 @@ export default function MyTab(): JSX.Element {
               <span className="wallet-label">Wallet Balance:</span>
             </div>
             <div className="wallet-amounts">
-              <span className="wallet-coin"><b>{formatNumber(balance.usdt)}</b> USDT <img src="/img/usdt-logo.png" alt="USDT" style={{width: '20px', height: '20px', marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block'}} /></span>
-              <span className="wallet-coin"><b>{formatNumber(balance.dragon)}</b> Dragon <img src="/img/dragon/special-dragon-home.png" alt="dragon egg" style={{width: '24px', height: '24px', marginLeft: '4px', verticalAlign: 'middle', display: 'inline-block'}} /></span>
+              <div className="wallet-coin">
+                <span className="amount-value"><b>{formatNumber(balance.usdt)}</b></span>
+                <span className="amount-unit">USDT</span>
+                <img src="/img/usdt-logo.png" alt="USDT" className="amount-icon" />
+              </div>
+              <div className="wallet-coin">
+                <span className="amount-value"><b>{formatNumber(balance.dragon)}</b></span>
+                <span className="amount-unit">Dragon</span>
+                <img src="/img/dragon/special-dragon-home.png" alt="dragon egg" className="amount-icon dragon-icon" />
+              </div>
             </div>
           </div>
           <div className="quick">
-            <button onClick={() => setShowDepositHistory(true)}>Deposit</button>
+            <button onClick={handleDepositClick}>Deposit</button>
             <button onClick={handleWithdrawClick}>Withdraw</button>
             <button onClick={() => setShowSwap(true)}>SWAP</button>
             <button onClick={() => setShowHistory(true)}>History</button>
@@ -437,6 +455,40 @@ export default function MyTab(): JSX.Element {
           </div>
         )}
       </ModalCustom>
+
+      {/* Deposit Screen Modal */}
+      <ModalCustom 
+        open={showDeposit} 
+        onCancel={() => setShowDeposit(false)} 
+        footer={false} 
+        width="100%" 
+        style={{maxWidth: 520}} 
+        bodyStyle={{padding: 0, background: "#000"}}
+      >
+        {showDeposit && (
+          <DepositScreen 
+            onBack={() => setShowDeposit(false)} 
+          />
+        )}
+      </ModalCustom>
+
+      {/* Withdraw Screen Modal */}  
+      <ModalCustom 
+        open={showWithdraw} 
+        onCancel={() => setShowWithdraw(false)} 
+        footer={false} 
+        width="100%" 
+        style={{maxWidth: 520}} 
+        bodyStyle={{padding: 0, background: "#000"}}
+      >
+        {showWithdraw && (
+          <WithdrawScreen 
+            balanceUsdt={balance.usdt}
+            onBack={() => setShowWithdraw(false)} 
+          />
+        )}
+      </ModalCustom>
+
       {/* <BottomSheet open={openLang} onClose={() => setOpenLang(false)}>
         <LanguageSelector onClose={() => setOpenLang(false)} />
       </BottomSheet> */}

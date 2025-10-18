@@ -20,6 +20,7 @@ import BAMBuySheet from "./BAMBuySheet";
 import CheckinModal from "@components/CheckinModal";
 import {MyTabContext} from "./context";
 import DepositScreen from "./DepositScreen";
+import WithdrawScreen from "./WithdrawScreen";
 import {useAuth} from "../../../contexts/AuthContext";
 
 type Props = {
@@ -31,6 +32,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const {goWithdraw} = useContext(MyTabContext);
   const {user, userDetails, fetchUserDetails} = useAuth();
   const [showDeposit, setShowDeposit] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
   const [showCheckin, setShowCheckin] = useState(false);
   const [bamPackages, setBamPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +43,18 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [balance, setBalance] = useState({ usdt: 0, dragon: 0 });
   const [hasSpecialPackage, setHasSpecialPackage] = useState(false);
+  
+  // History states
+  const [showDepositHistory, setShowDepositHistory] = useState(false);
+  const [showWithdrawHistory, setShowWithdrawHistory] = useState(false);
+  const [depositHistory, setDepositHistory] = useState<any[]>([]);
+  const [withdrawHistory, setWithdrawHistory] = useState<any[]>([]);
+  const [depLoading, setDepLoading] = useState(false);
+  const [wdLoading, setWdLoading] = useState(false);
+  const [depPage, setDepPage] = useState(1);
+  const [wdPage, setWdPage] = useState(1);
+  const [depTotalPages, setDepTotalPages] = useState(1);
+  const [wdTotalPages, setWdTotalPages] = useState(1);
 
   // Number formatting function with thousand separators
   const formatNumber = (num: number): string => {
@@ -63,7 +77,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
           const isEnabled = withdrawConfig.status === 1;
           
           if (isEnabled) {
-            goWithdraw(); // Open withdraw screen
+            setShowWithdraw(true); // Open withdraw modal
           } else {
             alert("System is overloaded, please try again later!");
           }
@@ -76,6 +90,36 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
     } catch (error) {
       console.error('Error checking withdraw config:', error);
       alert("System is overloaded, please try again later!");
+    }
+  };
+
+  // Fetch histories
+  const fetchHistory = async (type: 'deposit' | 'withdraw', page: number = 1) => {
+    const setLoading = type === 'deposit' ? setDepLoading : setWdLoading;
+    setLoading(true);
+    try {
+      const userLocal = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+      const parsed = userLocal ? JSON.parse(userLocal) : null;
+      const referrerId = parsed?.referrerId || parsed?.refererCode;
+      if (!referrerId) return;
+      const res = await fetch(`/api/history-balance?ref=${referrerId}&page=${page}&limit=5`);
+      const data = await res.json();
+      if (data?.data) {
+        const items = data.data.filter((i: any) => (type === 'deposit' ? i.typeBalance === 1 : i.typeBalance === 2));
+        if (type === 'deposit') {
+          setDepositHistory(items);
+          setDepPage(data.pagination.currentPage);
+          setDepTotalPages(data.pagination.totalPages);
+        } else {
+          setWithdrawHistory(items);
+          setWdPage(data.pagination.currentPage);
+          setWdTotalPages(data.pagination.totalPages);
+        }
+      }
+    } catch (e) {
+      console.error('Fetch history error', e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -264,6 +308,20 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
     window.addEventListener('balanceUpdate', onBalanceUpdate);
     return () => window.removeEventListener('balanceUpdate', onBalanceUpdate);
   }, [userDetails]);
+
+  // Auto-fetch history when modals open
+  useEffect(() => {
+    if (showDepositHistory) {
+      fetchHistory('deposit', 1);
+    }
+  }, [showDepositHistory]);
+
+  useEffect(() => {
+    if (showWithdrawHistory) {
+      fetchHistory('withdraw', 1);
+    }
+  }, [showWithdrawHistory]);
+
   return (
     <div className="okbam-home">
       <div className="okbam-header">
@@ -465,7 +523,26 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
 
       <ModalCustom open={showDeposit} onCancel={() => setShowDeposit(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
         {showDeposit && (
-          <DepositScreen onBack={() => setShowDeposit(false)} />
+          <DepositScreen 
+            onBack={() => setShowDeposit(false)} 
+          />
+        )}
+      </ModalCustom>
+
+      {/* Withdraw Modal */}
+      <ModalCustom 
+        open={showWithdraw} 
+        onCancel={() => setShowWithdraw(false)} 
+        footer={false} 
+        width="100%" 
+        style={{maxWidth: 520}} 
+        bodyStyle={{padding: 0, background: "#000"}}
+      >
+        {showWithdraw && (
+          <WithdrawScreen 
+            balanceUsdt={balance.usdt}
+            onBack={() => setShowWithdraw(false)} 
+          />
         )}
       </ModalCustom>
 
@@ -585,6 +662,82 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
         open={showCheckin}
         onCancel={() => setShowCheckin(false)}
       />
+
+      {/* Deposit History Modal */}
+      <ModalCustom open={showDepositHistory} onCancel={() => setShowDepositHistory(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
+        {showDepositHistory && (
+          <div className="deposit-history" style={{ padding: 16, color: "#fff" }}>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Deposit History</div>
+            {depLoading ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>Loading deposit history...</div>
+            ) : depositHistory.length === 0 ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>
+                <div style={{fontSize:'24px', marginBottom:'8px'}}>📊</div>
+                <div>No deposit history found</div>
+              </div>
+            ) : (
+              depositHistory.map((item: any) => (
+                <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>Amount:</span><span style={{color:'#52c41a'}}>+{item.amount}$</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>Time:</span><span>{new Date(item.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between'}}>
+                    <span>Status:</span><span style={{color:'#52c41a'}}>Success</span>
+                  </div>
+                </div>
+              ))
+            )}
+            {depTotalPages > 1 && (
+              <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
+                {Array.from({ length: depTotalPages }, (_, i) => i + 1).map((p) => (
+                  <span key={p} style={{background: p === depPage ? '#ffd700' : '#555', color: p === depPage ? '#000' : '#fff', borderRadius:14, padding:'4px 10px', cursor:'pointer'}} onClick={() => fetchHistory('deposit', p)}>{p}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </ModalCustom>
+
+      {/* Withdraw History Modal */}
+      <ModalCustom open={showWithdrawHistory} onCancel={() => setShowWithdrawHistory(false)} footer={false} width="100%" style={{maxWidth: 520}} bodyStyle={{padding: 0, background: "#111"}}>
+        {showWithdrawHistory && (
+          <div className="withdraw-history" style={{ padding: 16, color: "#fff" }}>
+            <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Withdrawal History</div>
+            {wdLoading ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>Loading withdrawal history...</div>
+            ) : withdrawHistory.length === 0 ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>
+                <div style={{fontSize:'24px', marginBottom:'8px'}}>📊</div>
+                <div>No withdrawal history found</div>
+              </div>
+            ) : (
+              withdrawHistory.map((item: any) => (
+                <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>Amount:</span><span style={{color:'#ff4d4f'}}>-{item.amount}$</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>Time:</span><span>{new Date(item.createdAt).toLocaleString()}</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between'}}>
+                    <span>Status:</span><span style={{color: item.status === 'completed' ? '#52c41a' : '#ffa940'}}>{item.status || 'Processing'}</span>
+                  </div>
+                </div>
+              ))
+            )}
+            {wdTotalPages > 1 && (
+              <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
+                {Array.from({ length: wdTotalPages }, (_, i) => i + 1).map((p) => (
+                  <span key={p} style={{background: p === wdPage ? '#ffd700' : '#555', color: p === wdPage ? '#000' : '#fff', borderRadius:14, padding:'4px 10px', cursor:'pointer'}} onClick={() => fetchHistory('withdraw', p)}>{p}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </ModalCustom>
     </div>
   );
 

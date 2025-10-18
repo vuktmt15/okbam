@@ -500,6 +500,58 @@
 .vip-card .notch { position: absolute; top: 0; right: 110px; width: 26%; height: 44px; background: rgba(255,255,255,0.55); border-bottom-left-radius: 20px; }
 .vip-list { display: grid; gap: 30px; margin-top: 20px; }
 
+/* VIP card labels and values styling */
+.vip-label {
+  color: #dddddd;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vip-value {
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  .vip-left {
+    min-width: 0; /* Allow flex item to shrink */
+  }
+  
+  .vip-left > div[style*="grid"] {
+    gap: 2px 6px !important; /* Reduce gap between label and value on mobile */
+  }
+  
+  .vip-label {
+    max-width: 70px;
+  }
+  
+  .vip-value {
+    max-width: 80px;
+  }
+}
+
+@media (max-width: 375px) {
+  .vip-left > div[style*="grid"] {
+    gap: 1px 4px !important; /* Even tighter spacing on very small screens */
+  }
+  
+  .vip-label {
+    max-width: 60px;
+  }
+  
+  .vip-value {
+    max-width: 70px;
+  }
+}
+
 .available-balance {
   margin-top: 8px;
   margin-bottom: 15px;
@@ -836,6 +888,45 @@
     width: 120px;
     height: 120px;
   }
+  
+  /* Mobile styles for Special tab info cards */
+  .okbam-special .special-info, .okbam-bam .dragon-card .special-info {
+    grid-template-columns: 1fr 1fr; /* Switch to 2 columns on mobile */
+    gap: 6px; /* Reduce gap between cells */
+    padding: 8px; /* Reduce padding */
+  }
+  
+  .okbam-special .special-info .cell, .okbam-bam .dragon-card .special-info .cell {
+    padding: 6px; /* Reduce cell padding */
+  }
+  
+  .okbam-special .special-info .cell.name, .okbam-bam .dragon-card .special-info .cell.name { 
+    grid-column: 1 / span 2; /* Name spans full width */
+  }
+  
+  .okbam-special .special-info .cell.earn, .okbam-bam .dragon-card .special-info .cell.earn { 
+    grid-column: auto; /* Reset grid column */
+  }
+  
+  .okbam-special .special-info .label, .okbam-bam .dragon-card .special-info .label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 3px; /* Reduce margin between label and value */
+  }
+  
+  .okbam-special .special-info .value, .okbam-bam .dragon-card .special-info .value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .okbam-special .special-info .name-row .text, .okbam-bam .dragon-card .special-info .name-row .text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
 }
 
 @media (max-width: 375px) {
@@ -852,6 +943,11 @@
   .okbam-bam .vip-card .bear {
     width: 100px;
     height: 100px;
+  }
+  
+  /* Extra small mobile styles for Special tab */
+  .okbam-special .special-info .name-row .text, .okbam-bam .dragon-card .special-info .name-row .text {
+    max-width: 120px;
   }
 }
 .okbam-bam .vip-hero-wrap {
@@ -1411,6 +1507,93 @@
 .okbam-my .profile .wallet-amount { font-weight: 700; color: #fff; }
 .okbam-my .profile .wallet-amounts { display: flex; align-items: center; gap: 16px; justify-content: space-between; width: 100%; }
 .okbam-my .profile .wallet-coin b { font-weight: 700; }
+.okbam-my .profile .wallet-coin { 
+  display: flex; 
+  align-items: center; 
+  white-space: nowrap; 
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+.okbam-my .profile .wallet-coin .amount-value {
+  font-weight: 700;
+}
+
+.okbam-my .profile .wallet-coin .amount-unit {
+  font-weight: 500;
+}
+
+.okbam-my .profile .wallet-coin .amount-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.okbam-my .profile .wallet-coin .dragon-icon {
+  width: 24px;
+  height: 24px;
+}
+
+/* Mobile responsive styles for wallet coins */
+@media (max-width: 480px) {
+  .okbam-my .profile .wallet-amounts { 
+    gap: 8px; /* Reduce gap between coins */
+  }
+  
+  .okbam-my .profile .wallet-coin {
+    font-size: 14px; /* Slightly smaller font */
+    gap: 3px;
+  }
+  
+  .okbam-my .profile .wallet-coin .amount-value {
+    font-size: 14px; /* Smaller number font */
+  }
+  
+  .okbam-my .profile .wallet-coin .amount-unit {
+    font-size: 12px; /* Smaller unit font */
+  }
+  
+  .okbam-my .profile .wallet-coin .amount-icon {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .okbam-my .profile .wallet-coin .dragon-icon {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 375px) {
+  .okbam-my .profile .wallet-amounts { 
+    gap: 4px; /* Even tighter spacing */
+  }
+  
+  .okbam-my .profile .wallet-coin {
+    font-size: 12px; /* Smaller font for very small screens */
+    gap: 2px;
+  }
+  
+  .okbam-my .profile .wallet-coin .amount-value {
+    font-size: 13px; /* Smaller number font */
+  }
+  
+  /* Hide currency text on very small screens, show only numbers and icons */
+  .okbam-my .profile .wallet-coin .amount-unit {
+    display: none;
+  }
+  
+  .okbam-my .profile .wallet-coin .amount-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .okbam-my .profile .wallet-coin .dragon-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
 .okbam-my .profile .assets { display: flex; align-items: center; gap: 12px; }
 .okbam-my .profile .wallet .asset { display: flex; align-items: center; gap: 4px; }
 .okbam-my .profile .wallet .asset b { font-size: 20px; }

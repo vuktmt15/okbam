@@ -221,7 +221,7 @@ export default function SpecialTab(): JSX.Element {
           <div className="special-info">
             <div className="cell name">
               <div className="value name-row">
-                <span className="text">{pkg.title}</span>
+                <span className="text">{pkg.name}</span>
                 <img src="/img/dragon/special-dragon-home.png" alt="" className="name-icon" />
               </div>
             </div>
@@ -248,8 +248,8 @@ export default function SpecialTab(): JSX.Element {
           </div>
 
           <div className="dragon-welcome">
-            <div className="welcome-line">Welcome to join and accompany <b>Dragon</b></div>
-            <div className="welcome-note">Note: After each 24h, click to start again</div>
+            <div className="welcome-line"><b>Bonus & special offers for new accounts and members</b></div>
+            <div className="welcome-note">Register now to receive a direct $15 bonus to your account & earn 325 Dragon profit over 20 days.</div>
           </div>
 
           <div className={`status-combined ${canClaim(pkg.id ?? 1) ? 'ready' : ''}`}>

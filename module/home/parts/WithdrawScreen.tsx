@@ -30,6 +30,10 @@ export default function WithdrawScreen({
   const [network, setNetwork] = useState<NetworkKey>("BEP20");
   const [address, setAddress] = useState("");
   const [amount, setAmount] = useState<string>("");
+  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const {min, networkFee, processingFeePercent} = NETWORKS[network];
   const amountNum = Number(amount) || 0;
@@ -79,6 +83,37 @@ export default function WithdrawScreen({
     }
   };
 
+  // Fetch withdraw history
+  const fetchHistory = async (page: number = 1) => {
+    setHistoryLoading(true);
+    try {
+      const userLocal = typeof window !== 'undefined' ? localStorage.getItem('user_details') : null;
+      const parsed = userLocal ? JSON.parse(userLocal) : null;
+      const referrerId = parsed?.referrerId || parsed?.refererCode;
+      if (!referrerId) return;
+      
+      const res = await fetch(`/api/history-balance?ref=${referrerId}&page=${page}&limit=5`);
+      const data = await res.json();
+      if (data?.data) {
+        const items = data.data.filter((i: any) => i.typeBalance === 2); // 2 = withdraw
+        setHistoryData(items);
+        setCurrentPage(data.pagination.currentPage);
+        setTotalPages(data.pagination.totalPages);
+      }
+    } catch (e) {
+      console.error('Fetch withdraw history error', e);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  // Auto-fetch history when modal opens
+  React.useEffect(() => {
+    if (showHistory) {
+      fetchHistory(1);
+    }
+  }, [showHistory]);
+
   return (
     <div className="okbam-withdraw">
       <div className="topbar">
@@ -89,7 +124,9 @@ export default function WithdrawScreen({
           Withdraw - USDT
           <span className="usdt-icon">💎</span>
         </div>
-        {/* history link removed per request */}
+        <button className="history-link" onClick={() => setShowHistory(true)}>
+          History →
+        </button>
       </div>
 
       <div className="form">
@@ -218,34 +255,53 @@ export default function WithdrawScreen({
         {showHistory && (
           <div className="withdraw-history" style={{ padding: 16, color: "#fff" }}>
             <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Withdrawal History</div>
-            {[{
-              status: 'Processing', amount: -15, networkFee: 1, processingFee: '5%', time: '15:36:09 2025/09/19'
-            },{
-              status: 'Success', amount: -36, networkFee: 1, processingFee: '5%', time: '11:58:28 2025/09/18'
-            }].map((it, idx) => (
-              <div key={idx} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
-                <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
-                  <span>Status:</span><span>{it.status}</span>
-                </div>
-                <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
-                  <span>Amount:</span><span style={{color:'#ff4d4f'}}>{it.amount}$</span>
-                </div>
-                <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
-                  <span>Network fee:</span><span>1$</span>
-                </div>
-                <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
-                  <span>Processing fee:</span><span>{it.processingFee}</span>
-                </div>
-                <div style={{display:'flex', justifyContent:'space-between'}}>
-                  <span>Time:</span><span>{it.time}</span>
-                </div>
+            {historyLoading ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>Loading withdrawal history...</div>
+            ) : historyData.length === 0 ? (
+              <div style={{textAlign:'center', padding:'20px', color:'#999'}}>
+                <div style={{fontSize:'24px', marginBottom:'8px'}}>📊</div>
+                <div>No withdrawal history found</div>
               </div>
-            ))}
-            <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
-              <span style={{background:'#555', borderRadius:14, padding:'4px 10px'}}>1</span>
-              <span>2</span>
-              <span>3</span>
-            </div>
+            ) : (
+              historyData.map((item: any) => (
+                <div key={item.id} style={{background:'#1a1a1a', borderRadius:12, padding:12, marginBottom:12}}>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>Status:</span><span style={{color: item.status === 'completed' ? '#52c41a' : '#ffa940'}}>{item.status || 'Processing'}</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>Amount:</span><span style={{color:'#ff4d4f'}}>-{item.amount}$</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>Network fee:</span><span>1$</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span>Processing fee:</span><span>5%</span>
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between'}}>
+                    <span>Time:</span><span>{new Date(item.createdAt).toLocaleString()}</span>
+                  </div>
+                </div>
+              ))
+            )}
+            {totalPages > 1 && (
+              <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
+                {Array.from({length: totalPages}, (_, i) => i + 1).map(page => (
+                  <span 
+                    key={page}
+                    style={{
+                      background: page === currentPage ? '#ffd700' : '#555',
+                      color: page === currentPage ? '#000' : '#fff',
+                      borderRadius: 14,
+                      padding: '4px 10px',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => fetchHistory(page)}
+                  >
+                    {page}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </ModalCustom>

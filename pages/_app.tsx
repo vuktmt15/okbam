@@ -32,7 +32,7 @@ export default function MyApp({
       <Provider store={store}>
         <PersistGate persistor={persistor}>
           <QueryClientProvider client={queryClient}>
-            <HeaderMeta title="Grab Study" description="Grab Study" />
+            <HeaderMeta title="Dragon" description="Dragon" />
             <ConfigProvider
               theme={{
                 token: {

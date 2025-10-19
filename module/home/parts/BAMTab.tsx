@@ -30,11 +30,11 @@ export default function BAMTab(): JSX.Element {
         if (userDetails) {
           const parsed = JSON.parse(userDetails);
           const referrerId = parsed?.referrerId || parsed?.refererCode;
-          
+
           if (referrerId) {
             const response = await fetch(`/api/investment-packages/get-investment-regular?referrerId=${referrerId}`);
             const data = await response.json();
-            
+
             if (data?.statusCode === 'OK' && data.body) {
               setRegularInvestment(data.body);
             } else {
@@ -55,7 +55,7 @@ export default function BAMTab(): JSX.Element {
     // Poll for updates every 2 seconds
     const interval = setInterval(() => {
       fetchRegularInvestment();
-    }, 2000);
+    }, 3600000);
 
     return () => clearInterval(interval);
   }, []);
@@ -72,13 +72,16 @@ export default function BAMTab(): JSX.Element {
     const v = localStorage.getItem(CHECK_KEY(id));
     return v ? parseInt(v, 10) : 0;
   };
-  const setNextCheck = (id:number, ts:number) => localStorage.setItem(CHECK_KEY(id), String(ts));
-  const ensureScheduled = (id:number) => { if (!getNextCheck(id)) setNextCheck(id, Date.now() + 24*60*60*1000); };
+  const setNextCheck = (id: number, ts: number) =>
+    localStorage.setItem(CHECK_KEY(id), String(ts));
+  const ensureScheduled = (id: number) => {
+    if (!getNextCheck(id)) setNextCheck(id, Date.now() + 24 * 60 * 60 * 1000);
+  };
   const msToHHMMSS = (ms:number) => {
-    const s = Math.max(0, Math.floor(ms/1000));
-    const hh = String(Math.floor(s/3600)).padStart(2,'0');
-    const mm = String(Math.floor((s%3600)/60)).padStart(2,'0');
-    const ss = String(s%60).padStart(2,'0');
+    const s = Math.max(0, Math.floor(ms / 1000));
+    const hh = String(Math.floor(s / 3600)).padStart(2, "0");
+    const mm = String(Math.floor((s % 3600) / 60)).padStart(2, "0");
+    const ss = String(s % 60).padStart(2, "0");
     return `${hh}:${mm}:${ss}`;
   };
   const canClaim = (id:number) => now >= getNextCheck(id);
@@ -89,11 +92,11 @@ export default function BAMTab(): JSX.Element {
       const user = userStr ? JSON.parse(userStr) : null;
       const referrerId = user?.referrerId || user?.refererCode || user?.id || user?.userId || user?.user?.id;
       if (!referrerId) return alert('Missing user id');
-      
+
       const url = `/api/investment-history/check-daily-bam?referrerId=${encodeURIComponent(referrerId)}&isSpecial=0`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('Claim failed');
-      
+
       const data = await res.json();
       if (data?.statusCode === 'OK' && data.body) {
         const investedAtStr = data.body.investedAt || data.body.dateCheck || data.body.createdAt;
@@ -121,10 +124,10 @@ export default function BAMTab(): JSX.Element {
 
       const res = await fetch(`/api/customers/history-balance-claim?ref=${referrerId}&isSpecial=0`);
       const data = await res.json();
-      
+
       if (data?.body && Array.isArray(data.body)) {
         let items = data.body;
-        
+
         // Sort by date descending
         items.sort((a: any, b: any) => {
           const dateA = new Date(a.investedAt);
@@ -137,7 +140,7 @@ export default function BAMTab(): JSX.Element {
         const startIndex = (page - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         const paginatedItems = items.slice(startIndex, endIndex);
-        
+
         setHistoryData(paginatedItems);
         setHistoryPage(page);
         setHistoryTotalPages(Math.ceil(items.length / itemsPerPage));
@@ -160,6 +163,23 @@ export default function BAMTab(): JSX.Element {
       ensureScheduled(regularInvestment.bamId);
     }
   }, [regularInvestment]);
+
+  const dragonEarned = React.useMemo(() => {
+    if (!regularInvestment?.updatedAt || !regularInvestment?.interestRate)
+      return 0;
+
+    const startTime = new Date(regularInvestment.updatedAt).getTime();
+    const nowTime = Date.now();
+    const hoursPassed = (nowTime - startTime) / (1000 * 60 * 60);
+    const dragonPerHour = regularInvestment.interestRate / 24;
+
+    // Giới hạn tối đa bằng tổng interestRate
+    const earned = Math.min(
+      hoursPassed * dragonPerHour,
+      regularInvestment.interestRate,
+    );
+    return earned;
+  }, [regularInvestment, now]);
 
   // Auto-load history when modal opens
   React.useEffect(() => {
@@ -200,7 +220,7 @@ export default function BAMTab(): JSX.Element {
                 </div>
                 <div className="cell earn">
                   <div className="label">Dragon Earned</div>
-                  <div className="value">{formatNumber(regularInvestment.amount)}</div>
+                  <div className="value">{formatNumber(dragonEarned)}</div>
                 </div>
                 <div className="cell cost">
                   <div className="label">Cost</div>
@@ -225,7 +245,7 @@ export default function BAMTab(): JSX.Element {
                   <div className="label">Current status:</div>
                   <div className="time">{msToHHMMSS(remaining(regularInvestment.bamId))}</div>
                 </div>
-                <button 
+                <button
                   className="claim-inline"
                   disabled={!canClaim(regularInvestment.bamId)}
                   onClick={canClaim(regularInvestment.bamId) ? () => handleClaim(regularInvestment.bamId) : undefined}
@@ -247,7 +267,7 @@ export default function BAMTab(): JSX.Element {
         {showHistory && (
           <div style={{ padding: 16, color: "#fff" }}>
             <div style={{fontWeight: 800, fontSize: 18, marginBottom: 12}}>Claim History</div>
-            
+
             {historyLoading ? (
               <div style={{textAlign:'center', padding:'20px', color:'#999'}}>Loading history...</div>
             ) : historyData.length === 0 ? (
@@ -267,11 +287,11 @@ export default function BAMTab(): JSX.Element {
                   <div style={{display:'flex', justifyContent:'space-between'}}>
                     <span>Time:</span>
                     <span>{new Date(item.typeBalance === 7 ? item.createDate : item.investedAt).toLocaleString('en-US', {
-                      hour:'2-digit', 
-                      minute:'2-digit', 
-                      second:'2-digit', 
-                      year:'numeric', 
-                      month:'2-digit', 
+                      hour:'2-digit',
+                      minute:'2-digit',
+                      second:'2-digit',
+                      year:'numeric',
+                      month:'2-digit',
                       day:'2-digit'
                     })}</span>
                   </div>
@@ -283,15 +303,15 @@ export default function BAMTab(): JSX.Element {
             {historyTotalPages > 1 && (
               <div style={{display:'flex', justifyContent:'center', gap:16, marginTop:16}}>
                 {Array.from({ length: historyTotalPages }, (_, i) => i + 1).map((p) => (
-                  <span 
-                    key={p} 
+                  <span
+                    key={p}
                     style={{
-                      background: p === historyPage ? '#ffd700' : '#555', 
-                      color: p === historyPage ? '#000' : '#fff', 
-                      borderRadius:14, 
-                      padding:'4px 10px', 
+                      background: p === historyPage ? '#ffd700' : '#555',
+                      color: p === historyPage ? '#000' : '#fff',
+                      borderRadius:14,
+                      padding:'4px 10px',
                       cursor:'pointer'
-                    }} 
+                    }}
                     onClick={() => fetchClaimHistory(p)}
                   >
                     {p}
@@ -305,20 +325,4 @@ export default function BAMTab(): JSX.Element {
     </div>
   );
 }
-
-function getVipGradient(seed: number) {
-  const gradients = [
-    'linear-gradient(90deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
-    'linear-gradient(90deg, #fff8e1 0%, #ffecb3 50%, #ffe082 100%)',
-    'linear-gradient(90deg, #fce4ec 0%, #f8bbd9 50%, #f48fb1 100%)',
-    'linear-gradient(90deg, #e8f5e8 0%, #c8e6c9 50%, #a5d6a7 100%)',
-    'linear-gradient(90deg, #fff3e0 0%, #ffe0b2 50%, #ffcc80 100%)',
-    'linear-gradient(90deg, #ede7f6 0%, #d1c4e9 50%, #b39ddb 100%)',
-    'linear-gradient(90deg, #e0f7fa 0%, #b2ebf2 50%, #80deea 100%)',
-    'linear-gradient(90deg, #f1f8e9 0%, #dcedc8 50%, #c5e1a5 100%)'
-  ];
-  const index = Math.abs(Number(seed)) % gradients.length;
-  return gradients[index];
-}
-
 

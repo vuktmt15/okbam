@@ -119,7 +119,7 @@ export default function BAMTab(): JSX.Element {
       const referrerId = parsed?.referrerId || parsed?.refererCode;
       if (!referrerId) return;
 
-      const res = await fetch(`/api/history-balance-claim?ref=${referrerId}&isSpecial=0`);
+      const res = await fetch(`/api/customers/history-balance-claim?ref=${referrerId}&isSpecial=0`);
       const data = await res.json();
       
       if (data?.body && Array.isArray(data.body)) {
@@ -261,12 +261,12 @@ export default function BAMTab(): JSX.Element {
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
                     <span>{item.typeBalance === 7 ? 'DRAGON Deduction' : (item.name ? `${item.name} Profit Claim` : 'DRAGON Profit Claim')}</span>
                     <span style={{color: item.typeBalance === 7 ? '#ff4d4f' : '#52c41a'}}>
-                      {item.typeBalance === 7 ? '-' : '+'}{formatNumber(item.amount)} dragon
+                      {item.typeBalance === 7 ? '-' : '+'}{formatNumber(item.amount)} {item.typeBalance === 7 ? 'usdt' : 'dragon'}
                     </span>
                   </div>
                   <div style={{display:'flex', justifyContent:'space-between'}}>
                     <span>Time:</span>
-                    <span>{new Date(item.investedAt).toLocaleString('en-US', {
+                    <span>{new Date(item.typeBalance === 7 ? item.createDate : item.investedAt).toLocaleString('en-US', {
                       hour:'2-digit', 
                       minute:'2-digit', 
                       second:'2-digit', 

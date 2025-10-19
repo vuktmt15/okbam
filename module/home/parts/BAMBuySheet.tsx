@@ -219,13 +219,13 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
           <div className="nft-illustration">
             <img src="/img/nft.png" alt="NFT" />
           </div>
-
-          {showBonusNote && (
-            <div className="bonus-note">
+           
+          {planId === 1 && (
+            <div className="bonus-note" style={{textAlign: 'center'}}>
               <div className="line-1">Bonus & special offers for new accounts and members.</div>
               <div className="line-2">Join now to receive bonus and enjoy daily profit for {detail?.period} days.</div>
             </div>
-          )}
+          )}         
         </>
       )}
 

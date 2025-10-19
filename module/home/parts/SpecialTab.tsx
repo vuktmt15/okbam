@@ -147,7 +147,7 @@ export default function SpecialTab(): JSX.Element {
       const referrerId = parsed?.referrerId || parsed?.refererCode;
       if (!referrerId) return;
 
-      const res = await fetch(`/api/history-balance-claim?ref=${referrerId}&isSpecial=1`);
+      const res = await fetch(`/api/customers/history-balance-claim?ref=${referrerId}&isSpecial=1`);
       const data = await res.json();
       
       if (data?.body && Array.isArray(data.body)) {

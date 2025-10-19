@@ -297,7 +297,7 @@ export default function SpecialTab(): JSX.Element {
                   </div>
                   <div style={{display:'flex', justifyContent:'space-between'}}>
                     <span>Time:</span>
-                    <span>{new Date(item.investedAt).toLocaleString('en-US', {
+                    <span>{new Date(item.typeBalance === 7 ? item.createDate : item.createDate).toLocaleString('en-US', {
                       hour:'2-digit', 
                       minute:'2-digit', 
                       second:'2-digit', 

@@ -7,7 +7,9 @@ import {useAuth} from "../../../contexts/AuthContext";
 interface TeamMember {
   name: string;
   level: number;
-  uid?: string; // Added uid field from API response
+  uid?: string | number; // uid can be string or number from API response
+  id?: string; // Added id field from API response
+  email?: string; // Added email field from API response
 }
 
 interface TeamStaticsApi {
@@ -38,7 +40,7 @@ export default function InviteTab(): JSX.Element {
   const [openAgency, setOpenAgency] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [staticsLoading, setStaticsLoading] = useState(false);
   const [teamStatics, setTeamStatics] = useState<TeamStaticsApi | null>(null);
   const [showCopiedCode, setShowCopiedCode] = useState(false);
@@ -354,7 +356,9 @@ export default function InviteTab(): JSX.Element {
   // Filter team members by level and search term
   const filteredMembers = teamMembers.filter(member => {
     const matchesLevel = member.level === active;
-    const matchesSearch = member.uid?.toLowerCase().includes(searchTerm.toLowerCase()) || false;
+    const searchTermSafe = searchTerm || '';
+    const uidString = member.uid ? String(member.uid).toLowerCase() : '';
+    const matchesSearch = uidString.includes(searchTermSafe.toLowerCase()) || false;
     return matchesLevel && matchesSearch;
   });
 
@@ -522,8 +526,8 @@ export default function InviteTab(): JSX.Element {
               <div className="search">
                 <input 
                   placeholder="Search member UID" 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={searchTerm || ""}
+                  onChange={(e) => setSearchTerm(e.target.value || "")}
                 />
                 <button><SearchOutlined /></button>
               </div>

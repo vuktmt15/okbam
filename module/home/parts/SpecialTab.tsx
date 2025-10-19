@@ -182,6 +182,24 @@ export default function SpecialTab(): JSX.Element {
     }
   };
 
+  // Calculate dragon earned based on time - similar to BAMTab
+  const dragonEarned = React.useMemo(() => {
+    if (!pkg?.updatedAt || !pkg?.interestRate)
+      return 0;
+
+    const startTime = new Date(pkg.updatedAt).getTime();
+    const nowTime = Date.now();
+    const hoursPassed = (nowTime - startTime) / (1000 * 60 * 60);
+    const dragonPerHour = pkg.interestRate / 24;
+
+    // Giới hạn tối đa bằng tổng interestRate
+    const earned = Math.min(
+      hoursPassed * dragonPerHour,
+      pkg.interestRate,
+    );
+    return earned;
+  }, [pkg, now]);
+
   // Auto-load history when modal opens
   React.useEffect(() => {
     if (showHistory) fetchClaimHistory(1);
@@ -227,7 +245,7 @@ export default function SpecialTab(): JSX.Element {
             </div>
             <div className="cell earn">
               <div className="label">Dragon Earned</div>
-              <div className="value">{formatNumber(pkg.amount)}</div>
+              <div className="value">{formatNumber(dragonEarned)}</div>
             </div>
             <div className="cell cost">
               <div className="label">Cost</div>

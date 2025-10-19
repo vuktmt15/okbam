@@ -57,6 +57,15 @@ export default function MyTab() {
     setShowDeposit(true);
   };
 
+  // Handle Telegram links
+  const handleOnlineSupport = () => {
+    window.open('https://t.me/Dragon_Puff', '_blank');
+  };
+
+  const handleCommunity = () => {
+    window.open('https://t.me/Dragon_community137', '_blank');
+  };
+
   // Fetch histories
   const fetchHistory = async (type: 'deposit' | 'withdraw', page: number = 1) => {
     const setLoading = type === 'deposit' ? setDepLoading : setWdLoading;
@@ -206,7 +215,9 @@ export default function MyTab() {
         </button>
         <div className="row top">
           <div className="left">
-            <div className="avatar">🧸</div>
+            <div className="avatar">
+              <img src="/img/avatar/avatar-dragon.jpg" alt="Avatar" />
+            </div>
             <div className="info">
               <div className="email">{userDetails?.email || user?.email || ''}</div>
               <div className="id">ID: {userDetails?.id || user?.id || ''}</div>
@@ -247,8 +258,8 @@ export default function MyTab() {
       </div>
       <div className="list">
         <button className="item" onClick={() => setShowNotifications(true)}>Notifications</button>
-        <button className="item">Online Support</button>
-        <button className="item">DRAGON Community</button>
+        <button className="item" onClick={handleOnlineSupport}>Online Support</button>
+        <button className="item" onClick={handleCommunity}>DRAGON Community</button>
         {/* <button className="item" onClick={() => setOpenLang(true)}>
           <span>Language</span>
           <span style={{float: "right", opacity: 0.8}}>{getCurrentLanguageInfo().label} →</span>

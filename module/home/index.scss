@@ -1485,7 +1485,8 @@
 .okbam-my .profile .bell-btn:hover { filter: brightness(1.1); }
 .okbam-my .profile .top { display: flex; align-items: center; justify-content: space-between; }
 .okbam-my .profile .left { display: flex; align-items: center; gap: 10px; }
-.okbam-my .profile .avatar { width: 48px; height: 48px; border-radius: 50%; background: #eee; display: flex; align-items: center; justify-content: center; }
+.okbam-my .profile .avatar { width: 48px; height: 48px; border-radius: 50%; background: #eee; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.okbam-my .profile .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .okbam-my .profile .info .email { font-weight: 600; }
 .okbam-my .profile .icons { display: flex; gap: 10px; color: #8c8c8c; }
 .okbam-my .profile .notice { background: #0b1d52; border-radius: 20px; padding: 10px 12px; margin: 10px 0; color: #fff; text-align: left; font-weight: 400; text-transform: none; }

@@ -240,6 +240,11 @@ export default function BAMTab(): JSX.Element {
                 <img src="/img/dragon/normal-dragon-detail.png" alt={regularInvestment.name} onError={(e) => { (e.target as HTMLImageElement).src = "/img/dragon/normal-dragon-detail.png"; }} />
               </div>
 
+              <div className="dragon-welcome">
+                <div className="welcome-line"><b>Welcome, and thank you for joining Dragon on this journey.</b></div>
+                <div className="welcome-note">Note: Once 24 hours have passed, click to start.</div>
+              </div>
+
               <div className={`status-combined ${canClaim(regularInvestment.bamId) ? 'ready' : ''}`}>
                 <div className="top">
                   <div className="label">Current status:</div>

@@ -516,11 +516,16 @@ export default function InviteTab(): JSX.Element {
                   value={active}
                   onChange={(e) => setActive(Number(e.target.value) as 1 | 2 | 3 | 4 | 5)}
                 >
-                  <option value={1}>Lv1 ({teamStats.levelCounts[1] || 0})</option>
+                  {/* <option value={1}>Lv1 ({teamStats.levelCounts[1] || 0})</option>
                   <option value={2}>Lv2 ({teamStats.levelCounts[2] || 0})</option>
                   <option value={3}>Lv3 ({teamStats.levelCounts[3] || 0})</option>
                   <option value={4}>Lv4 ({teamStats.levelCounts[4] || 0})</option>
-                  <option value={5}>Lv5 ({teamStats.levelCounts[5] || 0})</option>
+                  <option value={5}>Lv5 ({teamStats.levelCounts[5] || 0})</option> */}
+                  <option value={1}>Lv1</option>
+                  <option value={2}>Lv2</option>
+                  <option value={3}>Lv3</option>
+                  <option value={4}>Lv4</option>
+                  <option value={5}>Lv5</option>
                 </select>
               </div>
               <div className="search">
@@ -546,9 +551,6 @@ export default function InviteTab(): JSX.Element {
                     <div className="member-info">
                       <div className="member-name">{member.uid || 'N/A'}</div>
                       <div className="member-level">Level {member.level}</div>
-                    </div>
-                    <div className="member-status">
-                      <span className="status-badge active">Active</span>
                     </div>
                   </div>
                 ))}

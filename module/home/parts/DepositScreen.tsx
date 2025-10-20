@@ -28,6 +28,7 @@ export default function DepositScreen({ onBack, autoShowHistory = false }: Props
   const [historyLoading, setHistoryLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [showCopied, setShowCopied] = useState(false);
   const { userDetails } = useAuth();
 
   const depositAddress = userDetails?.address || "0xddbed71fc5e194081ec1914fad8971b8...";
@@ -66,7 +67,8 @@ export default function DepositScreen({ onBack, autoShowHistory = false }: Props
   const handleCopyAddress = async () => {
     try {
       await navigator.clipboard.writeText(depositAddress);
-      // Can add toast notification here
+      setShowCopied(true);
+      setTimeout(() => setShowCopied(false), 2000);
       console.log('Address copied:', depositAddress);
     } catch (err) {
       // Fallback for older browsers
@@ -76,6 +78,8 @@ export default function DepositScreen({ onBack, autoShowHistory = false }: Props
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
+      setShowCopied(true);
+      setTimeout(() => setShowCopied(false), 2000);
       console.log('Address copied (fallback):', depositAddress);
     }
   };
@@ -135,6 +139,7 @@ export default function DepositScreen({ onBack, autoShowHistory = false }: Props
             />
             <button className="copy-btn" onClick={handleCopyAddress}>
               <CopyOutlined />
+              {showCopied && <span className="">Copied!</span>}
             </button>
           </div>
         </div>

@@ -310,7 +310,7 @@ export default function SpecialTab(): JSX.Element {
                   <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
                     <span>{item.typeBalance === 7 ? 'Special Deduction' : (item.name ? `${item.name} Profit Claim` : 'Special Profit Claim')}</span>
                     <span style={{color: item.typeBalance === 7 ? '#ff4d4f' : '#52c41a'}}>
-                      {item.typeBalance === 7 ? '-' : '+'}{formatNumber(item.amount)} dragon
+                      {item.typeBalance === 7 ? '-' : '+'}{formatNumber(item.amount)} {item.typeBalance === 7 ? 'usdt' : 'dragon'}
                     </span>
                   </div>
                   <div style={{display:'flex', justifyContent:'space-between'}}>

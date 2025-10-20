@@ -548,10 +548,8 @@ export default function InviteTab(): JSX.Element {
               <div className="members-list">
                 {filteredMembers.map((member, index) => (
                   <div key={index} className="member-item">
-                    <div className="member-info">
-                      <div className="member-name">{member.uid || 'N/A'}</div>
-                      <div className="member-level">Level {member.level}</div>
-                    </div>
+                    <div className="member-id">{member.uid || 'N/A'}</div>
+                    <div className="member-level">Level {member.level}</div>
                   </div>
                 ))}
               </div>

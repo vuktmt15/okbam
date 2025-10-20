@@ -1398,14 +1398,16 @@
   background: #333;
 }
 
-.okbam-invite .member-box .member-info {
+.okbam-invite .member-box .member-id {
+  font-weight: 600;
+  color: #fff;
   flex: 1;
 }
 
-.okbam-invite .member-box .member-name {
-  font-weight: 600;
-  color: #fff;
-  margin-bottom: 4px;
+.okbam-invite .member-box .member-level {
+  color: #52c41a;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .okbam-invite .member-box .member-level {
@@ -1912,6 +1914,35 @@
   font-size: 16px;
   padding: 4px;
   cursor: pointer;
+  position: relative;
+}
+
+.okbam-deposit .field-group .copy-btn:hover {
+  color: #ffed4e;
+}
+
+.okbam-deposit .field-group .copy-btn .copied-notification {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  //background: #52c41a;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  animation: fadeInOut 2s ease-in-out;
+  z-index: 1000;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(5px); }
+  20% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-5px); }
 }
 
 .okbam-deposit .deposit-info {

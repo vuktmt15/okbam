@@ -199,7 +199,7 @@ export default function Admin() {
     const fetchTx = async () => {
       try {
         setTxLoading(true);
-        const res = await fetch('http://159.223.91.231:8866/api/admin-users/list-user');
+        const res = await fetch('/api/auth/list-user');
         const data = await res.json();
         if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
           // Sort newest first
@@ -237,7 +237,7 @@ export default function Admin() {
         }
 
         // Fetch admin configs
-        const configResponse = await fetch('http://159.223.91.231:8866/api/admin-configs');
+        const configResponse = await fetch('/api/admin-configs');
         const configData = await configResponse.json();
         if (Array.isArray(configData) && configData.length > 0) {
           // Find the withdraw config (id = 1)
@@ -318,11 +318,26 @@ export default function Admin() {
     }
   };
 
-  const toggleWithdrawConfig = async () => {
-    if (!withdrawConfig) return;
+  const toggleWithdrawConfig = async (e?: React.MouseEvent) => {
+    console.log('🔥 TOGGLE FUNCTION CALLED!!!');
+    
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
+    if (!withdrawConfig) {
+      console.log('❌ No withdrawConfig found');
+      return;
+    }
+
+    console.log('=== TOGGLE WITHDRAW CONFIG START ===');
+    console.log('Current withdrawConfig:', withdrawConfig);
 
     try {
       const newStatus = withdrawConfig.status === 1 ? 0 : 1;
+      console.log('New status:', newStatus);
+      
       const response = await fetch(`/api/admin-configs/update-config?id=1`, {
         method: 'PUT',
         headers: {
@@ -333,18 +348,23 @@ export default function Admin() {
         }),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (response.ok) {
         // Update local state after successful API call
         setWithdrawConfig(prev => prev ? { ...prev, status: newStatus } : null);
         console.log('Withdraw config updated successfully');
       } else {
-        console.error('Failed to update withdraw config');
+        const errorText = await response.text();
+        console.error('Failed to update withdraw config:', errorText);
         alert('Không thể cập nhật cấu hình rút tiền. Vui lòng thử lại.');
       }
     } catch (error) {
       console.error('Error updating withdraw config:', error);
       alert('Lỗi khi cập nhật cấu hình rút tiền. Vui lòng thử lại.');
     }
+    console.log('=== TOGGLE WITHDRAW CONFIG END ===');
   };
 
   // Pagination functions
@@ -422,14 +442,25 @@ export default function Admin() {
                     <h3>{withdrawConfig?.name || 'Bật/Tắt rút tiền'}</h3>
                   </div>
                   <div className="config-controls">
-                    <label className="switch">
+                    <button 
+                      type="button"
+                      className="switch"
+                      onClick={toggleWithdrawConfig}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: 0,
+                        cursor: 'pointer'
+                      }}
+                    >
                       <input
                         type="checkbox"
                         checked={withdrawConfig?.status === 1}
-                        onChange={toggleWithdrawConfig}
+                        readOnly
+                        style={{ pointerEvents: 'none' }}
                       />
                       <span className="slider"></span>
-                    </label>
+                    </button>
                     <span className="status-text">
                       {withdrawConfig?.status === 1 ? 'Bật rút tiền' : 'Tắt rút tiền'}
                     </span>

@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from "react";
+import React, {useMemo, useState, useEffect} from "react";
 import {
   ArrowLeftOutlined,
   DownOutlined,
@@ -34,10 +34,12 @@ export default function WithdrawScreen({
   const [historyLoading, setHistoryLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [withdrawEnabled, setWithdrawEnabled] = useState(true);
+  const [configLoading, setConfigLoading] = useState(true);
 
   const {min, networkFee, processingFeePercent} = NETWORKS[network];
   const amountNum = Number(amount) || 0;
-  const eligible = amountNum >= min && amountNum <= balanceUsdt && !!address;
+  const eligible = amountNum >= min && amountNum <= balanceUsdt && !!address && withdrawEnabled;
   
   // Tính toán phí theo logic mới:
   // 1. Trừ phí mạng (network fee)
@@ -54,9 +56,47 @@ export default function WithdrawScreen({
     return Math.max(0, final);
   }, [amountNum, networkFee, processingFeePercent, platformFee]);
 
+  // Check withdraw configuration
+  const checkWithdrawConfig = async () => {
+    try {
+      setConfigLoading(true);
+      const response = await fetch('/api/admin-configs');
+      const configs = await response.json();
+      
+      if (Array.isArray(configs) && configs.length > 0) {
+        const withdrawConfig = configs.find((config: any) => config.id === 1);
+        
+        if (withdrawConfig) {
+          setWithdrawEnabled(withdrawConfig.status === 1);
+        } else {
+          setWithdrawEnabled(true); // Default enabled if config not found
+        }
+      } else {
+        setWithdrawEnabled(true); // Default enabled
+      }
+    } catch (error) {
+      console.error('Error checking withdraw config:', error);
+      setWithdrawEnabled(true); // Default enabled on error
+    } finally {
+      setConfigLoading(false);
+    }
+  };
+
+  // Check withdraw config on component mount
+  useEffect(() => {
+    checkWithdrawConfig();
+  }, []);
+
   const handleWithdraw = async () => {
     try {
       if (!eligible) return;
+      
+      // Double check withdraw config before proceeding
+      if (!withdrawEnabled) {
+        alert('System is overloaded, please try again later!');
+        return;
+      }
+      
       const params = new URLSearchParams({
         toAddress: address,
         amount: String(amountNum),
@@ -129,7 +169,22 @@ export default function WithdrawScreen({
         </button>
       </div>
 
-      <div className="form">
+      {configLoading ? (
+        <div style={{padding: '20px', textAlign: 'center', color: '#fff'}}>
+          Loading withdraw configuration...
+        </div>
+      ) : !withdrawEnabled ? (
+        <div style={{padding: '20px', textAlign: 'center', color: '#fff'}}>
+          <div style={{fontSize: '48px', marginBottom: '16px'}}>⚠️</div>
+          <div style={{fontSize: '18px', fontWeight: 'bold', marginBottom: '8px'}}>
+            Withdraw Temporarily Disabled
+          </div>
+          <div style={{opacity: 0.8}}>
+            System is overloaded, please try again later!
+          </div>
+        </div>
+      ) : (
+        <div className="form">
         <div className="field-group">
           <div className="label">Network :</div>
           <button className="select" onClick={() => setShowNetworks(true)}>
@@ -213,7 +268,8 @@ export default function WithdrawScreen({
         <button className="submit" disabled={!eligible} onClick={handleWithdraw}>
           Confirm Withdrawal
         </button>
-      </div>
+        </div>
+      )}
 
       {showNetworks && (
         <div className="network-overlay" onClick={() => setShowNetworks(false)}>

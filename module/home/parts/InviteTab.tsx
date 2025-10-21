@@ -572,22 +572,22 @@ export default function InviteTab(): JSX.Element {
               <div className="summary-row">
                 <div className="summary-item">
                   <div className="summary-label">Total System</div>
-                  <div className="summary-value">{teamStatics?.totalSystemInvestment || 0} DRAGON</div>
+                  <div className="summary-value">{teamStatics?.totalSystemInvestment || 0} USDT</div>
                 </div>
                 <div className="summary-item">
                   <div className="summary-label">F1 Quantity</div>
-                  <div className="summary-value">{teamStatics?.totalF1Investment || 0} DRAGON</div>
+                  <div className="summary-value">{teamStatics?.totalF1Investment || 0} USDT</div>
                 </div>
               </div>
               
               <div className="summary-row">
                 <div className="summary-item">
                   <div className="summary-label">Total System Commission</div>
-                  <div className="summary-value">{teamStatics?.totalSystemCommission || 0}</div>
+                  <div className="summary-value">{teamStatics?.totalSystemCommission || 0} DRAGON</div>
                 </div>
                 <div className="summary-item">
                   <div className="summary-label">F1 Commission</div>
-                  <div className="summary-value">{teamStatics?.totalF1Commission || 0}</div>
+                  <div className="summary-value">{teamStatics?.totalF1Commission || 0} DRAGON</div>
                 </div>
               </div>
             </div>

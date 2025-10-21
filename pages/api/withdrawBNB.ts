@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 // Check withdraw configuration
 async function checkWithdrawConfig(): Promise<{ enabled: boolean; message?: string }> {
   try {
-    const response = await fetch('http://159.223.91.231:8866/api/admin-configs');
+    const response = await fetch('/api/admin-configs');
     const configs = await response.json();
     
     if (Array.isArray(configs) && configs.length > 0) {

@@ -323,7 +323,7 @@ export default function Admin() {
 
     try {
       const newStatus = withdrawConfig.status === 1 ? 0 : 1;
-      const response = await fetch(`http://159.223.91.231:8866/api/admin-configs/update-config?id=1`, {
+      const response = await fetch(`/api/admin-configs/update-config?id=1`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

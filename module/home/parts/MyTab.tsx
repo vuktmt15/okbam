@@ -110,7 +110,7 @@ export default function MyTab() {
         res = await fetch(`/api/history-balance-swap?ref=${referrerId}`);
       } else {
         // Updated to use new commission history API
-        res = await fetch(`/api/customers/history-balance-claim?ref=${referrerId}`);
+        res = await fetch(`/api/customers/history-balance-claim?ref=${referrerId}&isSpecial=2`);
       }
       
       const data = await res.json();

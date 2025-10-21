@@ -28,4 +28,12 @@ module.exports = withBundleAnalyzer({
 
     return config;
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/backend/:path*',
+        destination: 'http://159.223.91.231:8866/api/:path*'
+      }
+    ];
+  },
 });

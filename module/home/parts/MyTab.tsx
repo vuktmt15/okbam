@@ -374,7 +374,7 @@ export default function MyTab() {
                     <>
                       <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
                         <span>Commission</span>
-                        <span style={{color:'#52c41a'}}>+{item.amount} Dragon</span>
+                        <span style={{color:'#52c41a'}}>+{item.amount} USDT</span>
                       </div>
                       <div style={{display:'flex', justifyContent:'space-between'}}>
                         <span>Time:</span>

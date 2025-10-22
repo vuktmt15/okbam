@@ -164,21 +164,20 @@ export default function BAMTab(): JSX.Element {
     }
   }, [regularInvestment]);
 
-  const dragonEarned = React.useMemo(() => {
-    if (!regularInvestment?.updatedAt || !regularInvestment?.interestRate)
-      return 0;
+  const dragonEarned = React.useMemo(() => {  
+    if (!regularInvestment?.updatedAt || !regularInvestment?.interestRate) return 0;  
 
-    const startTime = new Date(regularInvestment.updatedAt).getTime();
-    const nowTime = Date.now();
-    const hoursPassed = (nowTime - startTime) / (1000 * 60 * 60);
-    const dragonPerHour = regularInvestment.interestRate / 24;
+    const updatedAt = new Date(regularInvestment.updatedAt).getTime();  
+    const nowTime = Date.now();  
+    const hoursPassed = (nowTime - updatedAt) / (1000 * 60 * 60);  
+    const dragonPerHour = regularInvestment.interestRate / 24;  
 
-    // Giới hạn tối đa bằng tổng interestRate
-    const earned = Math.min(
-      hoursPassed * dragonPerHour,
-      regularInvestment.interestRate,
-    );
-    return earned;
+    // Nếu quá 24h thì ngừng, không tăng thêm  
+    if (hoursPassed >= 24) return regularInvestment.interestRate;  
+
+    // Nếu trong 24h thì tính theo thời gian đã trôi qua  
+    const earned = hoursPassed * dragonPerHour;  
+    return Math.min(earned, regularInvestment.interestRate);  
   }, [regularInvestment, now]);
 
   // Auto-load history when modal opens

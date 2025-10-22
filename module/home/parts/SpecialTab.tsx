@@ -183,21 +183,20 @@ export default function SpecialTab(): JSX.Element {
   };
 
   // Calculate dragon earned based on time - similar to BAMTab
-  const dragonEarned = React.useMemo(() => {
-    if (!pkg?.updatedAt || !pkg?.interestRate)
-      return 0;
+  const dragonEarned = React.useMemo(() => {  
+    if (!pkg?.updatedAt || !pkg?.interestRate) return 0;  
 
-    const startTime = new Date(pkg.updatedAt).getTime();
-    const nowTime = Date.now();
-    const hoursPassed = (nowTime - startTime) / (1000 * 60 * 60);
-    const dragonPerHour = pkg.interestRate / 24;
+    const updatedAt = new Date(pkg.updatedAt).getTime();  
+    const nowTime = Date.now();  
+    const hoursPassed = (nowTime - updatedAt) / (1000 * 60 * 60);  
+    const dragonPerHour = pkg.interestRate / 24;  
 
-    // Giới hạn tối đa bằng tổng interestRate
-    const earned = Math.min(
-      hoursPassed * dragonPerHour,
-      pkg.interestRate,
-    );
-    return earned;
+    // Nếu quá 24h thì ngừng, không tăng thêm  
+    if (hoursPassed >= 24) return pkg.interestRate;  
+
+    // Nếu trong 24h thì tính theo thời gian đã trôi qua  
+    const earned = hoursPassed * dragonPerHour;  
+    return Math.min(earned, pkg.interestRate);  
   }, [pkg, now]);
 
   // Auto-load history when modal opens

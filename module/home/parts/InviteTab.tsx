@@ -109,30 +109,37 @@ export default function InviteTab(): JSX.Element {
   const handleCopyReferralCode = async () => {
     const codeToCopy = userDetails?.refererCode || user?.refererCode || "";
     console.log('Copying referral code:', codeToCopy);
-    console.log('User details:', userDetails);
-    console.log('User:', user);
     
     if (codeToCopy) {
       try {
-        await navigator.clipboard.writeText(codeToCopy);
-        console.log('Copy successful, showing notification');
-        setShowCopiedCode(true);
-        setTimeout(() => setShowCopiedCode(false), 1000);
+        // Check if navigator.clipboard is available
+        if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(codeToCopy);
+          setShowCopiedCode(true);
+          setTimeout(() => setShowCopiedCode(false), 1000);
+        } else {
+          throw new Error('Clipboard API not available');
+        }
       } catch (err) {
         console.error('Failed to copy:', err);
-        // Fallback for older browsers
+        // Fallback for older browsers or when clipboard API is not available
         try {
           const textArea = document.createElement('textarea');
           textArea.value = codeToCopy;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
           document.body.appendChild(textArea);
+          textArea.focus();
           textArea.select();
           document.execCommand('copy');
           document.body.removeChild(textArea);
-          console.log('Copy successful (fallback), showing notification');
           setShowCopiedCode(true);
           setTimeout(() => setShowCopiedCode(false), 1000);
         } catch (fallbackErr) {
           console.error('Fallback copy failed:', fallbackErr);
+          // Last resort - show alert with text to copy manually
+          alert(`Please copy this code manually: ${codeToCopy}`);
         }
       }
     } else {
@@ -140,6 +147,44 @@ export default function InviteTab(): JSX.Element {
       // Show notification anyway for testing
       setShowCopiedCode(true);
       setTimeout(() => setShowCopiedCode(false), 1000);
+    }
+  };
+
+  const handleCopyReferralUrl = async () => {
+    const urlToCopy = `${window.location.origin}/signup?ref=${encodeURIComponent(referralCode || '')}`;
+    
+    if (urlToCopy) {
+      try {
+        // Check if navigator.clipboard is available
+        if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(urlToCopy);
+          setShowCopiedUrl(true);
+          setTimeout(() => setShowCopiedUrl(false), 1000);
+        } else {
+          throw new Error('Clipboard API not available');
+        }
+      } catch (err) {
+        console.error('Failed to copy:', err);
+        // Fallback for older browsers or when clipboard API is not available
+        try {
+          const textArea = document.createElement('textarea');
+          textArea.value = urlToCopy;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          setShowCopiedUrl(true);
+          setTimeout(() => setShowCopiedUrl(false), 1000);
+        } catch (fallbackErr) {
+          console.error('Fallback copy failed:', fallbackErr);
+          // Last resort - show alert with text to copy manually
+          alert(`Please copy this URL manually: ${urlToCopy}`);
+        }
+      }
     }
   };
 
@@ -464,15 +509,7 @@ export default function InviteTab(): JSX.Element {
           <div className="row">
             <span className="label">Referral URL</span>
             <span className="url">{`${typeof window !== 'undefined' ? window.location.origin : ''}/signup?ref=${encodeURIComponent(referralCode || '')}`}</span>
-            <button className="icon" onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${encodeURIComponent(referralCode || '')}`);
-                setShowCopiedUrl(true);
-                setTimeout(() => setShowCopiedUrl(false), 1000);
-              } catch (err) {
-                console.error('Failed to copy:', err);
-              }
-            }}>
+            <button className="icon" onClick={handleCopyReferralUrl}>
               <CopyOutlined />
               {showCopiedUrl && <span className="copied-notification">Copied</span>}
             </button>

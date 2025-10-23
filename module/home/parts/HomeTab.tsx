@@ -469,7 +469,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
         {/** removed available balance block per request */}
         <div className="vip-list">
           {loading ? (
-            <div className="loading">Loading BAM packages...</div>
+            <div className="loading">Loading DRAGON packages...</div>
           ) : (
             bamPackages.filter((p:any) => {
               const pid = p?.id ?? p?.bamId ?? p?.planId;
@@ -583,7 +583,7 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
               <div className="empty-state">
                 <div className="empty-icon">📊</div>
                 <h3>No Investments Yet</h3>
-                <p>You haven't invested in any BAM packages yet.</p>
+                <p>You haven't invested in any DRAGON packages yet.</p>
                 <button className="invest-btn" onClick={() => setShowMyInvestments(false)}>
                   Start Investing
                 </button>

@@ -142,7 +142,7 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
       const data = await response.json();
       
       if (response.ok && data.statusCode === 'CREATED') {
-        setMessage('Successfully registered BAM package!');
+        setMessage('Successfully registered DRAGON package!');
         // schedule first daily check in 24h for this bamId
         try {
           const key = `bam_next_check_${String(planId)}`;
@@ -159,7 +159,7 @@ export default function BAMBuySheet({planId, planName, price, onClose, showBonus
           // Normalize known Vietnamese messages to English
           const vnAlreadyRegex = /(bam\s*(da|đã)\s*(dc|được)\s*(dang\s*ky|đăng\s*ký))/i;
           if (vnAlreadyRegex.test(errMsg)) {
-            errMsg = 'You have already registered this BAM package.';
+            errMsg = 'You have already registered this DRAGON package.';
           }
         }
         setMessage(errMsg || 'Registration failed. Please try again.');

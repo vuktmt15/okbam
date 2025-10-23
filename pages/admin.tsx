@@ -418,7 +418,7 @@ export default function Admin() {
   return (
     <>
       <Head>
-        <title>Admin Dashboard - BAM</title>
+        <title>Admin Dashboard - DRAGON</title>
       </Head>
       <div className="admin-page">
         <div className="admin-header">
@@ -596,7 +596,7 @@ export default function Admin() {
 
           {/* BAM Package Management Section */}
           <div className="admin-section">
-            <h2>BAM Package Management</h2>
+            <h2>DRAGON Package Management</h2>
             {loading ? (
               <div className="loading">Loading packages...</div>
             ) : (

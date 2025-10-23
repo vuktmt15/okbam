@@ -72,7 +72,7 @@ export default function SignIn() {
   return (
     <>
       <Head>
-        <title>Sign In - BAM</title>
+        <title>Sign In - DRAGON</title>
       </Head>
       <div className="auth-page dark">
         <div className="dragon-logo">DRAGON</div>

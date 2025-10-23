@@ -58,6 +58,13 @@ export default function InviteTab(): JSX.Element {
   const { user, userDetails } = useAuth();
   const referralCode = userDetails?.refererCode || user?.refererCode || "";
   
+  // Function to truncate referral code for display
+  const getTruncatedReferralCode = (code: string) => {
+    if (!code) return '—';
+    if (code.length <= 20) return code;
+    return `${code.substring(0, 17)}...`;
+  };
+  
   // Check if claim was disabled today and reset at midnight
   useEffect(() => {
     const checkAndResetClaimStatus = () => {
@@ -448,7 +455,7 @@ export default function InviteTab(): JSX.Element {
         <div className="rows">
           <div className="row">
             <span className="label">Referral Code</span>
-            <span className="value">{referralCode || '—'}</span>
+            <span className="url">{getTruncatedReferralCode(referralCode)}</span>
             <button className="icon" onClick={handleCopyReferralCode}>
               <CopyOutlined />
               {showCopiedCode && <span className="copied-notification">Copied</span>}

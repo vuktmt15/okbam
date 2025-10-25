@@ -88,14 +88,16 @@ export default function Admin() {
   // Cache all users to avoid refetching
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [allUsersLoaded, setAllUsersLoaded] = useState(false);
-  
+
+  const [listUserDeposit, setListUserDeposit] = useState<any>([]);
+
   // Cache user balances to avoid refetching
   const [balanceCache, setBalanceCache] = useState<{[key: string]: {usdt: number, dragon: number}}>({});
   const [pageLoading, setPageLoading] = useState(false);
 
   // Deposit/Withdraw history (admin)
   const [txLoading, setTxLoading] = useState(false);
-  const [txData, setTxData] = useState<Array<{userName:string; typeBalance:number; createDate:string; amount:number}>>([]);
+  const [txData, setTxData] = useState<any>([]);
   const [txPage, setTxPage] = useState(1);
   const [txTotalPages, setTxTotalPages] = useState(1);
   const txPerPage = 10;
@@ -104,16 +106,16 @@ export default function Admin() {
   React.useEffect(() => {
     const fetchAllUsers = async () => {
       if (allUsersLoaded) return;
-      
+
       try {
         setUsersLoading(true);
         const allUsersResponse = await fetch('/api/auth/list-user');
         const allUsersData = await allUsersResponse.json();
-        
+
         if (allUsersData.statusCode === 'OK' && allUsersData.body) {
           // Filter out admin users, only show regular users
           const allRegularUsers = allUsersData.body.filter((user: User) => user.role.name === 'USER');
-          
+
           setAllUsers(allRegularUsers);
           setTotalUsers(allRegularUsers.length);
           setTotalPages(Math.ceil(allRegularUsers.length / usersPerPage));
@@ -136,19 +138,19 @@ export default function Admin() {
 
       try {
         setPageLoading(true);
-        
+
         // Get users for current page
         const startIndex = (currentPage - 1) * usersPerPage;
         const endIndex = startIndex + usersPerPage;
         const currentPageUsers = allUsers.slice(startIndex, endIndex);
-        
+
         // Fetch balance for each user on current page (with caching)
         const usersWithBalance = await Promise.all(
           currentPageUsers.map(async (user: User) => {
             try {
               // Use referrerId if available, otherwise use user id
               const referrerId = user.referrerId || user.id.toString();
-              
+
               // Check if balance is already cached
               if (balanceCache[referrerId]) {
                 return {
@@ -156,18 +158,18 @@ export default function Admin() {
                   balance: balanceCache[referrerId]
                 };
               }
-              
+
               // Fetch balance from API
               const balanceResponse = await fetch(`/api/getBalance?referrerId=${referrerId}`);
               const balanceData = await balanceResponse.json();
               const balance = balanceData.balance || { usdt: 0, dragon: 0 };
-              
+
               // Cache the balance
               setBalanceCache(prev => ({
                 ...prev,
                 [referrerId]: balance
               }));
-              
+
               return {
                 ...user,
                 balance: balance
@@ -182,7 +184,7 @@ export default function Admin() {
             }
           })
         );
-        
+
         setUsers(usersWithBalance);
       } catch (error) {
         console.error('Error fetching current page users:', error);
@@ -223,6 +225,27 @@ export default function Admin() {
     };
     fetchTx();
   }, [txPage]);
+
+  React.useEffect(() => {
+    const fetchTx = async () => {
+      try {
+        setTxLoading(true);
+        const res = await fetch('/api/admin-users/list-user');
+        const data = await res.json();
+        if (data?.statusCode === 'OK' && Array.isArray(data.body)) {
+          setListUserDeposit(data?.body)
+        } else {
+          setListUserDeposit([])
+        }
+      } catch (e) {
+        console.error('Fetch admin tx error', e);
+        setTxData([]);
+      } finally {
+        setTxLoading(false);
+      }
+    };
+    fetchTx();
+  }, []);
 
   // Fetch BAM packages and config from API
   React.useEffect(() => {
@@ -267,7 +290,7 @@ export default function Admin() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         // Update local state after successful API call
         setBamPackages(packages =>
@@ -297,16 +320,16 @@ export default function Admin() {
       });
 
       const data = await response.json();
-      
+
       if (response.ok) {
         // Remove user from local state
         setAllUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
         setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
-        
+
         // Update total count
         setTotalUsers(prev => prev - 1);
         setTotalPages(Math.ceil((totalUsers - 1) / usersPerPage));
-        
+
         alert('User deleted successfully');
       } else {
         console.error('Failed to delete user:', data);
@@ -320,12 +343,12 @@ export default function Admin() {
 
   const toggleWithdrawConfig = async (e?: React.MouseEvent) => {
     console.log('🔥 TOGGLE FUNCTION CALLED!!!');
-    
+
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
-    
+
     if (!withdrawConfig) {
       console.log('❌ No withdrawConfig found');
       return;
@@ -337,7 +360,7 @@ export default function Admin() {
     try {
       const newStatus = withdrawConfig.status === 1 ? 0 : 1;
       console.log('New status:', newStatus);
-      
+
       const response = await fetch(`/api/admin-configs/update-config?id=1`, {
         method: 'PUT',
         headers: {
@@ -442,7 +465,7 @@ export default function Admin() {
                     <h3>{withdrawConfig?.name || 'Bật/Tắt rút tiền'}</h3>
                   </div>
                   <div className="config-controls">
-                    <button 
+                    <button
                       type="button"
                       className="switch"
                       onClick={toggleWithdrawConfig}
@@ -525,7 +548,7 @@ export default function Admin() {
                           </td>
                           <td>{new Date(user.createdAt).toLocaleDateString()}</td>
                           <td>
-                            <button 
+                            <button
                               className="action-btn delete"
                               onClick={() => handleDeleteUser(user.id)}
                             >
@@ -559,12 +582,12 @@ export default function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {txData.length === 0 ? (
+                    {listUserDeposit?.length === 0 ? (
                       <tr>
                         <td colSpan={4} style={{textAlign:'center', opacity:0.7}}>No data</td>
                       </tr>
                     ) : (
-                      txData.map((row, idx) => (
+                      listUserDeposit.map((row, idx) => (
                         <tr key={`${row.userName}-${idx}`}>
                           <td>{row.userName}</td>
                           <td>

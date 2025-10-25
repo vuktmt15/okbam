@@ -135,7 +135,6 @@ export default function HomeTab({onGoToBam, onGoToInvite}: Props): JSX.Element {
         // Fetch BAM packages with cache busting
         const packagesResponse = await fetch(`/api/product/?t=${Date.now()}`);
         const packagesData = await packagesResponse.json();
-        console.log('HomeTab - BAM packages response:', packagesData);
         if (packagesData.statusCode === 'OK' && packagesData.body) {
           setBamPackages(packagesData.body);
         }

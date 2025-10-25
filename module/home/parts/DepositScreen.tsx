@@ -93,6 +93,8 @@ export default function DepositScreen({
     }
   };
 
+  console.log(historyData,"---historyData")
+
   return (
     <div className="okbam-deposit">
       <div className="topbar">
@@ -245,7 +247,7 @@ export default function DepositScreen({
                     }}
                   >
                     <span>Time:</span>
-                    <span>{new Date(item.createdAt).toLocaleString()}</span>
+                    <span>{new Date(item.createDate).toLocaleString()}</span>
                   </div>
                   <div
                     style={{display: "flex", justifyContent: "space-between"}}
